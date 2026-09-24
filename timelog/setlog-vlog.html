@@ -1,0 +1,68 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
+<title>Setlog Vlog Generator</title>
+<style>
+:root{font-family:-apple-system,BlinkMacSystemFont,"Helvetica Neue",sans-serif;color:#111;background:#f6f6f7}
+*{box-sizing:border-box} body{margin:0;padding:20px 14px calc(32px + env(safe-area-inset-bottom));}
+main{max-width:560px;margin:auto}.head{margin:6px 4px 20px}.head h1{font-size:24px;margin:0 0 6px}.head p{font-size:13px;color:#666;margin:0;line-height:1.5}
+#rows{display:grid;gap:10px}.row{background:#fff;border:1px solid #ddd;border-radius:16px;padding:12px;display:grid;grid-template-columns:95px 1fr 38px;gap:8px;align-items:center;box-shadow:0 1px 3px #0000000d}
+input[type=time]{width:100%;font-size:17px;padding:11px 7px;border:1px solid #ccc;border-radius:11px;background:#fff}
+.file{position:relative;overflow:hidden}.file input{position:absolute;inset:0;opacity:0;width:100%;height:100%}.file label{display:block;text-align:center;padding:12px 8px;border-radius:11px;background:#eee;font-size:14px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.remove{border:0;background:#eee;width:38px;height:38px;border-radius:50%;font-size:20px}.add{width:100%;margin:12px 0 24px;border:1px dashed #aaa;background:#fff;border-radius:14px;padding:13px;font-size:20px}
+.generate{width:100%;border:0;border-radius:16px;padding:17px;background:#111;color:#fff;font-weight:700;font-size:17px}.generate:disabled{opacity:.45}
+#status{font-size:13px;color:#555;text-align:center;min-height:24px;margin:12px 0}.result{display:none;margin-top:18px;background:#fff;padding:14px;border-radius:16px;border:1px solid #ddd}.result video{display:block;width:min(100%,300px);aspect-ratio:9/16;object-fit:cover;background:#000;margin:auto;border-radius:12px}.save{display:block;text-align:center;margin-top:12px;background:#eee;color:#111;text-decoration:none;padding:13px;border-radius:12px;font-weight:600}
+canvas{display:none}.note{font-size:12px;color:#777;margin:12px 4px 0;line-height:1.5}
+</style>
+</head>
+<body><main>
+<div class="head"><h1>Setlog Vlog</h1><p>写真・動画を2秒ずつつないで、時刻入りの縦動画を作成します。</p></div>
+<div id="rows"></div>
+<button class="add" id="add">＋</button>
+<button class="generate" id="generate">GENERATE</button>
+<div id="status"></div>
+<div class="result" id="result"><video id="preview" controls playsinline></video><a id="save" class="save" href="#">動画を保存 / 共有</a></div>
+<p class="note">素材はこのページ内で処理され、サーバーへ送信しません。動画素材は冒頭2秒のみ使用します。音声は出力しません。</p>
+<canvas id="canvas" width="540" height="960"></canvas>
+</main>
+<script>
+const rows=document.querySelector('#rows'), add=document.querySelector('#add'), gen=document.querySelector('#generate'), statusEl=document.querySelector('#status');
+const canvas=document.querySelector('#canvas'), ctx=canvas.getContext('2d');
+let n=0;
+function addRow(time='12:00'){
+ const id=++n, d=document.createElement('div'); d.className='row'; d.dataset.id=id;
+ d.innerHTML=`<input class="time" type="time" value="${time}" step="60"><div class="file"><input class="media" type="file" accept="image/*,video/*"><label>画像 / 動画</label></div><button class="remove" aria-label="削除">×</button>`;
+ const inp=d.querySelector('.media'), lab=d.querySelector('label');
+ inp.onchange=()=>{lab.textContent=inp.files[0]?.name||'画像 / 動画'};
+ d.querySelector('.remove').onclick=()=>{if(rows.children.length>1)d.remove()}; rows.append(d);
+}
+add.onclick=()=>addRow('12:00'); addRow('12:00');
+function sleep(ms){return new Promise(r=>setTimeout(r,ms))}
+function loadImage(file){return new Promise((res,rej)=>{const img=new Image();const u=URL.createObjectURL(file);img.onload=()=>res({el:img,url:u});img.onerror=rej;img.src=u})}
+function loadVideo(file){return new Promise((res,rej)=>{const v=document.createElement('video');const u=URL.createObjectURL(file);v.muted=true;v.playsInline=true;v.preload='auto';v.onloadedmetadata=()=>res({el:v,url:u});v.onerror=rej;v.src=u;v.load()})}
+function cover(el){const sw=el.videoWidth||el.naturalWidth, sh=el.videoHeight||el.naturalHeight, dw=canvas.width, dh=canvas.height; const s=Math.max(dw/sw,dh/sh), w=dw/s,h=dh/s,x=(sw-w)/2,y=(sh-h)/2;ctx.drawImage(el,x,y,w,h,0,0,dw,dh)}
+function stamp(t){ctx.save();ctx.textAlign='center';ctx.textBaseline='middle';ctx.font='700 64px -apple-system, BlinkMacSystemFont, sans-serif';ctx.lineWidth=8;ctx.strokeStyle='rgba(0,0,0,.55)';ctx.strokeText(t,canvas.width/2,canvas.height/2);ctx.fillStyle='#fff';ctx.fillText(t,canvas.width/2,canvas.height/2);ctx.restore()}
+async function drawStill(el,time,ms){const start=performance.now();while(performance.now()-start<ms){ctx.fillStyle='#000';ctx.fillRect(0,0,canvas.width,canvas.height);cover(el);stamp(time);await sleep(33)}}
+async function drawVideo(v,time,ms){v.currentTime=0;await new Promise(r=>{if(v.readyState>=2)return r();v.oncanplay=r});try{await v.play()}catch(e){}const start=performance.now();while(performance.now()-start<ms){ctx.fillStyle='#000';ctx.fillRect(0,0,canvas.width,canvas.height);cover(v);stamp(time);await sleep(33)}v.pause()}
+function mime(){const opts=['video/mp4;codecs=avc1.42E01E','video/mp4','video/webm;codecs=vp9','video/webm;codecs=vp8','video/webm'];return opts.find(x=>window.MediaRecorder&&MediaRecorder.isTypeSupported(x))||''}
+gen.onclick=async()=>{
+ const items=[...rows.querySelectorAll('.row')].map(r=>({time:r.querySelector('.time').value,file:r.querySelector('.media').files[0]})).filter(x=>x.time&&x.file).sort((a,b)=>a.time.localeCompare(b.time));
+ if(!items.length){statusEl.textContent='画像または動画を1つ以上選択してください。';return}
+ if(!canvas.captureStream||!window.MediaRecorder){statusEl.textContent='このSafariでは動画生成機能を利用できません。';return}
+ gen.disabled=true;document.querySelector('#result').style.display='none';statusEl.textContent='準備中…';
+ let stream,rec,chunks=[]; const type=mime();
+ try{
+  stream=canvas.captureStream(30); rec=new MediaRecorder(stream,type?{mimeType:type,videoBitsPerSecond:4500000}:{videoBitsPerSecond:4500000});
+  rec.ondataavailable=e=>{if(e.data.size)chunks.push(e.data)};
+  const stopped=new Promise((res,rej)=>{rec.onstop=res;rec.onerror=e=>rej(e.error||e)}); rec.start(500);
+  for(let i=0;i<items.length;i++){
+   statusEl.textContent=`生成中 ${i+1} / ${items.length}`; const it=items[i], isVid=it.file.type.startsWith('video/'); let o;
+   if(isVid){o=await loadVideo(it.file);await drawVideo(o.el,it.time,2000)}else{o=await loadImage(it.file);await drawStill(o.el,it.time,2000)} URL.revokeObjectURL(o.url);
+  }
+  rec.stop();await stopped;stream.getTracks().forEach(t=>t.stop());
+  const blob=new Blob(chunks,{type:rec.mimeType||type||'video/mp4'}); const url=URL.createObjectURL(blob); const preview=document.querySelector('#preview'), save=document.querySelector('#save'); preview.src=url;save.href=url;save.download=`setlog-${new Date().toISOString().slice(0,10)}.${blob.type.includes('webm')?'webm':'mp4'}`;document.querySelector('#result').style.display='block';statusEl.textContent=`完成：${items.length*2}秒`;
+ }catch(e){console.error(e);if(stream)stream.getTracks().forEach(t=>t.stop());statusEl.textContent='生成に失敗しました。素材を減らすか、Safariを再読み込みしてお試しください。'}finally{gen.disabled=false}
+};
+</script></body></html>
