@@ -10,12 +10,12 @@
 
 <meta name="theme-color" content="#050608">
 
-<title>GRID LIGHT v0.2</title>
+<title>GRID LIGHT v0.3</title>
 
 <style>
 
 :root{
-  --gap: clamp(3px,1.05vw,5px);
+  --gap:clamp(3px,1.05vw,5px);
 
   --cyan:#00f6ff;
   --magenta:#ff19d1;
@@ -85,9 +85,9 @@ body{
   justify-content:center;
 
   padding:
-    max(10px,env(safe-area-inset-top))
+    max(8px,env(safe-area-inset-top))
     10px
-    max(12px,env(safe-area-inset-bottom));
+    max(10px,env(safe-area-inset-bottom));
 }
 
 
@@ -98,7 +98,7 @@ body{
 .brand{
   width:min(94vw,560px);
 
-  margin:0 0 9px;
+  margin:0 0 8px;
 
   display:flex;
   align-items:center;
@@ -190,7 +190,7 @@ body{
 
 
 /* =========================================================
-   8 × 8 GRID
+   GRID
 ========================================================= */
 
 .grid{
@@ -261,7 +261,6 @@ body{
   content:"";
 
   position:absolute;
-
   inset:13%;
 
   border-radius:3px;
@@ -313,7 +312,6 @@ body{
   content:"";
 
   position:absolute;
-
   inset:25%;
 
   border-radius:50%;
@@ -347,41 +345,58 @@ body{
 
 
 /* =========================================================
-   TARGET CONTROL
+   CONTROL PANEL
 ========================================================= */
 
-.target-control{
+.controls{
   width:min(94vw,560px);
 
-  margin-top:12px;
+  margin-top:10px;
 
   display:flex;
+  flex-direction:column;
+
+  align-items:center;
+
+  gap:7px;
+}
+
+.control-row{
+  display:flex;
+
   align-items:center;
   justify-content:center;
 
-  gap:10px;
+  gap:9px;
 }
 
 .control-label{
-  margin-right:2px;
+  width:58px;
+
+  text-align:right;
 
   color:#59636e;
 
   font-size:8px;
   font-weight:800;
 
-  letter-spacing:.25em;
+  letter-spacing:.20em;
 
   text-transform:uppercase;
 }
 
-.target-options{
+
+/* =========================================================
+   OPTION FRAME
+========================================================= */
+
+.option-group{
   display:flex;
   align-items:center;
 
-  gap:6px;
+  gap:5px;
 
-  padding:5px;
+  padding:4px;
 
   border:1px solid #1b2229;
   border-radius:8px;
@@ -403,26 +418,32 @@ body{
 }
 
 
-/* hide normal radio */
+/* =========================================================
+   RADIO
+========================================================= */
 
-.target-radio{
+.radio-input{
   position:absolute;
 
   opacity:0;
-
   pointer-events:none;
 }
 
 
-/* physical selector */
+/* =========================================================
+   BUTTON STYLE
+========================================================= */
 
-.target-choice{
+.choice{
   position:relative;
 
-  width:36px;
-  height:32px;
+  min-width:36px;
+  height:31px;
+
+  padding:0 10px;
 
   display:flex;
+
   align-items:center;
   justify-content:center;
 
@@ -438,8 +459,10 @@ body{
 
   color:#59616a;
 
-  font-size:12px;
+  font-size:11px;
   font-weight:800;
+
+  letter-spacing:.05em;
 
   cursor:pointer;
 
@@ -460,16 +483,26 @@ body{
     background .12s ease;
 }
 
-.target-choice:active{
+.choice.mode-choice{
+  min-width:84px;
+
+  font-size:9px;
+
+  letter-spacing:.12em;
+}
+
+.choice:active{
   transform:scale(.91);
 }
 
 
-/* selected */
+/* =========================================================
+   SELECTED
+========================================================= */
 
-.target-radio:checked
+.radio-input:checked
 +
-.target-choice{
+.choice{
 
   color:#eaffff;
 
@@ -508,32 +541,29 @@ body{
 
   50%{
 
-    filter:
-      brightness(1.55);
+    filter:brightness(1.55);
 
     box-shadow:
-
-      inset 0 0 20px
-        var(--fx),
+      inset 0 0 20px var(--fx),
 
       0 0 11px
-        color-mix(
-          in srgb,
-          var(--fx) 42%,
-          transparent
-        ),
+      color-mix(
+        in srgb,
+        var(--fx) 42%,
+        transparent
+      ),
 
       inset 1px 1px 0
-        rgba(255,255,255,.2);
+      rgba(255,255,255,.2);
   }
+
 }
 
 
 @keyframes press{
 
   50%{
-    transform:
-      scale(.89);
+    transform:scale(.89);
   }
 
 }
@@ -543,38 +573,32 @@ body{
 
   0%{
 
-    transform:
-      scale(.94);
+    transform:scale(.94);
 
-    background:
-      #fff;
+    background:#fff;
 
-    filter:
-      brightness(3.8);
+    filter:brightness(3.8);
 
     box-shadow:
       inset 0 0 9px #fff,
       0 0 9px #fff,
       0 0 24px var(--fx),
       0 0 40px
-        color-mix(
-          in srgb,
-          var(--fx) 72%,
-          transparent
-        );
+      color-mix(
+        in srgb,
+        var(--fx) 72%,
+        transparent
+      );
   }
 
 
   13%{
 
-    transform:
-      scale(1);
+    transform:scale(1);
 
-    background:
-      var(--fx);
+    background:var(--fx);
 
-    filter:
-      brightness(2.5);
+    filter:brightness(2.5);
 
     box-shadow:
       inset 0 0 16px #fff,
@@ -592,26 +616,23 @@ body{
         #111820
       );
 
-    filter:
-      brightness(1.45);
+    filter:brightness(1.45);
 
     box-shadow:
-      inset 0 0 13px
-        var(--fx),
+      inset 0 0 13px var(--fx),
 
       0 0 15px
-        color-mix(
-          in srgb,
-          var(--fx) 65%,
-          transparent
-        );
+      color-mix(
+        in srgb,
+        var(--fx) 65%,
+        transparent
+      );
   }
 
 
   100%{
 
-    filter:
-      brightness(1);
+    filter:brightness(1);
 
     background:
       radial-gradient(
@@ -626,32 +647,36 @@ body{
 
 
 /* =========================================================
-   SMALL / SHORT SCREEN
+   SHORT SCREEN
 ========================================================= */
 
-@media (max-height:600px){
+@media(max-height:650px){
 
   .brand{
     display:none;
   }
 
   .stage{
-    width:min(82vh,94vw);
+    width:min(76vh,94vw);
   }
 
-  .target-control{
-    margin-top:7px;
+  .controls{
+    margin-top:6px;
+    gap:4px;
   }
 
-  .target-choice{
-    width:34px;
-    height:29px;
+  .choice{
+    height:28px;
   }
 
 }
 
 
-@media (prefers-reduced-motion:reduce){
+/* =========================================================
+   REDUCED MOTION
+========================================================= */
+
+@media(prefers-reduced-motion:reduce){
 
   .pad.target{
     animation-duration:1.6s;
@@ -667,12 +692,13 @@ body{
 
 <main class="app">
 
+
   <div class="brand">
 
     GRID LIGHT
 
     <span class="version">
-      v0.2
+      v0.3
     </span>
 
   </div>
@@ -692,105 +718,167 @@ body{
 
 
   <!-- =====================================================
-       TARGET COUNT
+       CONTROLS
   ====================================================== -->
 
-  <div class="target-control">
+  <div class="controls">
 
-    <div class="control-label">
-      TARGETS
+
+    <!-- MODE -->
+
+    <div class="control-row">
+
+      <div class="control-label">
+        MODE
+      </div>
+
+
+      <div
+        class="option-group"
+        role="radiogroup"
+        aria-label="Target mode"
+      >
+
+
+        <input
+          class="radio-input mode-radio"
+          type="radio"
+          name="mode"
+          id="modeRandom"
+          value="random"
+          checked
+        >
+
+        <label
+          class="choice mode-choice"
+          for="modeRandom"
+        >
+          RANDOM
+        </label>
+
+
+        <input
+          class="radio-input mode-radio"
+          type="radio"
+          name="mode"
+          id="modePattern"
+          value="pattern"
+        >
+
+        <label
+          class="choice mode-choice"
+          for="modePattern"
+        >
+          PATTERN
+        </label>
+
+
+      </div>
+
     </div>
 
 
-    <div
-      class="target-options"
-      role="radiogroup"
-      aria-label="Number of active target pads"
-    >
+    <!-- TARGET COUNT -->
+
+    <div class="control-row">
+
+      <div class="control-label">
+        TARGETS
+      </div>
 
 
-      <input
-        class="target-radio"
-        type="radio"
-        name="targets"
-        id="target1"
-        value="1"
+      <div
+        class="option-group"
+        role="radiogroup"
+        aria-label="Number of targets"
       >
 
-      <label
-        class="target-choice"
-        for="target1"
-      >
-        1
-      </label>
+
+        <input
+          class="radio-input target-radio"
+          type="radio"
+          name="targets"
+          id="target1"
+          value="1"
+        >
+
+        <label
+          class="choice"
+          for="target1"
+        >
+          1
+        </label>
 
 
-      <input
-        class="target-radio"
-        type="radio"
-        name="targets"
-        id="target2"
-        value="2"
-      >
+        <input
+          class="radio-input target-radio"
+          type="radio"
+          name="targets"
+          id="target2"
+          value="2"
+        >
 
-      <label
-        class="target-choice"
-        for="target2"
-      >
-        2
-      </label>
-
-
-      <input
-        class="target-radio"
-        type="radio"
-        name="targets"
-        id="target3"
-        value="3"
-        checked
-      >
-
-      <label
-        class="target-choice"
-        for="target3"
-      >
-        3
-      </label>
+        <label
+          class="choice"
+          for="target2"
+        >
+          2
+        </label>
 
 
-      <input
-        class="target-radio"
-        type="radio"
-        name="targets"
-        id="target4"
-        value="4"
-      >
+        <input
+          class="radio-input target-radio"
+          type="radio"
+          name="targets"
+          id="target3"
+          value="3"
+          checked
+        >
 
-      <label
-        class="target-choice"
-        for="target4"
-      >
-        4
-      </label>
+        <label
+          class="choice"
+          for="target3"
+        >
+          3
+        </label>
 
 
-      <input
-        class="target-radio"
-        type="radio"
-        name="targets"
-        id="target5"
-        value="5"
-      >
+        <input
+          class="radio-input target-radio"
+          type="radio"
+          name="targets"
+          id="target4"
+          value="4"
+        >
 
-      <label
-        class="target-choice"
-        for="target5"
-      >
-        5
-      </label>
+        <label
+          class="choice"
+          for="target4"
+        >
+          4
+        </label>
 
+
+        <input
+          class="radio-input target-radio"
+          type="radio"
+          name="targets"
+          id="target5"
+          value="5"
+        >
+
+        <label
+          class="choice"
+          for="target5"
+        >
+          5
+        </label>
+
+
+      </div>
 
     </div>
+
 
   </div>
 
@@ -825,9 +913,15 @@ const grid =
   document.getElementById("grid");
 
 
-const radios =
+const targetRadios =
   document.querySelectorAll(
     ".target-radio"
+  );
+
+
+const modeRadios =
+  document.querySelectorAll(
+    ".mode-radio"
   );
 
 
@@ -840,13 +934,28 @@ const pads = [];
 
 let targetCount = 3;
 
+let mode = "random";
+
 let targets =
   new Set();
 
 let previousTargets =
   new Set();
 
-let token = 0;
+
+/*
+  PATTERN STATE
+*/
+
+let patternIndex = 0;
+
+let patternCursor = 0;
+
+let patternHits = 0;
+
+let currentPattern = [];
+
+let phraseLength = 12;
 
 
 /* =========================================================
@@ -873,14 +982,14 @@ for(
     "button";
 
 
+  button.dataset.i =
+    i;
+
+
   button.setAttribute(
     "aria-label",
     `Pad ${i + 1}`
   );
-
-
-  button.dataset.i =
-    i;
 
 
   grid.appendChild(
@@ -903,11 +1012,21 @@ function rc(i){
 
   return [
 
-    Math.floor(i / N),
+    Math.floor(i / 8),
 
-    i % N
+    i % 8
 
   ];
+
+}
+
+
+function indexOfRC(
+  r,
+  c
+){
+
+  return r * 8 + c;
 
 }
 
@@ -925,25 +1044,1274 @@ function randomColor(){
 }
 
 
+function shuffle(
+  source
+){
+
+  const array =
+    [...source];
+
+
+  for(
+    let i = array.length - 1;
+    i > 0;
+    i--
+  ){
+
+    const j =
+      Math.floor(
+        Math.random()
+        *
+        (i + 1)
+      );
+
+
+    [
+      array[i],
+      array[j]
+    ]
+    =
+    [
+      array[j],
+      array[i]
+    ];
+
+  }
+
+
+  return array;
+
+}
+
+
+/* =========================================================
+   BASIC PATH GENERATORS
+========================================================= */
+
+function rows(
+  reverse = false,
+  zigzag = false
+){
+
+  const out = [];
+
+
+  for(
+    let r = 0;
+    r < 8;
+    r++
+  ){
+
+    let cols =
+      [0,1,2,3,4,5,6,7];
+
+
+    if(
+      zigzag
+      &&
+      r % 2
+    ){
+
+      cols.reverse();
+
+    }
+
+
+    cols.forEach(
+      c => {
+
+        out.push(
+          indexOfRC(
+            r,
+            c
+          )
+        );
+
+      }
+    );
+
+  }
+
+
+  if(
+    reverse
+  ){
+
+    out.reverse();
+
+  }
+
+
+  return out;
+
+}
+
+
+function columns(
+  reverse = false,
+  zigzag = false
+){
+
+  const out = [];
+
+
+  for(
+    let c = 0;
+    c < 8;
+    c++
+  ){
+
+    let rs =
+      [0,1,2,3,4,5,6,7];
+
+
+    if(
+      zigzag
+      &&
+      c % 2
+    ){
+
+      rs.reverse();
+
+    }
+
+
+    rs.forEach(
+      r => {
+
+        out.push(
+          indexOfRC(
+            r,
+            c
+          )
+        );
+
+      }
+    );
+
+  }
+
+
+  if(
+    reverse
+  ){
+
+    out.reverse();
+
+  }
+
+
+  return out;
+
+}
+
+
+/* =========================================================
+   DIAGONALS
+========================================================= */
+
+function diagonalA(){
+
+  const out = [];
+
+
+  for(
+    let sum = 0;
+    sum <= 14;
+    sum++
+  ){
+
+    for(
+      let r = 0;
+      r < 8;
+      r++
+    ){
+
+      const c =
+        sum - r;
+
+
+      if(
+        c >= 0
+        &&
+        c < 8
+      ){
+
+        out.push(
+          indexOfRC(
+            r,
+            c
+          )
+        );
+
+      }
+
+    }
+
+  }
+
+
+  return out;
+
+}
+
+
+function diagonalB(){
+
+  return diagonalA()
+    .map(
+      i => {
+
+        const [r,c] =
+          rc(i);
+
+
+        return indexOfRC(
+          r,
+          7 - c
+        );
+
+      }
+    );
+
+}
+
+
+/* =========================================================
+   CENTER DISTANCE
+========================================================= */
+
+function centerDistance(){
+
+  return Array
+    .from(
+      {
+        length:64
+      },
+      (_,i)=>i
+    )
+    .sort(
+      (a,b)=>{
+
+        const [ra,ca] =
+          rc(a);
+
+
+        const [rb,cb] =
+          rc(b);
+
+
+        const da =
+          Math.abs(
+            ra - 3.5
+          )
+          +
+          Math.abs(
+            ca - 3.5
+          );
+
+
+        const db =
+          Math.abs(
+            rb - 3.5
+          )
+          +
+          Math.abs(
+            cb - 3.5
+          );
+
+
+        return da - db;
+
+      }
+    );
+
+}
+
+
+/* =========================================================
+   CORNER DISTANCE
+========================================================= */
+
+function cornerDistance(){
+
+  return Array
+    .from(
+      {
+        length:64
+      },
+      (_,i)=>i
+    )
+    .sort(
+      (a,b)=>{
+
+        const [ra,ca] =
+          rc(a);
+
+
+        const [rb,cb] =
+          rc(b);
+
+
+        const da =
+          Math.min(
+
+            ra + ca,
+
+            ra + (7-ca),
+
+            (7-ra) + ca,
+
+            (7-ra) + (7-ca)
+
+          );
+
+
+        const db =
+          Math.min(
+
+            rb + cb,
+
+            rb + (7-cb),
+
+            (7-rb) + cb,
+
+            (7-rb) + (7-cb)
+
+          );
+
+
+        return da - db;
+
+      }
+    );
+
+}
+
+
+/* =========================================================
+   SPIRAL
+========================================================= */
+
+function spiral(){
+
+  const out = [];
+
+  let top = 0;
+  let bottom = 7;
+  let left = 0;
+  let right = 7;
+
+
+  while(
+    top <= bottom
+    &&
+    left <= right
+  ){
+
+    for(
+      let c = left;
+      c <= right;
+      c++
+    ){
+
+      out.push(
+        indexOfRC(
+          top,
+          c
+        )
+      );
+
+    }
+
+    top++;
+
+
+    for(
+      let r = top;
+      r <= bottom;
+      r++
+    ){
+
+      out.push(
+        indexOfRC(
+          r,
+          right
+        )
+      );
+
+    }
+
+    right--;
+
+
+    if(
+      top <= bottom
+    ){
+
+      for(
+        let c = right;
+        c >= left;
+        c--
+      ){
+
+        out.push(
+          indexOfRC(
+            bottom,
+            c
+          )
+        );
+
+      }
+
+      bottom--;
+
+    }
+
+
+    if(
+      left <= right
+    ){
+
+      for(
+        let r = bottom;
+        r >= top;
+        r--
+      ){
+
+        out.push(
+          indexOfRC(
+            r,
+            left
+          )
+        );
+
+      }
+
+      left++;
+
+    }
+
+  }
+
+
+  return out;
+
+}
+
+
+/* =========================================================
+   CHECKER
+========================================================= */
+
+function checker(
+  parity
+){
+
+  const a = [];
+  const b = [];
+
+
+  for(
+    let r = 0;
+    r < 8;
+    r++
+  ){
+
+    for(
+      let c = 0;
+      c < 8;
+      c++
+    ){
+
+      const i =
+        indexOfRC(
+          r,
+          c
+        );
+
+
+      if(
+        (r + c) % 2
+        ===
+        parity
+      ){
+
+        a.push(i);
+
+      }
+
+      else{
+
+        b.push(i);
+
+      }
+
+    }
+
+  }
+
+
+  return [
+    ...a,
+    ...b
+  ];
+
+}
+
+
+/* =========================================================
+   MIRROR HORIZONTAL
+========================================================= */
+
+function mirrorHorizontal(){
+
+  const out = [];
+
+
+  for(
+    let r = 0;
+    r < 8;
+    r++
+  ){
+
+    for(
+      let c = 0;
+      c < 4;
+      c++
+    ){
+
+      out.push(
+        indexOfRC(
+          r,
+          c
+        )
+      );
+
+
+      out.push(
+        indexOfRC(
+          r,
+          7-c
+        )
+      );
+
+    }
+
+  }
+
+
+  return out;
+
+}
+
+
+/* =========================================================
+   MIRROR VERTICAL
+========================================================= */
+
+function mirrorVertical(){
+
+  const out = [];
+
+
+  for(
+    let c = 0;
+    c < 8;
+    c++
+  ){
+
+    for(
+      let r = 0;
+      r < 4;
+      r++
+    ){
+
+      out.push(
+        indexOfRC(
+          r,
+          c
+        )
+      );
+
+
+      out.push(
+        indexOfRC(
+          7-r,
+          c
+        )
+      );
+
+    }
+
+  }
+
+
+  return out;
+
+}
+
+
+/* =========================================================
+   ROTATION / TRANSFORM
+========================================================= */
+
+function rotate90(
+  source
+){
+
+  return source.map(
+    i => {
+
+      const [r,c] =
+        rc(i);
+
+
+      return indexOfRC(
+        c,
+        7-r
+      );
+
+    }
+  );
+
+}
+
+
+function rotate180(
+  source
+){
+
+  return rotate90(
+    rotate90(
+      source
+    )
+  );
+
+}
+
+
+function reverse(
+  source
+){
+
+  return [
+    ...source
+  ].reverse();
+
+}
+
+
+/* =========================================================
+   RINGS
+========================================================= */
+
+function rings(){
+
+  const out = [];
+
+
+  for(
+    let ring = 0;
+    ring < 4;
+    ring++
+  ){
+
+    const min =
+      ring;
+
+
+    const max =
+      7-ring;
+
+
+    for(
+      let c = min;
+      c <= max;
+      c++
+    ){
+
+      out.push(
+        indexOfRC(
+          min,
+          c
+        )
+      );
+
+    }
+
+
+    for(
+      let r = min+1;
+      r <= max;
+      r++
+    ){
+
+      out.push(
+        indexOfRC(
+          r,
+          max
+        )
+      );
+
+    }
+
+
+    for(
+      let c = max-1;
+      c >= min;
+      c--
+    ){
+
+      out.push(
+        indexOfRC(
+          max,
+          c
+        )
+      );
+
+    }
+
+
+    for(
+      let r = max-1;
+      r > min;
+      r--
+    ){
+
+      out.push(
+        indexOfRC(
+          r,
+          min
+        )
+      );
+
+    }
+
+  }
+
+
+  return out;
+
+}
+
+
+/* =========================================================
+   STRIPES
+========================================================= */
+
+function horizontalStripes(){
+
+  const out = [];
+
+
+  [
+    0,2,4,6,
+    1,3,5,7
+  ]
+  .forEach(
+    r => {
+
+      for(
+        let c = 0;
+        c < 8;
+        c++
+      ){
+
+        out.push(
+          indexOfRC(
+            r,
+            c
+          )
+        );
+
+      }
+
+    }
+  );
+
+
+  return out;
+
+}
+
+
+function verticalStripes(){
+
+  return rotate90(
+    horizontalStripes()
+  );
+
+}
+
+
+/* =========================================================
+   BLOCK WALK
+========================================================= */
+
+function blockWalk(){
+
+  const out = [];
+
+
+  for(
+    let br = 0;
+    br < 4;
+    br++
+  ){
+
+    for(
+      let bc = 0;
+      bc < 4;
+      bc++
+    ){
+
+      const r =
+        br * 2;
+
+
+      const c =
+        bc * 2;
+
+
+      out.push(
+        indexOfRC(r,c),
+        indexOfRC(r,c+1),
+        indexOfRC(r+1,c+1),
+        indexOfRC(r+1,c)
+      );
+
+    }
+
+  }
+
+
+  return out;
+
+}
+
+
+/* =========================================================
+   X ORDER
+========================================================= */
+
+function xOrder(){
+
+  const primary = [];
+
+  const secondary = [];
+
+
+  for(
+    let r = 0;
+    r < 8;
+    r++
+  ){
+
+    for(
+      let c = 0;
+      c < 8;
+      c++
+    ){
+
+      const i =
+        indexOfRC(
+          r,
+          c
+        );
+
+
+      if(
+        r === c
+        ||
+        r + c === 7
+      ){
+
+        primary.push(i);
+
+      }
+
+      else{
+
+        secondary.push(i);
+
+      }
+
+    }
+
+  }
+
+
+  return [
+    ...primary,
+    ...secondary
+  ];
+
+}
+
+
+/* =========================================================
+   PLUS ORDER
+========================================================= */
+
+function plusOrder(){
+
+  const primary = [];
+
+  const secondary = [];
+
+
+  for(
+    let r = 0;
+    r < 8;
+    r++
+  ){
+
+    for(
+      let c = 0;
+      c < 8;
+      c++
+    ){
+
+      const i =
+        indexOfRC(
+          r,
+          c
+        );
+
+
+      if(
+        r === 3
+        ||
+        r === 4
+        ||
+        c === 3
+        ||
+        c === 4
+      ){
+
+        primary.push(i);
+
+      }
+
+      else{
+
+        secondary.push(i);
+
+      }
+
+    }
+
+  }
+
+
+  return [
+    ...primary,
+    ...secondary
+  ];
+
+}
+
+
+/* =========================================================
+   DIAMOND
+========================================================= */
+
+function diamond(){
+
+  return Array
+    .from(
+      {
+        length:64
+      },
+      (_,i)=>i
+    )
+    .sort(
+      (a,b)=>{
+
+        const [ra,ca] =
+          rc(a);
+
+
+        const [rb,cb] =
+          rc(b);
+
+
+        const da =
+          Math.abs(
+            ra-3.5
+          )
+          +
+          Math.abs(
+            ca-3.5
+          );
+
+
+        const db =
+          Math.abs(
+            rb-3.5
+          )
+          +
+          Math.abs(
+            cb-3.5
+          );
+
+
+        return da-db;
+
+      }
+    );
+
+}
+
+
+/* =========================================================
+   36 PATTERNS
+========================================================= */
+
+function buildPatterns(){
+
+  const row =
+    rows();
+
+  const col =
+    columns();
+
+  const diagA =
+    diagonalA();
+
+  const diagB =
+    diagonalB();
+
+  const spi =
+    spiral();
+
+  const ring =
+    rings();
+
+  const center =
+    centerDistance();
+
+  const corners =
+    cornerDistance();
+
+  const dia =
+    diamond();
+
+
+  return [
+
+    /* 01 */
+    row,
+
+    /* 02 */
+    reverse(row),
+
+    /* 03 */
+    col,
+
+    /* 04 */
+    reverse(col),
+
+    /* 05 */
+    rows(false,true),
+
+    /* 06 */
+    columns(false,true),
+
+    /* 07 */
+    diagA,
+
+    /* 08 */
+    diagB,
+
+    /* 09 */
+    reverse(diagA),
+
+    /* 10 */
+    reverse(diagB),
+
+    /* 11 */
+    spi,
+
+    /* 12 */
+    reverse(spi),
+
+    /* 13 */
+    rotate90(spi),
+
+    /* 14 */
+    reverse(
+      rotate90(spi)
+    ),
+
+    /* 15 */
+    ring,
+
+    /* 16 */
+    reverse(ring),
+
+    /* 17 */
+    center,
+
+    /* 18 */
+    reverse(center),
+
+    /* 19 */
+    corners,
+
+    /* 20 */
+    reverse(corners),
+
+    /* 21 */
+    checker(0),
+
+    /* 22 */
+    checker(1),
+
+    /* 23 */
+    mirrorHorizontal(),
+
+    /* 24 */
+    mirrorVertical(),
+
+    /* 25 */
+    rotate90(
+      mirrorHorizontal()
+    ),
+
+    /* 26 */
+    rotate90(
+      mirrorVertical()
+    ),
+
+    /* 27 */
+    xOrder(),
+
+    /* 28 */
+    reverse(
+      xOrder()
+    ),
+
+    /* 29 */
+    plusOrder(),
+
+    /* 30 */
+    reverse(
+      plusOrder()
+    ),
+
+    /* 31 */
+    dia,
+
+    /* 32 */
+    reverse(dia),
+
+    /* 33 */
+    horizontalStripes(),
+
+    /* 34 */
+    verticalStripes(),
+
+    /* 35 */
+    blockWalk(),
+
+    /* 36 */
+    shuffle(
+      blockWalk()
+    )
+
+  ];
+
+}
+
+
+const PATTERNS =
+  buildPatterns();
+
+
+/* =========================================================
+   PATTERN CONTROL
+========================================================= */
+
+function resetPattern(){
+
+  patternIndex = 0;
+
+  patternCursor = 0;
+
+  patternHits = 0;
+
+  phraseLength =
+    8
+    +
+    Math.floor(
+      Math.random()
+      *
+      9
+    );
+
+
+  currentPattern =
+    PATTERNS[
+      patternIndex
+    ];
+
+}
+
+
+function nextPattern(){
+
+  patternIndex =
+    (
+      patternIndex + 1
+    )
+    %
+    PATTERNS.length;
+
+
+  patternCursor = 0;
+
+  patternHits = 0;
+
+
+  phraseLength =
+    8
+    +
+    Math.floor(
+      Math.random()
+      *
+      9
+    );
+
+
+  currentPattern =
+    PATTERNS[
+      patternIndex
+    ];
+
+}
+
+
 /* =========================================================
    TARGET VISUAL
 ========================================================= */
 
 function activateTarget(i){
 
-  const p =
-    pads[i];
+  pads[i]
+    .style
+    .setProperty(
+      "--fx",
+      randomColor()
+    );
 
 
-  p.style.setProperty(
-    "--fx",
-    randomColor()
-  );
-
-
-  p.classList.add(
-    "target"
-  );
+  pads[i]
+    .classList
+    .add(
+      "target"
+    );
 
 }
 
@@ -960,12 +2328,12 @@ function deactivateTarget(i){
 
 
 /* =========================================================
-   TARGET SELECTION
+   RANDOM TARGET
 ========================================================= */
 
-function findNewTarget(){
+function getRandomTarget(){
 
-  const candidates = [];
+  let candidates = [];
 
 
   for(
@@ -974,21 +2342,12 @@ function findNewTarget(){
     i++
   ){
 
-    /*
-      Do not use an already active target.
-    */
-
     if(
       targets.has(i)
     ){
       continue;
     }
 
-
-    /*
-      Prefer not to immediately reuse
-      one of the previous targets.
-    */
 
     if(
       previousTargets.has(i)
@@ -1002,30 +2361,22 @@ function findNewTarget(){
   }
 
 
-  /*
-    Fallback.
-    In practice this should rarely be needed.
-  */
-
   if(
     candidates.length === 0
   ){
 
-    for(
-      let i = 0;
-      i < 64;
-      i++
-    ){
-
-      if(
-        !targets.has(i)
-      ){
-
-        candidates.push(i);
-
-      }
-
-    }
+    candidates =
+      Array
+      .from(
+        {
+          length:64
+        },
+        (_,i)=>i
+      )
+      .filter(
+        i =>
+          !targets.has(i)
+      );
 
   }
 
@@ -1042,13 +2393,87 @@ function findNewTarget(){
 
 
 /* =========================================================
+   PATTERN TARGET
+========================================================= */
+
+function getPatternTarget(){
+
+  let safety = 0;
+
+
+  while(
+    safety < 128
+  ){
+
+    safety++;
+
+
+    if(
+      patternCursor
+      >=
+      currentPattern.length
+    ){
+
+      patternCursor = 0;
+
+    }
+
+
+    const candidate =
+      currentPattern[
+        patternCursor
+      ];
+
+
+    patternCursor++;
+
+
+    if(
+      !targets.has(
+        candidate
+      )
+    ){
+
+      return candidate;
+
+    }
+
+  }
+
+
+  return getRandomTarget();
+
+}
+
+
+/* =========================================================
+   NEXT TARGET
+========================================================= */
+
+function getNextTarget(){
+
+  if(
+    mode === "pattern"
+  ){
+
+    return getPatternTarget();
+
+  }
+
+
+  return getRandomTarget();
+
+}
+
+
+/* =========================================================
    ADD TARGET
 ========================================================= */
 
 function addTarget(){
 
   const index =
-    findNewTarget();
+    getNextTarget();
 
 
   if(
@@ -1071,14 +2496,10 @@ function addTarget(){
 
 
 /* =========================================================
-   REBUILD TARGETS
+   REBUILD
 ========================================================= */
 
 function rebuildTargets(){
-
-  /*
-    Store previous target locations.
-  */
 
   previousTargets =
     new Set(
@@ -1086,25 +2507,14 @@ function rebuildTargets(){
     );
 
 
-  /*
-    Clear current targets.
-  */
-
   targets.forEach(
-    i => {
-
-      deactivateTarget(i);
-
-    }
+    i =>
+      deactivateTarget(i)
   );
 
 
   targets.clear();
 
-
-  /*
-    Generate new target set.
-  */
 
   while(
     targets.size
@@ -1120,57 +2530,18 @@ function rebuildTargets(){
 
 
 /* =========================================================
-   REPLACE ONLY THE HIT TARGET
-========================================================= */
-
-function replaceTarget(
-  oldIndex
-){
-
-  deactivateTarget(
-    oldIndex
-  );
-
-
-  targets.delete(
-    oldIndex
-  );
-
-
-  /*
-    Remember the position that
-    was just hit so that the new
-    target prefers another pad.
-  */
-
-  previousTargets =
-    new Set([
-      oldIndex
-    ]);
-
-
-  addTarget();
-
-}
-
-
-/* =========================================================
    LIGHT
 ========================================================= */
 
 function light(
   i,
   c,
-  duration = .46,
-  delay = 0
+  duration=.46,
+  delay=0
 ){
 
   const p =
     pads[i];
-
-
-  const id =
-    ++token;
 
 
   setTimeout(
@@ -1184,13 +2555,9 @@ function light(
 
       p.style.setProperty(
         "--dur",
-        duration + "s"
+        duration+"s"
       );
 
-
-      /*
-        Restart flash animation.
-      */
 
       p.classList.remove(
         "flash"
@@ -1213,12 +2580,6 @@ function light(
           );
 
 
-          /*
-            If this pad is currently
-            a target, restore a target
-            color after the flash.
-          */
-
           if(
             targets.has(i)
           ){
@@ -1232,9 +2593,7 @@ function light(
 
         },
 
-        duration * 1000
-        +
-        30
+        duration*1000+30
       );
 
     },
@@ -1254,23 +2613,17 @@ function ripple(
   c
 ){
 
-  const [
-    r0,
-    c0
-  ] =
+  const [r0,c0] =
     rc(origin);
 
 
   for(
-    let i = 0;
-    i < 64;
+    let i=0;
+    i<64;
     i++
   ){
 
-    const [
-      r,
-      x
-    ] =
+    const [r,x] =
       rc(i);
 
 
@@ -1278,11 +2631,11 @@ function ripple(
       Math.max(
 
         Math.abs(
-          r - r0
+          r-r0
         ),
 
         Math.abs(
-          x - c0
+          x-c0
         )
 
       );
@@ -1292,7 +2645,7 @@ function ripple(
       i,
       c,
       .52,
-      ring * 58
+      ring*58
     );
 
   }
@@ -1309,10 +2662,7 @@ function cross(
   c
 ){
 
-  const [
-    r0,
-    c0
-  ] =
+  const [r0,c0] =
     rc(origin);
 
 
@@ -1325,60 +2675,46 @@ function cross(
 
 
   for(
-    let d = 1;
-    d < 8;
+    let d=1;
+    d<8;
     d++
   ){
 
-    const points = [
+    [
 
-      [
-        r0 - d,
-        c0
-      ],
+      [r0-d,c0],
 
-      [
-        r0 + d,
-        c0
-      ],
+      [r0+d,c0],
 
-      [
-        r0,
-        c0 - d
-      ],
+      [r0,c0-d],
 
-      [
-        r0,
-        c0 + d
-      ]
+      [r0,c0+d]
 
-    ];
-
-
-    points.forEach(
+    ]
+    .forEach(
       ([r,x])=>{
 
         if(
 
-          r >= 0
+          r>=0
           &&
-          r < 8
+          r<8
           &&
-          x >= 0
+          x>=0
           &&
-          x < 8
+          x<8
 
         ){
 
           light(
 
-            r * 8 + x,
+            r*8+x,
 
             c,
 
             .43,
 
-            d * 42
+            d*42
 
           );
 
@@ -1401,29 +2737,23 @@ function wave(
   c
 ){
 
-  const [
-    r0,
-    c0
-  ] =
+  const [r0,c0] =
     rc(origin);
 
 
   const direction =
     Math.floor(
-      Math.random() * 4
+      Math.random()*4
     );
 
 
   for(
-    let i = 0;
-    i < 64;
+    let i=0;
+    i<64;
     i++
   ){
 
-    const [
-      r,
-      x
-    ] =
+    const [r,x] =
       rc(i);
 
 
@@ -1431,57 +2761,49 @@ function wave(
 
 
     if(
-      direction === 0
+      direction===0
     ){
 
-      step =
+      step=
         (
-          r - r0 + 8
-        )
-        %
-        8;
+          r-r0+8
+        )%8;
 
     }
 
 
     if(
-      direction === 1
+      direction===1
     ){
 
-      step =
+      step=
         (
-          r0 - r + 8
-        )
-        %
-        8;
+          r0-r+8
+        )%8;
 
     }
 
 
     if(
-      direction === 2
+      direction===2
     ){
 
-      step =
+      step=
         (
-          x - c0 + 8
-        )
-        %
-        8;
+          x-c0+8
+        )%8;
 
     }
 
 
     if(
-      direction === 3
+      direction===3
     ){
 
-      step =
+      step=
         (
-          c0 - x + 8
-        )
-        %
-        8;
+          c0-x+8
+        )%8;
 
     }
 
@@ -1494,9 +2816,9 @@ function wave(
 
       .48,
 
-      step * 54
+      step*54
       +
-      Math.random() * 16
+      Math.random()*16
 
     );
 
@@ -1526,23 +2848,19 @@ function burst(
     22
     +
     Math.floor(
-      Math.random()
-      *
-      16
+      Math.random()*16
     );
 
 
   for(
-    let k = 0;
-    k < count;
+    let k=0;
+    k<count;
     k++
   ){
 
     const i =
       Math.floor(
-        Math.random()
-        *
-        64
+        Math.random()*64
       );
 
 
@@ -1550,19 +2868,19 @@ function burst(
 
       i,
 
-      Math.random() < .72
-        ?
-        c
-        :
-        randomColor(),
+      Math.random()<.72
+      ?
+      c
+      :
+      randomColor(),
 
       .24
       +
-      Math.random() * .22,
+      Math.random()*.22,
 
       25
       +
-      Math.random() * 330
+      Math.random()*330
 
     );
 
@@ -1578,10 +2896,7 @@ function burst(
 function allFlash(){
 
   pads.forEach(
-    (
-      _,
-      i
-    )=>{
+    (_,i)=>{
 
       light(
 
@@ -1591,7 +2906,7 @@ function allFlash(){
 
         .36,
 
-        Math.random() * 14
+        Math.random()*14
 
       );
 
@@ -1602,7 +2917,7 @@ function allFlash(){
 
 
 /* =========================================================
-   EFFECT SELECTOR
+   EFFECT
 ========================================================= */
 
 function effect(
@@ -1617,13 +2932,8 @@ function effect(
     Math.random();
 
 
-  /*
-    ALL FLASH intentionally
-    has lower probability.
-  */
-
   if(
-    x < .26
+    x<.26
   ){
 
     ripple(
@@ -1634,7 +2944,7 @@ function effect(
   }
 
   else if(
-    x < .52
+    x<.52
   ){
 
     cross(
@@ -1645,7 +2955,7 @@ function effect(
   }
 
   else if(
-    x < .76
+    x<.76
   ){
 
     wave(
@@ -1656,7 +2966,7 @@ function effect(
   }
 
   else if(
-    x < .94
+    x<.94
   ){
 
     burst(
@@ -1676,21 +2986,44 @@ function effect(
 
 
 /* =========================================================
+   PATTERN PROGRESSION
+========================================================= */
+
+function registerPatternHit(){
+
+  if(
+    mode !== "pattern"
+  ){
+    return;
+  }
+
+
+  patternHits++;
+
+
+  if(
+    patternHits
+    >=
+    phraseLength
+  ){
+
+    nextPattern();
+
+  }
+
+}
+
+
+/* =========================================================
    HIT
 ========================================================= */
 
 function hit(i){
 
-  /*
-    Non-target pads do nothing.
-  */
-
   if(
     !targets.has(i)
   ){
-
     return;
-
   }
 
 
@@ -1699,11 +3032,11 @@ function hit(i){
 
 
   /*
-    Immediately remove target status.
-    This prevents accidental double hit.
+    Remove hit target immediately.
   */
 
   targets.delete(i);
+
 
   p.classList.remove(
     "target"
@@ -1733,7 +3066,7 @@ function hit(i){
 
 
   /*
-    White-hot initial hit.
+    White hot impact.
   */
 
   light(
@@ -1745,14 +3078,21 @@ function hit(i){
 
 
   /*
-    Start effect.
+    Visual effect.
   */
 
   effect(i);
 
 
   /*
-    Generate exactly one replacement target.
+    Advance pattern phrase.
+  */
+
+  registerPatternHit();
+
+
+  /*
+    Avoid immediate reuse.
   */
 
   previousTargets =
@@ -1761,13 +3101,18 @@ function hit(i){
     ]);
 
 
+  /*
+    Replace only the target
+    that was hit.
+  */
+
   addTarget();
 
 }
 
 
 /* =========================================================
-   POINTER INPUT
+   PAD INPUT
 ========================================================= */
 
 grid.addEventListener(
@@ -1808,10 +3153,10 @@ grid.addEventListener(
 
 
 /* =========================================================
-   TARGET COUNT CONTROL
+   TARGET COUNT
 ========================================================= */
 
-radios.forEach(
+targetRadios.forEach(
   radio=>{
 
     radio.addEventListener(
@@ -1825,7 +3170,7 @@ radios.forEach(
         }
 
 
-        const nextCount =
+        const next =
           Number(
             radio.value
           );
@@ -1834,30 +3179,23 @@ radios.forEach(
         if(
 
           !Number.isInteger(
-            nextCount
+            next
           )
 
           ||
-          nextCount < 1
+          next<1
 
           ||
-          nextCount > 5
+          next>5
 
         ){
-
           return;
-
         }
 
 
         targetCount =
-          nextCount;
+          next;
 
-
-        /*
-          When changing density,
-          generate a fresh arrangement.
-        */
 
         rebuildTargets();
 
@@ -1865,11 +3203,53 @@ radios.forEach(
     );
 
   }
+
 );
 
 
 /* =========================================================
-   iPHONE SAFARI GESTURE PROTECTION
+   MODE CHANGE
+========================================================= */
+
+modeRadios.forEach(
+  radio=>{
+
+    radio.addEventListener(
+      "change",
+      ()=>{
+
+        if(
+          !radio.checked
+        ){
+          return;
+        }
+
+
+        mode =
+          radio.value;
+
+
+        if(
+          mode === "pattern"
+        ){
+
+          resetPattern();
+
+        }
+
+
+        rebuildTargets();
+
+      }
+    );
+
+  }
+
+);
+
+
+/* =========================================================
+   iPHONE SAFARI PROTECTION
 ========================================================= */
 
 document.addEventListener(
@@ -1903,6 +3283,8 @@ document.addEventListener(
 /* =========================================================
    START
 ========================================================= */
+
+resetPattern();
 
 rebuildTargets();
 
