@@ -1,0 +1,179 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover,user-scalable=no,maximum-scale=1">
+<meta name="theme-color" content="#050608">
+<title>GRID LIGHT v0.1</title>
+<style>
+:root{
+  --gap: clamp(3px,1.05vw,5px);
+  --cyan:#00f6ff; --magenta:#ff19d1; --red:#ff2748;
+  --violet:#8d4dff; --white:#f7fbff;
+}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;width:100%;height:100%;overflow:hidden;background:#030405;color:#c9d0d8}
+body{
+  min-height:100dvh; font-family:-apple-system,BlinkMacSystemFont,"SF Pro Display","Helvetica Neue",sans-serif;
+  touch-action:none; overscroll-behavior:none; user-select:none; -webkit-user-select:none;
+  background:
+    radial-gradient(circle at 50% 35%,rgba(74,86,101,.12),transparent 45%),
+    linear-gradient(145deg,#080a0d 0%,#020304 55%,#090b0e 100%);
+}
+.app{
+  min-height:100dvh; display:flex; flex-direction:column; align-items:center; justify-content:center;
+  padding:max(10px,env(safe-area-inset-top)) 10px max(12px,env(safe-area-inset-bottom));
+}
+.brand{
+  width:min(94vw,560px); margin:0 0 10px; display:flex; align-items:center; gap:10px;
+  color:#717b87; font-size:10px; font-weight:800; letter-spacing:.38em;
+  text-transform:uppercase; text-shadow:0 0 12px rgba(255,255,255,.08);
+}
+.brand:before,.brand:after{content:"";height:1px;flex:1;background:linear-gradient(90deg,transparent,#28313a)}
+.brand:after{background:linear-gradient(90deg,#28313a,transparent)}
+.stage{
+  position:relative; width:min(94vw,560px); aspect-ratio:1; padding:clamp(7px,1.7vw,11px);
+  border:1px solid #20262d; border-radius:12px;
+  background:
+    linear-gradient(135deg,rgba(255,255,255,.055),transparent 20% 75%,rgba(255,255,255,.025)),
+    #080a0d;
+  box-shadow:0 18px 45px #000, inset 0 1px 0 rgba(255,255,255,.08), inset 0 -10px 25px #000;
+}
+.stage:before{
+  content:"";position:absolute;inset:4px;border:1px solid #0d1115;border-radius:9px;pointer-events:none;
+}
+.grid{position:relative;width:100%;height:100%;display:grid;grid-template-columns:repeat(8,1fr);gap:var(--gap)}
+.pad{
+  --fx:#00f6ff; position:relative; border:0; padding:0; min-width:0; min-height:0; border-radius:5px;
+  appearance:none;-webkit-appearance:none; touch-action:manipulation; cursor:pointer;
+  background:
+    linear-gradient(145deg,rgba(255,255,255,.09) 0 7%,transparent 22%),
+    radial-gradient(circle at 45% 35%,#1b2026 0,#101419 48%,#07090c 76%);
+  box-shadow:
+    inset 1px 1px 0 rgba(255,255,255,.09),
+    inset -2px -3px 5px rgba(0,0,0,.9),
+    0 1px 2px #000;
+  transform:translateZ(0); will-change:transform,filter;
+}
+.pad:before{
+  content:"";position:absolute;inset:13%;border-radius:3px;
+  background:linear-gradient(145deg,rgba(255,255,255,.025),rgba(255,255,255,0));
+  box-shadow:inset 0 0 7px rgba(255,255,255,.025);
+}
+.pad.target{
+  animation:targetPulse 1.05s ease-in-out infinite;
+  box-shadow:inset 0 0 14px color-mix(in srgb,var(--fx) 36%,transparent),0 0 7px color-mix(in srgb,var(--fx) 24%,transparent),inset 1px 1px 0 rgba(255,255,255,.16);
+}
+.pad.target:after{
+  content:"";position:absolute;inset:25%;border-radius:50%;background:var(--fx);
+  filter:blur(4px);opacity:.45;box-shadow:0 0 13px var(--fx);
+}
+.pad.press{animation:press .09s ease-out}
+.pad.flash{animation:flash var(--dur,.48s) cubic-bezier(.08,.72,.16,1)}
+@keyframes targetPulse{50%{filter:brightness(1.55);box-shadow:inset 0 0 20px var(--fx),0 0 11px color-mix(in srgb,var(--fx) 42%,transparent),inset 1px 1px 0 rgba(255,255,255,.2)}}
+@keyframes press{50%{transform:scale(.89)}}
+@keyframes flash{
+  0%{transform:scale(.94);background:#fff;filter:brightness(3.8);
+    box-shadow:inset 0 0 9px #fff,0 0 9px #fff,0 0 24px var(--fx),0 0 40px color-mix(in srgb,var(--fx) 72%,transparent)}
+  13%{transform:scale(1);background:var(--fx);filter:brightness(2.5);
+    box-shadow:inset 0 0 16px #fff,0 0 13px var(--fx),0 0 29px var(--fx)}
+  45%{background:color-mix(in srgb,var(--fx) 55%,#111820);filter:brightness(1.45);
+    box-shadow:inset 0 0 13px var(--fx),0 0 15px color-mix(in srgb,var(--fx) 65%,transparent)}
+  100%{filter:brightness(1);background:radial-gradient(circle at 45% 35%,#1b2026 0,#101419 48%,#07090c 76%)}
+}
+@media (max-height:520px){.brand{display:none}.stage{width:min(92vh,94vw)}}
+@media (prefers-reduced-motion:reduce){.pad.target{animation-duration:1.6s}}
+</style>
+</head>
+<body>
+<main class="app">
+  <div class="brand">GRID LIGHT <span style="letter-spacing:.12em;opacity:.45">v0.1</span></div>
+  <section class="stage" aria-label="GRID LIGHT 8 by 8 pad">
+    <div class="grid" id="grid"></div>
+  </section>
+</main>
+<script>
+(()=>{
+"use strict";
+const N=8, COLORS=["#00f6ff","#ff19d1","#ff2748","#8d4dff","#f7fbff"];
+const grid=document.getElementById("grid");
+const pads=[];
+let target=-1,lastTarget=-1,targetColor=COLORS[0],token=0;
+
+for(let i=0;i<64;i++){
+  const b=document.createElement("button");
+  b.className="pad"; b.type="button"; b.setAttribute("aria-label",`Pad ${i+1}`);
+  b.dataset.i=i; grid.appendChild(b); pads.push(b);
+}
+const rc=i=>[Math.floor(i/N),i%N];
+const color=()=>COLORS[Math.floor(Math.random()*COLORS.length)];
+function setTarget(){
+  lastTarget=target;
+  do target=Math.floor(Math.random()*64); while(target===lastTarget);
+  targetColor=color();
+  pads.forEach((p,i)=>{p.classList.toggle("target",i===target);if(i===target)p.style.setProperty("--fx",targetColor)});
+}
+function light(i,c,d=.46,delay=0){
+  const p=pads[i], id=++token;
+  setTimeout(()=>{
+    p.style.setProperty("--fx",c); p.style.setProperty("--dur",d+"s");
+    p.classList.remove("flash"); void p.offsetWidth; p.classList.add("flash");
+    setTimeout(()=>p.classList.remove("flash"),d*1000+30);
+  },delay);
+}
+function ripple(origin,c){
+  const [r0,c0]=rc(origin);
+  for(let i=0;i<64;i++){const [r,cx]=rc(i);const ring=Math.max(Math.abs(r-r0),Math.abs(cx-c0));light(i,c,.52,ring*58)}
+}
+function cross(origin,c){
+  const [r0,c0]=rc(origin); light(origin,c,.5,0);
+  for(let d=1;d<8;d++){
+    [[r0-d,c0],[r0+d,c0],[r0,c0-d],[r0,c0+d]].forEach(([r,x])=>{
+      if(r>=0&&r<8&&x>=0&&x<8)light(r*8+x,c,.43,d*42);
+    });
+  }
+}
+function wave(origin,c){
+  const [r0,c0]=rc(origin),dir=Math.floor(Math.random()*4);
+  for(let i=0;i<64;i++){const [r,x]=rc(i);let step;
+    if(dir===0)step=(r-r0+8)%8;
+    if(dir===1)step=(r0-r+8)%8;
+    if(dir===2)step=(x-c0+8)%8;
+    if(dir===3)step=(c0-x+8)%8;
+    light(i,c,.48,step*54+Math.random()*16);
+  }
+}
+function burst(origin,c){
+  light(origin,c,.42,0);
+  const count=22+Math.floor(Math.random()*16);
+  for(let k=0;k<count;k++){const i=Math.floor(Math.random()*64);light(i,Math.random()<.72?c:color(),.24+Math.random()*.22,25+Math.random()*330)}
+}
+function allFlash(){
+  pads.forEach((_,i)=>light(i,"#f7fbff",.36,Math.random()*14));
+}
+function effect(origin){
+  const c=color(),x=Math.random();
+  if(x<.26)ripple(origin,c);
+  else if(x<.52)cross(origin,c);
+  else if(x<.76)wave(origin,c);
+  else if(x<.94)burst(origin,c);
+  else allFlash();
+}
+function hit(i){
+  if(i!==target)return;
+  const p=pads[i];p.classList.remove("target");p.classList.add("press");
+  setTimeout(()=>p.classList.remove("press"),95);
+  light(i,"#f7fbff",.18,0);
+  effect(i);setTarget();
+}
+grid.addEventListener("pointerdown",e=>{
+  const p=e.target.closest(".pad");if(!p)return;
+  e.preventDefault();hit(+p.dataset.i);
+},{passive:false});
+document.addEventListener("gesturestart",e=>e.preventDefault(),{passive:false});
+document.addEventListener("touchmove",e=>e.preventDefault(),{passive:false});
+setTarget();
+})();
+</script>
+</body>
+</html>
