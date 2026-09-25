@@ -8,7 +8,7 @@
   content="width=device-width, initial-scale=1.0, viewport-fit=cover"
 >
 
-<meta name="theme-color" content="#050709">
+<meta name="theme-color" content="#0b0d0f">
 
 <title>Soft Machine</title>
 
@@ -16,30 +16,39 @@
 
 /* =========================================================
    SOFT MACHINE
-   STEP 2.2 — INSTRUMENT PANEL
+   STEP 2.3 — PRODUCTION INSTRUMENT
+
+   Design goal:
+   ・量産音楽機器のような合理性
+   ・マットブラック主体
+   ・金属表現は操作子だけ
+   ・装飾ではなくレイアウトで格好よくする
    ========================================================= */
 
 :root {
 
-  --black-0: #050709;
-  --black-1: #090c0f;
-  --black-2: #0d1115;
-  --black-3: #12171c;
-  --black-4: #181e23;
+  --page: #080a0c;
 
-  --metal-1: #293137;
-  --metal-2: #465158;
-  --metal-3: #707b81;
-  --metal-4: #a0a9ad;
+  --body: #111417;
+  --body-2: #15191d;
+  --body-3: #1b2024;
 
-  --line: rgba(190, 205, 211, 0.12);
-  --line-soft: rgba(190, 205, 211, 0.06);
+  --well: #080a0c;
 
-  --cyan: #61e5df;
-  --cyan-soft: rgba(97, 229, 223, 0.18);
+  --line: #30363b;
+  --line-soft: #23282c;
 
-  --text: #aeb8bd;
-  --text-dim: #59646a;
+  --metal-dark: #363d42;
+  --metal-mid: #667076;
+  --metal-light: #9ca4a8;
+
+  --text: #c4c9cc;
+  --text-mid: #7d858a;
+  --text-dim: #4d555a;
+
+  --cyan: #59ded9;
+  --orange: #f29b38;
+
 }
 
 
@@ -62,7 +71,7 @@ body {
   overflow: hidden;
   overscroll-behavior: none;
 
-  background: var(--black-0);
+  background: var(--page);
 }
 
 body {
@@ -84,12 +93,10 @@ body {
 
 
 /* =========================================================
-   APP
+   PAGE
    ========================================================= */
 
-.machine {
-
-  position: relative;
+.app {
 
   width: min(100vw, 460px);
   height: 100dvh;
@@ -98,23 +105,46 @@ body {
   margin: 0 auto;
 
   padding:
-    max(12px, env(safe-area-inset-top))
-    13px
-    max(12px, env(safe-area-inset-bottom));
+    max(10px, env(safe-area-inset-top))
+    10px
+    max(10px, env(safe-area-inset-bottom));
+
+  background: #090b0d;
+
+  display: flex;
+  flex-direction: column;
+}
+
+
+/* =========================================================
+   PRODUCT
+   ========================================================= */
+
+.instrument {
+
+  position: relative;
+
+  flex: 1;
+  min-height: 0;
+
+  overflow: hidden;
+
+  border-radius: 18px;
 
   background:
-
-    radial-gradient(
-      circle at 50% -10%,
-      rgba(90, 120, 128, 0.08),
-      transparent 38%
-    ),
-
     linear-gradient(
       180deg,
-      #090d10,
-      #050709
+      #171a1d 0%,
+      #101316 100%
     );
+
+  border: 1px solid #292e32;
+
+  box-shadow:
+    0 20px 45px rgba(0,0,0,.48),
+    inset 0 1px 0 rgba(255,255,255,.035);
+
+  padding: 18px 17px 15px;
 
   display: flex;
   flex-direction: column;
@@ -127,43 +157,41 @@ body {
 
 .header {
 
-  height: 42px;
-
-  flex: 0 0 auto;
+  flex: 0 0 50px;
 
   display: flex;
-  align-items: center;
+  align-items: flex-start;
   justify-content: space-between;
-
-  padding: 0 5px 0 7px;
 }
 
 .brand {
 
-  font-size: 10px;
-  font-weight: 650;
+  display: flex;
+  flex-direction: column;
 
-  letter-spacing: 0.29em;
-
-  color: #a2abb0;
+  gap: 5px;
 }
 
-.model-mark {
+.title {
 
-  margin-left: 9px;
+  font-size: 13px;
+  font-weight: 700;
+
+  letter-spacing: .22em;
+
+  color: #d1d5d7;
+}
+
+.subtitle {
 
   font-size: 6px;
-  letter-spacing: 0.18em;
 
-  color: #3f494e;
+  letter-spacing: .18em;
 
-  vertical-align: middle;
+  color: #5e666b;
 }
 
-
-/* future sound control */
-
-.sound {
+.power {
 
   position: relative;
 
@@ -172,21 +200,15 @@ body {
 
   border-radius: 50%;
 
-  border: 1px solid #283137;
+  background: #090b0d;
 
-  background:
-    linear-gradient(
-      145deg,
-      #161c21,
-      #090c0f
-    );
+  border: 1px solid #33393e;
 
   box-shadow:
-    inset 0 1px 0 rgba(255,255,255,0.035),
-    0 3px 7px rgba(0,0,0,0.4);
+    inset 0 2px 4px rgba(0,0,0,.7);
 }
 
-.sound::before {
+.power::after {
 
   content: "";
 
@@ -202,220 +224,124 @@ body {
 
   border-radius: 50%;
 
-  background: #4d595f;
+  background: var(--cyan);
+
+  opacity: .65;
 }
 
 
 /* =========================================================
-   MAIN INSTRUMENT CHASSIS
+   COMMON SECTION
    ========================================================= */
 
-.chassis {
+.section-title {
+
+  height: 22px;
+
+  display: flex;
+  align-items: center;
+
+  gap: 8px;
+
+  font-size: 6px;
+  font-weight: 600;
+
+  letter-spacing: .2em;
+
+  color: #687075;
+}
+
+.section-number {
+
+  color: var(--cyan);
+}
+
+
+/* =========================================================
+   MECHANISM
+   ========================================================= */
+
+.mechanism-section {
+
+  flex: 0 0 39%;
+
+  min-height: 0;
+
+  display: flex;
+  flex-direction: column;
+}
+
+.mechanism {
 
   position: relative;
 
   flex: 1;
-  min-height: 0;
 
-  border-radius: 13px;
+  min-height: 0;
 
   overflow: hidden;
 
-  border: 1px solid #20282d;
+  background: #0b0e10;
 
-  background:
+  border: 1px solid #292f33;
 
-    linear-gradient(
-      115deg,
-      rgba(255,255,255,0.012),
-      transparent 23%
-    ),
-
-    linear-gradient(
-      180deg,
-      #101519 0%,
-      #0b0f12 100%
-    );
-
-  box-shadow:
-
-    0 18px 32px rgba(0,0,0,0.38),
-
-    inset 0 1px 0 rgba(255,255,255,0.025),
-
-    inset 0 -1px 0 rgba(0,0,0,0.7);
-}
-
-
-/* tiny upper technical rail */
-
-.top-rail {
-
-  position: absolute;
-
-  left: 4%;
-  right: 4%;
-  top: 2.5%;
-
-  height: 1px;
-
-  background:
-    linear-gradient(
-      90deg,
-      transparent,
-      #293238 15%,
-      #293238 85%,
-      transparent
-    );
+  border-radius: 8px;
 }
 
 
 /* =========================================================
-   TECHNICAL TEXT
+   SIMPLE MECHANICAL PATH
    ========================================================= */
 
-.tech {
-
-  position: absolute;
-
-  font-size: 5px;
-
-  letter-spacing: 0.16em;
-
-  color: #485258;
-
-  white-space: nowrap;
-}
-
-.tech-a {
-  top: 4%;
-  left: 5%;
-}
-
-.tech-b {
-  top: 4%;
-  right: 5%;
-}
-
-.tech-c {
-  top: 47%;
-  left: 5%;
-}
-
-
-/* =========================================================
-   UPPER MACHINE / SIGNAL PATH
-   ========================================================= */
-
-.machine-zone {
-
-  position: absolute;
-
-  left: 4%;
-  right: 4%;
-  top: 6%;
-
-  height: 38%;
-
-  border-bottom:
-    1px solid rgba(150,170,180,0.09);
-}
-
-
-/* =========================================================
-   STATUS MODULE
-   ========================================================= */
-
-.status-module {
-
-  position: absolute;
-
-  top: 2%;
-  left: 50%;
-
-  transform: translateX(-50%);
-
-  width: 64px;
-  height: 47px;
-
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.status-ring {
-
-  width: 38px;
-  height: 38px;
-
-  border-radius: 50%;
-
-  border: 1px solid #354047;
-
-  background: #080b0d;
-
-  box-shadow:
-    inset 0 3px 6px rgba(0,0,0,0.7);
-}
-
-.status-lamp {
-
-  position: absolute;
-
-  width: 24px;
-  height: 24px;
-
-  border-radius: 50%;
-
-  background:
-
-    radial-gradient(
-      circle at 36% 30%,
-      #82989a,
-      #40575a 48%,
-      #1c292c 78%
-    );
-
-  border:
-    1px solid rgba(180,220,220,0.08);
-
-  box-shadow:
-    inset 0 1px 2px rgba(255,255,255,0.09);
-}
-
-
-/* =========================================================
-   GEAR MODULE
-   ========================================================= */
-
-.gear-module {
+.mechanical-path {
 
   position: absolute;
 
   left: 8%;
-  top: 34%;
+  right: 8%;
+  top: 50%;
 
-  width: 65px;
-  height: 65px;
+  height: 2px;
+
+  background: #30373b;
+}
+
+
+/* =========================================================
+   GEAR
+   ========================================================= */
+
+.gear-unit {
+
+  position: absolute;
+
+  left: 8%;
+  top: 50%;
+
+  width: 72px;
+  height: 72px;
+
+  transform: translateY(-50%);
+
+  display: grid;
+  place-items: center;
 }
 
 .gear {
 
-  position: absolute;
+  position: relative;
 
-  inset: 0;
+  width: 66px;
+  height: 66px;
 
   border-radius: 50%;
 
   background:
 
     repeating-conic-gradient(
-      #737e84 0deg 6deg,
-      #313a3f 6deg 13deg
+      #667075 0deg 7deg,
+      #252b2f 7deg 14deg
     );
-
-  box-shadow:
-    0 5px 10px rgba(0,0,0,0.5);
 }
 
 .gear::before {
@@ -428,14 +354,9 @@ body {
 
   border-radius: 50%;
 
-  background:
-    linear-gradient(
-      145deg,
-      #525e64,
-      #252d32
-    );
+  background: #31383d;
 
-  border: 5px solid #101519;
+  border: 5px solid #111416;
 }
 
 .gear::after {
@@ -444,8 +365,8 @@ body {
 
   position: absolute;
 
-  width: 10px;
-  height: 10px;
+  width: 9px;
+  height: 9px;
 
   left: 50%;
   top: 50%;
@@ -454,51 +375,7 @@ body {
 
   border-radius: 50%;
 
-  background: #06090b;
-
-  box-shadow:
-    0 0 0 1px #354047;
-}
-
-
-/* =========================================================
-   SIGNAL TRACKS
-   ========================================================= */
-
-.signal-line {
-
-  position: absolute;
-
-  height: 2px;
-
-  background: #283237;
-
-  border-radius: 1px;
-}
-
-.signal-1 {
-
-  left: 21%;
-  top: 46%;
-
-  width: 24%;
-}
-
-.signal-2 {
-
-  left: 20.5%;
-  top: 46%;
-
-  width: 2px;
-  height: 27%;
-}
-
-.signal-3 {
-
-  right: 17%;
-  top: 68%;
-
-  width: 20%;
+  background: #080a0c;
 }
 
 
@@ -506,72 +383,59 @@ body {
    BALL TRACK
    ========================================================= */
 
-.ball-track {
+.track {
 
   position: absolute;
 
-  right: 8%;
-  top: 42%;
+  left: 33%;
+  right: 9%;
+  top: 34%;
 
-  width: 43%;
-  height: 25px;
+  height: 28px;
 
   border-radius: 4px;
 
-  border:
-    1px solid #20292e;
+  background: #07090a;
 
-  background:
-    #080b0d;
-
-  box-shadow:
-    inset 0 3px 5px rgba(0,0,0,0.8);
+  border: 1px solid #282e32;
 }
 
-.ball-track::after {
-
-  content: "";
+.track-line {
 
   position: absolute;
 
-  left: 9px;
-  right: 9px;
+  left: 10px;
+  right: 10px;
   top: 50%;
 
   height: 2px;
 
   transform: translateY(-50%);
 
-  background: #59666c;
+  background: #596268;
 }
 
 .ball {
 
   position: absolute;
 
-  width: 15px;
-  height: 15px;
+  width: 16px;
+  height: 16px;
 
-  left: 11px;
+  left: 14px;
   top: 50%;
 
   transform: translateY(-50%);
 
   border-radius: 50%;
 
-  z-index: 2;
-
   background:
-
     radial-gradient(
-      circle at 33% 28%,
-      #bbc3c6,
-      #778187 38%,
-      #30383d 78%
+      circle at 35% 30%,
+      #b8bec1,
+      #6c757a 45%,
+      #343b3f 80%
     );
-
-  box-shadow:
-    0 2px 4px rgba(0,0,0,0.55);
 }
 
 
@@ -583,11 +447,11 @@ body {
 
   position: absolute;
 
-  left: 15%;
-  bottom: 7%;
+  left: 32%;
+  bottom: 16%;
 
-  width: 98px;
-  height: 29px;
+  width: 130px;
+  height: 30px;
 }
 
 .piston-body {
@@ -595,314 +459,371 @@ body {
   position: absolute;
 
   left: 0;
-  top: 0;
 
-  width: 43px;
-  height: 29px;
+  width: 48px;
+  height: 30px;
 
   border-radius: 4px;
 
-  border: 1px solid #414c52;
+  background: #353d42;
 
-  background:
-
-    linear-gradient(
-      180deg,
-      #505b61,
-      #242c31
-    );
+  border: 1px solid #535c61;
 }
 
 .piston-rod {
 
   position: absolute;
 
-  left: 39px;
+  left: 44px;
   top: 10px;
 
-  width: 52px;
+  width: 78px;
   height: 9px;
 
   border-radius: 2px;
 
   background:
-
     linear-gradient(
       180deg,
-      #9aa4a9,
-      #59656b
+      #929a9e,
+      #626b70
     );
 }
 
 
 /* =========================================================
-   CHAIN SPRING
+   SPRING
    ========================================================= */
 
-.chain-spring {
+.spring-unit {
 
   position: absolute;
 
-  right: 14%;
-  bottom: 7%;
+  right: 8%;
+  bottom: 16%;
 
-  width: 64px;
-  height: 27px;
+  width: 88px;
+  height: 30px;
 }
 
-.chain-spring::before,
-.chain-spring::after {
-
-  content: "";
+.spring-anchor {
 
   position: absolute;
-
-  width: 4px;
-  height: 21px;
 
   top: 3px;
 
-  background: #6b777d;
+  width: 7px;
+  height: 24px;
+
+  background: #697277;
 }
 
-.chain-spring::before {
+.spring-anchor.left {
   left: 0;
 }
 
-.chain-spring::after {
+.spring-anchor.right {
   right: 0;
 }
 
-.chain-coil {
+.spring {
 
   position: absolute;
 
-  left: 4px;
-  right: 4px;
+  left: 6px;
+  right: 6px;
 
-  top: 5px;
+  top: 6px;
 
-  height: 17px;
+  height: 18px;
 
-  border-top: 2px solid #667279;
-  border-bottom: 2px solid #667279;
+  border-top: 2px solid #737c81;
+  border-bottom: 2px solid #737c81;
 
   background:
 
     repeating-linear-gradient(
       90deg,
-      transparent 0 7px,
-      #667279 7px 9px,
-      transparent 9px 14px
+      transparent 0 8px,
+      #737c81 8px 10px,
+      transparent 10px 16px
     );
 }
 
 
 /* =========================================================
-   LOWER CONTROL AREA
+   SMALL INDICATOR
    ========================================================= */
 
-.control-zone {
+.indicator {
 
   position: absolute;
 
-  left: 4%;
-  right: 4%;
-
-  top: 48%;
-  bottom: 3%;
-}
-
-
-/* =========================================================
-   SMALL LABELS
-   ========================================================= */
-
-.control-label {
-
-  position: absolute;
-
-  font-size: 5px;
-
-  letter-spacing: 0.17em;
-
-  color: #515c61;
-
-  pointer-events: none;
-}
-
-
-/* =========================================================
-   PUSH BUTTON
-   ========================================================= */
-
-.push-module {
-
-  position: absolute;
-
-  left: 5%;
-  top: 7%;
-
-  width: 78px;
-  height: 78px;
+  right: 8%;
+  top: 10%;
 
   display: flex;
   align-items: center;
-  justify-content: center;
+
+  gap: 6px;
 }
 
-.push-well {
+.indicator-light {
 
-  position: absolute;
-
-  width: 59px;
-  height: 59px;
+  width: 6px;
+  height: 6px;
 
   border-radius: 50%;
 
-  background: #06090b;
-
-  border: 1px solid #283137;
+  background: var(--orange);
 
   box-shadow:
-    inset 0 5px 8px rgba(0,0,0,0.75);
+    0 0 7px rgba(242,155,56,.28);
 }
 
-.push-button {
+.indicator-line {
+
+  width: 24px;
+  height: 2px;
+
+  background: #343b3f;
+}
+
+
+/* =========================================================
+   DIVIDER
+   ========================================================= */
+
+.divider {
+
+  flex: 0 0 14px;
 
   position: relative;
-
-  width: 46px;
-  height: 46px;
-
-  border: 0;
-  border-radius: 50%;
-
-  background:
-
-    linear-gradient(
-      145deg,
-      #727d83 0%,
-      #465158 45%,
-      #252d32 100%
-    );
-
-  box-shadow:
-
-    0 4px 0 #1a2024,
-
-    0 7px 10px rgba(0,0,0,0.45),
-
-    inset 1px 1px 1px rgba(255,255,255,0.11);
-
-  transition:
-    transform 80ms ease,
-    box-shadow 80ms ease;
-
-  z-index: 2;
 }
 
-.push-button::after {
+.divider::after {
 
   content: "";
 
   position: absolute;
 
-  width: 5px;
-  height: 5px;
+  left: 0;
+  right: 0;
+  top: 50%;
+
+  height: 1px;
+
+  background: #292e32;
+}
+
+
+/* =========================================================
+   CONTROL SECTION
+   ========================================================= */
+
+.control-section {
+
+  flex: 1;
+
+  min-height: 0;
+
+  display: flex;
+  flex-direction: column;
+}
+
+.controls {
+
+  flex: 1;
+
+  min-height: 0;
+
+  display: grid;
+
+  grid-template-columns:
+    .85fr 1.15fr;
+
+  grid-template-rows:
+    1fr
+    .72fr
+    1fr;
+
+  column-gap: 18px;
+  row-gap: 5px;
+}
+
+
+/* =========================================================
+   CONTROL CELL
+
+   Important:
+   These are NOT visible cards.
+   They only organize layout.
+   ========================================================= */
+
+.control {
+
+  position: relative;
+
+  min-width: 0;
+  min-height: 0;
+
+  display: flex;
+  flex-direction: column;
+}
+
+.control-name {
+
+  height: 17px;
+
+  font-size: 6px;
+  font-weight: 650;
+
+  letter-spacing: .18em;
+
+  color: #777f84;
+}
+
+.control-index {
+
+  margin-right: 5px;
+
+  color: var(--cyan);
+}
+
+
+/* =========================================================
+   TRIGGER
+   ========================================================= */
+
+.trigger {
+
+  align-items: center;
+}
+
+.trigger .control-name {
+
+  align-self: flex-start;
+}
+
+.trigger-body {
+
+  flex: 1;
+
+  width: 100%;
+
+  display: grid;
+  place-items: center;
+}
+
+.trigger-well {
+
+  position: relative;
+
+  width: 64px;
+  height: 64px;
+
+  display: grid;
+  place-items: center;
+
+  border-radius: 50%;
+
+  background: #080a0c;
+
+  border: 1px solid #32383c;
+}
+
+.trigger-button {
+
+  position: relative;
+
+  width: 49px;
+  height: 49px;
+
+  border: 0;
+
+  border-radius: 50%;
+
+  background:
+    linear-gradient(
+      145deg,
+      #747d82,
+      #3b4348 65%
+    );
+
+  box-shadow:
+    0 4px 0 #20262a,
+    0 7px 10px rgba(0,0,0,.38),
+    inset 1px 1px 1px rgba(255,255,255,.1);
+
+  transition:
+    transform 80ms ease,
+    box-shadow 80ms ease;
+}
+
+.trigger-button::after {
+
+  content: "";
+
+  position: absolute;
 
   left: 50%;
   top: 50%;
+
+  width: 5px;
+  height: 5px;
 
   transform: translate(-50%, -50%);
 
   border-radius: 50%;
 
-  background: var(--cyan);
-
-  opacity: 0.72;
-
-  box-shadow:
-    0 0 5px rgba(97,229,223,0.25);
+  background: var(--orange);
 }
 
-.push-button:active {
+.trigger-button:active {
 
   transform: translateY(3px);
 
   box-shadow:
-
-    0 1px 0 #1a2024,
-
-    0 3px 5px rgba(0,0,0,0.45),
-
-    inset 1px 2px 4px rgba(0,0,0,0.25);
-}
-
-.push-label {
-
-  left: 8%;
-  top: 25%;
+    0 1px 0 #20262a,
+    0 3px 5px rgba(0,0,0,.4);
 }
 
 
 /* =========================================================
-   DIAL
+   ROTARY
    ========================================================= */
 
-.dial-module {
+.rotary-body {
 
-  position: absolute;
-
-  right: 5%;
-  top: 5%;
-
-  width: 82px;
-  height: 82px;
+  flex: 1;
 
   display: flex;
   align-items: center;
   justify-content: center;
 }
 
-.dial-base {
-
-  width: 65px;
-  height: 65px;
-
-  padding: 5px;
-
-  border-radius: 50%;
-
-  background: #05080a;
-
-  border: 1px solid #283137;
-
-  box-shadow:
-    inset 0 4px 7px rgba(0,0,0,0.8);
-}
-
-.dial {
+.rotary-scale {
 
   position: relative;
 
-  width: 53px;
-  height: 53px;
+  width: 80px;
+  height: 80px;
+
+  display: grid;
+  place-items: center;
 
   border-radius: 50%;
 
   background:
 
     repeating-conic-gradient(
-      #68747a 0deg 2deg,
-      #30393e 2deg 9deg
+      from -130deg,
+      #596166 0deg 1deg,
+      transparent 1deg 15deg
     );
-
-  box-shadow:
-    0 4px 7px rgba(0,0,0,0.45);
 }
 
-.dial::before {
+.rotary-scale::after {
 
   content: "";
 
@@ -912,79 +833,87 @@ body {
 
   border-radius: 50%;
 
-  background:
-
-    linear-gradient(
-      145deg,
-      #667178,
-      #30383d
-    );
+  background: var(--body);
 }
 
-.dial::after {
+.rotary-knob {
+
+  position: relative;
+
+  width: 57px;
+  height: 57px;
+
+  z-index: 2;
+
+  border-radius: 50%;
+
+  background:
+    linear-gradient(
+      145deg,
+      #555e63,
+      #252b2f
+    );
+
+  border: 1px solid #626b70;
+
+  box-shadow:
+    0 5px 8px rgba(0,0,0,.4);
+}
+
+.rotary-knob::after {
 
   content: "";
 
   position: absolute;
 
-  width: 2px;
-  height: 13px;
+  width: 3px;
+  height: 15px;
 
   top: 8px;
   left: 50%;
 
   transform: translateX(-50%);
 
-  border-radius: 1px;
-
   background: var(--cyan);
 
-  box-shadow:
-    0 0 5px rgba(97,229,223,0.35);
-}
-
-.dial-label {
-
-  right: 9%;
-  top: 25%;
+  border-radius: 2px;
 }
 
 
 /* =========================================================
-   SLIDER
+   TRANSFER
    ========================================================= */
 
-.slider-module {
+.transfer {
 
-  position: absolute;
+  grid-column: 1 / 3;
+}
 
-  left: 7%;
-  right: 7%;
+.transfer-body {
 
-  top: 40%;
+  flex: 1;
 
-  height: 58px;
+  position: relative;
+
+  display: flex;
+  align-items: center;
 }
 
 .slider-track {
 
-  position: absolute;
+  position: relative;
 
-  left: 0;
-  right: 0;
+  width: 100%;
+  height: 21px;
 
-  top: 20px;
+  background: #080a0c;
 
-  height: 18px;
+  border: 1px solid #2d3337;
 
   border-radius: 3px;
 
-  background: #06090b;
-
-  border: 1px solid #222b30;
-
   box-shadow:
-    inset 0 3px 5px rgba(0,0,0,0.8);
+    inset 0 3px 5px rgba(0,0,0,.65);
 }
 
 .slider-track::after {
@@ -993,49 +922,44 @@ body {
 
   position: absolute;
 
-  left: 10px;
-  right: 10px;
-
+  left: 12px;
+  right: 12px;
   top: 50%;
 
   height: 2px;
 
   transform: translateY(-50%);
 
-  background: #5c686e;
+  background: #596268;
 }
 
 .slider-knob {
 
   position: absolute;
 
-  width: 42px;
-  height: 35px;
+  width: 43px;
+  height: 36px;
 
   left: 50%;
   top: 50%;
 
   transform: translate(-50%, -50%);
 
-  border-radius: 5px;
+  border-radius: 4px;
 
   z-index: 2;
 
-  border: 1px solid #69747a;
-
   background:
-
     linear-gradient(
       145deg,
-      #737e84,
-      #3c464c 70%
+      #70797e,
+      #3a4247
     );
 
+  border: 1px solid #697277;
+
   box-shadow:
-
-    0 5px 8px rgba(0,0,0,0.45),
-
-    inset 1px 1px 1px rgba(255,255,255,0.08);
+    0 5px 8px rgba(0,0,0,.4);
 }
 
 .slider-knob::after {
@@ -1044,25 +968,40 @@ body {
 
   position: absolute;
 
-  width: 14px;
-  height: 2px;
+  width: 3px;
+  height: 17px;
 
   left: 50%;
   top: 50%;
 
   transform: translate(-50%, -50%);
 
-  background: #161d21;
+  background: var(--orange);
 
-  box-shadow:
-    0 -4px #161d21,
-    0 4px #161d21;
+  border-radius: 2px;
 }
 
-.slider-label {
 
-  left: 7%;
-  top: 37%;
+/* scale under slider */
+
+.slider-scale {
+
+  position: absolute;
+
+  left: 12px;
+  right: 12px;
+  bottom: 0;
+
+  display: flex;
+  justify-content: space-between;
+}
+
+.slider-scale span {
+
+  width: 1px;
+  height: 4px;
+
+  background: #464e53;
 }
 
 
@@ -1070,41 +1009,32 @@ body {
    LEVER
    ========================================================= */
 
-.lever-module {
+.lever-body {
 
-  position: absolute;
+  position: relative;
 
-  left: 8%;
-  bottom: 1%;
+  flex: 1;
 
-  width: 100px;
-  height: 91px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .lever-slot {
 
-  position: absolute;
+  position: relative;
 
-  left: 17px;
-  bottom: 8px;
+  width: 77px;
+  height: 53px;
 
-  width: 64px;
-  height: 45px;
+  border-radius: 5px;
 
-  border-radius: 6px;
+  background: #080a0c;
 
-  background:
-
-    radial-gradient(
-      ellipse at center,
-      #172025,
-      #05080a 75%
-    );
-
-  border: 1px solid #20292e;
+  border: 1px solid #2d3337;
 
   box-shadow:
-    inset 0 5px 9px rgba(0,0,0,0.8);
+    inset 0 4px 7px rgba(0,0,0,.7);
 }
 
 .lever-arm {
@@ -1112,294 +1042,241 @@ body {
   position: absolute;
 
   width: 10px;
-  height: 50px;
+  height: 51px;
 
-  left: 49px;
-  bottom: 30px;
+  left: 50%;
+  bottom: 23px;
 
-  transform: rotate(-12deg);
+  transform:
+    translateX(-50%)
+    rotate(-13deg);
 
   transform-origin: 50% 100%;
 
   border-radius: 2px;
 
   background:
-
     linear-gradient(
       90deg,
-      #384248,
-      #969fa4 48%,
-      #475259
+      #444c51,
+      #929a9e 48%,
+      #50595e
     );
-
-  box-shadow:
-    3px 4px 6px rgba(0,0,0,0.45);
 }
 
 .lever-handle {
 
   position: absolute;
 
-  width: 28px;
-  height: 28px;
+  width: 27px;
+  height: 27px;
 
   left: 50%;
-  top: -9px;
+  top: -8px;
 
   transform: translateX(-50%);
 
   border-radius: 50%;
 
   background:
-
     radial-gradient(
-      circle at 34% 27%,
-      #b5bdc0,
-      #69747a 42%,
-      #2c3439 78%
+      circle at 35% 30%,
+      #adb4b7,
+      #697277 45%,
+      #333a3e 78%
     );
-
-  border:
-    1px solid rgba(220,230,235,0.08);
-
-  box-shadow:
-    0 4px 7px rgba(0,0,0,0.45);
-}
-
-.lever-label {
-
-  left: 10%;
-  bottom: 0;
 }
 
 
 /* =========================================================
-   PULL SPRING
+   TENSION
    ========================================================= */
 
-.pull-module {
+.tension-body {
 
-  position: absolute;
+  position: relative;
 
-  right: 7%;
-  bottom: 8%;
+  flex: 1;
 
-  width: 102px;
-  height: 62px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
-.pull-anchor {
+.tension-unit {
+
+  position: relative;
+
+  width: 116px;
+  height: 47px;
+}
+
+.tension-anchor {
 
   position: absolute;
 
   left: 0;
   top: 50%;
 
-  width: 23px;
-  height: 38px;
+  width: 27px;
+  height: 39px;
 
   transform: translateY(-50%);
 
   border-radius: 4px;
 
-  background:
+  background: #363e43;
 
-    linear-gradient(
-      145deg,
-      #525e64,
-      #252d32
-    );
-
-  border: 1px solid #59646a;
+  border: 1px solid #555e63;
 }
 
-.pull-coil {
+.tension-spring {
 
   position: absolute;
 
-  left: 21px;
-  right: 30px;
+  left: 25px;
+  right: 35px;
 
   top: 50%;
 
-  height: 17px;
+  height: 19px;
 
   transform: translateY(-50%);
 
-  border-top: 2px solid #69757b;
-  border-bottom: 2px solid #69757b;
+  border-top: 2px solid #788186;
+  border-bottom: 2px solid #788186;
 
   background:
 
     repeating-linear-gradient(
       90deg,
-      transparent 0 6px,
-      #69757b 6px 8px,
-      transparent 8px 13px
+      transparent 0 7px,
+      #788186 7px 9px,
+      transparent 9px 15px
     );
 }
 
-.pull-handle {
+.tension-handle {
 
   position: absolute;
 
   right: 0;
   top: 50%;
 
-  width: 37px;
-  height: 45px;
+  width: 41px;
+  height: 47px;
 
   transform: translateY(-50%);
 
-  border-radius: 5px;
-
-  border: 1px solid #667178;
+  border-radius: 4px;
 
   background:
-
     linear-gradient(
       145deg,
-      #747f85,
-      #3c464c 70%
+      #687176,
+      #353d42
     );
 
+  border: 1px solid #646d72;
+
   box-shadow:
-    0 5px 8px rgba(0,0,0,0.45);
+    0 5px 8px rgba(0,0,0,.4);
 }
 
-.pull-handle::after {
+.tension-handle::after {
 
   content: "";
 
   position: absolute;
 
-  width: 2px;
-  height: 15px;
+  width: 3px;
+  height: 17px;
 
   left: 50%;
   top: 50%;
 
   transform: translate(-50%, -50%);
 
+  border-radius: 2px;
+
   background: var(--cyan);
-
-  box-shadow:
-    0 0 5px rgba(97,229,223,0.3);
-}
-
-.pull-label {
-
-  right: 8%;
-  bottom: 0;
 }
 
 
 /* =========================================================
-   SMALL SCALE MARKS
+   FOOTER
    ========================================================= */
 
-.scale {
+.footer {
 
-  position: absolute;
+  flex: 0 0 19px;
+
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+
+  font-size: 5px;
+
+  letter-spacing: .16em;
+
+  color: #444c51;
+}
+
+.footer-dots {
 
   display: flex;
 
-  gap: 7px;
+  gap: 5px;
 }
 
-.scale span {
-
-  display: block;
-
-  width: 1px;
-  height: 4px;
-
-  background: #354047;
-}
-
-.scale-slider {
-
-  left: 12%;
-  right: 12%;
-
-  top: 52%;
-
-  justify-content: space-between;
-}
-
-
-/* =========================================================
-   CYAN SIGNAL POINTS
-   ========================================================= */
-
-.signal-dot {
-
-  position: absolute;
+.footer-dots span {
 
   width: 3px;
   height: 3px;
 
   border-radius: 50%;
 
+  background: #3c4448;
+}
+
+.footer-dots span:first-child {
   background: var(--cyan);
-
-  opacity: 0.45;
-}
-
-.dot-1 {
-
-  left: 4%;
-  top: 47%;
-}
-
-.dot-2 {
-
-  left: 49%;
-  top: 47%;
-}
-
-.dot-3 {
-
-  right: 4%;
-  top: 47%;
 }
 
 
 /* =========================================================
-   SHORT DEVICES
+   SHORT SCREENS
    ========================================================= */
 
 @media (max-height: 700px) {
 
-  .machine {
-
-    padding-top:
-      max(7px, env(safe-area-inset-top));
-
-    padding-bottom:
-      max(7px, env(safe-area-inset-bottom));
+  .instrument {
+    padding-top: 12px;
   }
 
   .header {
-    height: 34px;
+    flex-basis: 42px;
   }
 
-  .machine-zone {
-    height: 36%;
+  .mechanism-section {
+    flex-basis: 37%;
   }
 
-  .control-zone {
-    top: 46%;
+  .divider {
+    flex-basis: 9px;
   }
 
-  .push-module,
-  .dial-module {
-    transform: scale(0.9);
+  .gear-unit {
+    transform:
+      translateY(-50%)
+      scale(.88);
   }
 
-  .lever-module,
-  .pull-module {
-    transform: scale(0.9);
+  .trigger-body,
+  .rotary-body,
+  .lever-body,
+  .tension-body {
+    transform: scale(.9);
   }
 }
 
@@ -1410,7 +1287,7 @@ body {
 
 @media (prefers-reduced-motion: reduce) {
 
-  .push-button {
+  .trigger-button {
     transition-duration: 40ms;
   }
 }
@@ -1421,284 +1298,372 @@ body {
 
 <body>
 
-<main class="machine">
-
-
-  <!-- =====================================================
-       HEADER
-       ===================================================== -->
-
-  <header class="header">
-
-    <div class="brand">
-
-      SOFT MACHINE
-
-      <span class="model-mark">
-        SM–01
-      </span>
-
-    </div>
-
-
-    <div
-      class="sound"
-      aria-hidden="true"
-    ></div>
-
-  </header>
-
-
-  <!-- =====================================================
-       SINGLE INSTRUMENT CHASSIS
-       ===================================================== -->
+<main class="app">
 
   <section
-    class="chassis"
-    aria-label="Soft Machine control surface"
+    class="instrument"
+    aria-label="Soft Machine"
   >
 
 
-    <div class="top-rail"></div>
-
-
-    <!-- Decorative technical markings -->
-
-    <div class="tech tech-a">
-      SIGNAL MECHANISM
-    </div>
-
-    <div class="tech tech-b">
-      SM–01
-    </div>
-
-    <div class="tech tech-c">
-      CONTROL SURFACE
-    </div>
-
-
     <!-- ===================================================
-         UPPER MACHINE
+         HEADER
          =================================================== -->
 
-    <div class="machine-zone">
+    <header class="header">
 
+      <div class="brand">
 
-      <!-- status -->
+        <div class="title">
+          SOFT MACHINE
+        </div>
 
-      <div class="status-module">
-
-        <div class="status-ring"></div>
-
-        <div class="status-lamp"></div>
-
-      </div>
-
-
-      <!-- signal channels -->
-
-      <div class="signal-line signal-1"></div>
-
-      <div class="signal-line signal-2"></div>
-
-      <div class="signal-line signal-3"></div>
-
-
-      <!-- gear -->
-
-      <div class="gear-module">
-
-        <div class="gear"></div>
-
-      </div>
-
-
-      <!-- ball track -->
-
-      <div class="ball-track">
-
-        <div class="ball"></div>
-
-      </div>
-
-
-      <!-- piston -->
-
-      <div class="piston">
-
-        <div class="piston-body"></div>
-
-        <div class="piston-rod"></div>
-
-      </div>
-
-
-      <!-- spring -->
-
-      <div class="chain-spring">
-
-        <div class="chain-coil"></div>
-
-      </div>
-
-
-    </div>
-
-
-    <!-- ===================================================
-         LOWER CONTROL SURFACE
-         =================================================== -->
-
-    <div class="control-zone">
-
-
-      <!-- small signal points -->
-
-      <div class="signal-dot dot-1"></div>
-      <div class="signal-dot dot-2"></div>
-      <div class="signal-dot dot-3"></div>
-
-
-      <!-- PUSH -->
-
-      <div class="push-module">
-
-        <div class="push-well"></div>
-
-        <button
-          class="push-button"
-          type="button"
-          aria-label="Push button"
-        ></button>
-
-      </div>
-
-      <div class="control-label push-label">
-        TRIGGER
-      </div>
-
-
-      <!-- DIAL -->
-
-      <div class="dial-module">
-
-        <div class="dial-base">
-
-          <div
-            class="dial"
-            role="slider"
-            tabindex="0"
-            aria-label="Rotary dial"
-            aria-valuemin="0"
-            aria-valuemax="100"
-            aria-valuenow="50"
-          ></div>
-
+        <div class="subtitle">
+          KINETIC INSTRUMENT · SM-01
         </div>
 
       </div>
 
-      <div class="control-label dial-label">
-        ROTARY
-      </div>
-
-
-      <!-- SLIDER -->
-
-      <div class="slider-module">
-
-        <div
-          class="slider-track"
-          role="slider"
-          tabindex="0"
-          aria-label="Horizontal slider"
-          aria-valuemin="0"
-          aria-valuemax="100"
-          aria-valuenow="50"
-        >
-
-          <div class="slider-knob"></div>
-
-        </div>
-
-      </div>
-
-
-      <div class="control-label slider-label">
-        TRANSFER
-      </div>
-
-
-      <div class="scale scale-slider">
-
-        <span></span>
-        <span></span>
-        <span></span>
-        <span></span>
-        <span></span>
-        <span></span>
-        <span></span>
-        <span></span>
-        <span></span>
-
-      </div>
-
-
-      <!-- LEVER -->
-
-      <div class="lever-module">
-
-        <div class="lever-slot"></div>
-
-        <div
-          class="lever-arm"
-          role="slider"
-          tabindex="0"
-          aria-label="Lever"
-          aria-valuemin="0"
-          aria-valuemax="100"
-          aria-valuenow="50"
-        >
-
-          <div class="lever-handle"></div>
-
-        </div>
-
-      </div>
-
-
-      <div class="control-label lever-label">
-        LEVER
-      </div>
-
-
-      <!-- PULL SPRING -->
 
       <div
-        class="pull-module"
-        role="slider"
-        tabindex="0"
-        aria-label="Pull spring"
-        aria-valuemin="0"
-        aria-valuemax="100"
-        aria-valuenow="0"
-      >
+        class="power"
+        aria-hidden="true"
+      ></div>
 
-        <div class="pull-anchor"></div>
+    </header>
 
-        <div class="pull-coil"></div>
 
-        <div class="pull-handle"></div>
+    <!-- ===================================================
+         01 MECHANISM
+         =================================================== -->
+
+    <section class="mechanism-section">
+
+      <div class="section-title">
+
+        <span class="section-number">
+          01
+        </span>
+
+        MECHANISM
 
       </div>
 
 
-      <div class="control-label pull-label">
-        TENSION
+      <div class="mechanism">
+
+
+        <div class="mechanical-path"></div>
+
+
+        <!-- GEAR -->
+
+        <div class="gear-unit">
+
+          <div class="gear"></div>
+
+        </div>
+
+
+        <!-- BALL -->
+
+        <div class="track">
+
+          <div class="track-line"></div>
+
+          <div class="ball"></div>
+
+        </div>
+
+
+        <!-- PISTON -->
+
+        <div class="piston">
+
+          <div class="piston-body"></div>
+
+          <div class="piston-rod"></div>
+
+        </div>
+
+
+        <!-- SPRING -->
+
+        <div class="spring-unit">
+
+          <div class="spring-anchor left"></div>
+
+          <div class="spring"></div>
+
+          <div class="spring-anchor right"></div>
+
+        </div>
+
+
+        <!-- restrained status indicator -->
+
+        <div class="indicator">
+
+          <div class="indicator-light"></div>
+
+          <div class="indicator-line"></div>
+
+        </div>
+
+
+      </div>
+
+    </section>
+
+
+    <div class="divider"></div>
+
+
+    <!-- ===================================================
+         02 CONTROLS
+         =================================================== -->
+
+    <section class="control-section">
+
+      <div class="section-title">
+
+        <span class="section-number">
+          02
+        </span>
+
+        CONTROLS
+
       </div>
 
 
-    </div>
+      <div class="controls">
+
+
+        <!-- TRIGGER -->
+
+        <div class="control trigger">
+
+          <div class="control-name">
+
+            <span class="control-index">
+              01
+            </span>
+
+            TRIGGER
+
+          </div>
+
+
+          <div class="trigger-body">
+
+            <div class="trigger-well">
+
+              <button
+                class="trigger-button"
+                type="button"
+                aria-label="Trigger button"
+              ></button>
+
+            </div>
+
+          </div>
+
+        </div>
+
+
+        <!-- ROTARY -->
+
+        <div class="control rotary">
+
+          <div class="control-name">
+
+            <span class="control-index">
+              02
+            </span>
+
+            ROTARY
+
+          </div>
+
+
+          <div class="rotary-body">
+
+            <div class="rotary-scale">
+
+              <div
+                class="rotary-knob"
+                role="slider"
+                tabindex="0"
+                aria-label="Rotary control"
+                aria-valuemin="0"
+                aria-valuemax="100"
+                aria-valuenow="50"
+              ></div>
+
+            </div>
+
+          </div>
+
+        </div>
+
+
+        <!-- TRANSFER -->
+
+        <div class="control transfer">
+
+          <div class="control-name">
+
+            <span class="control-index">
+              03
+            </span>
+
+            TRANSFER
+
+          </div>
+
+
+          <div class="transfer-body">
+
+            <div
+              class="slider-track"
+              role="slider"
+              tabindex="0"
+              aria-label="Transfer slider"
+              aria-valuemin="0"
+              aria-valuemax="100"
+              aria-valuenow="50"
+            >
+
+              <div class="slider-knob"></div>
+
+            </div>
+
+
+            <div class="slider-scale">
+
+              <span></span>
+              <span></span>
+              <span></span>
+              <span></span>
+              <span></span>
+              <span></span>
+              <span></span>
+              <span></span>
+              <span></span>
+
+            </div>
+
+          </div>
+
+        </div>
+
+
+        <!-- LEVER -->
+
+        <div class="control lever">
+
+          <div class="control-name">
+
+            <span class="control-index">
+              04
+            </span>
+
+            LEVER
+
+          </div>
+
+
+          <div class="lever-body">
+
+            <div class="lever-slot">
+
+              <div
+                class="lever-arm"
+                role="slider"
+                tabindex="0"
+                aria-label="Lever"
+                aria-valuemin="0"
+                aria-valuemax="100"
+                aria-valuenow="50"
+              >
+
+                <div class="lever-handle"></div>
+
+              </div>
+
+            </div>
+
+          </div>
+
+        </div>
+
+
+        <!-- TENSION -->
+
+        <div class="control tension">
+
+          <div class="control-name">
+
+            <span class="control-index">
+              05
+            </span>
+
+            TENSION
+
+          </div>
+
+
+          <div class="tension-body">
+
+            <div
+              class="tension-unit"
+              role="slider"
+              tabindex="0"
+              aria-label="Tension spring"
+              aria-valuemin="0"
+              aria-valuemax="100"
+              aria-valuenow="0"
+            >
+
+              <div class="tension-anchor"></div>
+
+              <div class="tension-spring"></div>
+
+              <div class="tension-handle"></div>
+
+            </div>
+
+          </div>
+
+        </div>
+
+
+      </div>
+
+    </section>
+
+
+    <!-- ===================================================
+         FOOTER
+         =================================================== -->
+
+    <footer class="footer">
+
+      <div>
+        SM-01
+      </div>
+
+
+      <div class="footer-dots">
+
+        <span></span>
+        <span></span>
+        <span></span>
+
+      </div>
+
+    </footer>
+
 
   </section>
 
@@ -1708,25 +1673,22 @@ body {
 <script>
 
 /* =========================================================
-   SOFT MACHINE
-   STEP 2.2
+   SOFT MACHINE — STEP 2.3
 
-   この段階はデザイン確認用です。
+   現在はデザイン確認段階です。
 
-   本格的な操作処理はまだ実装していません。
+   実装済み：
+   ・Trigger のCSS押下表現のみ
 
-   現在：
-   ・押しボタンのみCSSによる押下表現
+   未実装：
+   ・Rotary操作
+   ・Transfer操作
+   ・Lever操作
+   ・Tension操作
+   ・機械連鎖
+   ・音声
 
-   Step 3：
-   ・Trigger
-   ・Rotary
-   ・Transfer slider
-   ・Lever
-   ・Tension spring
-
-   の操作感を実装します。
-
+   Step 3から操作処理を追加します。
    ========================================================= */
 
 </script>
