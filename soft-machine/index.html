@@ -16,12 +16,7 @@
 
 /* =========================================================
    SOFT MACHINE
-   STEP 3.1 — TRIGGER INTERACTION
-
-   ・Step 2.5 のデザインを維持
-   ・TRIGGERのみ操作可能
-   ・Pointer Events対応
-   ・押下 → ホールド → リリース → 柔らかな復帰
+   STEP 3.2 — ROTARY INTERACTION
    ========================================================= */
 
 :root {
@@ -61,7 +56,6 @@
 html,
 body {
   margin: 0;
-
   width: 100%;
   height: 100%;
 
@@ -126,7 +120,6 @@ body {
   position: relative;
 
   flex: 1;
-
   min-width: 0;
   min-height: 0;
 
@@ -336,7 +329,6 @@ body {
 .brand {
   display: flex;
   flex-direction: column;
-
   gap: 4px;
 }
 
@@ -354,16 +346,13 @@ body {
 
 .subtitle {
   font-size: 5.5px;
-
   letter-spacing: .18em;
-
   color: #797a75;
 }
 
 .status {
   display: flex;
   align-items: center;
-
   gap: 7px;
 
   padding-top: 3px;
@@ -371,9 +360,7 @@ body {
 
 .status-text {
   font-size: 5px;
-
   letter-spacing: .17em;
-
   color: #737570;
 }
 
@@ -433,7 +420,6 @@ body {
 
 .mechanism-section {
   flex: 0 0 40%;
-
   min-height: 0;
 
   display: flex;
@@ -444,7 +430,6 @@ body {
   position: relative;
 
   flex: 1;
-
   min-height: 0;
 
   overflow: hidden;
@@ -481,7 +466,6 @@ body {
 
   left: 11%;
   right: 10%;
-
   top: 49%;
 
   height: 2px;
@@ -498,7 +482,6 @@ body {
   position: absolute;
 
   left: 23%;
-
   top: 49%;
 
   width: 2px;
@@ -531,7 +514,6 @@ body {
 
 .gear {
   position: absolute;
-
   inset: 0;
 
   border-radius: 50%;
@@ -552,7 +534,6 @@ body {
   content: "";
 
   position: absolute;
-
   inset: 12px;
 
   border-radius: 50%;
@@ -609,7 +590,6 @@ body {
 
   left: 37%;
   right: 8%;
-
   top: 30%;
 
   height: 27px;
@@ -635,7 +615,6 @@ body {
 
   left: 10px;
   right: 10px;
-
   top: 50%;
 
   height: 3px;
@@ -786,20 +765,14 @@ body {
     1px 2px 2px rgba(0,0,0,.4);
 }
 
-.spring-stop.left {
-  left: 0;
-}
-
-.spring-stop.right {
-  right: 0;
-}
+.spring-stop.left { left: 0; }
+.spring-stop.right { right: 0; }
 
 .spring-coil {
   position: absolute;
 
   left: 5px;
   right: 5px;
-
   top: 6px;
 
   height: 18px;
@@ -833,7 +806,6 @@ body {
 
   display: flex;
   align-items: center;
-
   gap: 7px;
 }
 
@@ -875,7 +847,6 @@ body {
 
 .divider {
   flex: 0 0 12px;
-
   position: relative;
 }
 
@@ -886,7 +857,6 @@ body {
 
   left: 0;
   right: 0;
-
   top: 50%;
 
   height: 1px;
@@ -908,7 +878,6 @@ body {
 
 .control-section {
   flex: 1;
-
   min-height: 0;
 
   display: flex;
@@ -917,13 +886,11 @@ body {
 
 .controls {
   flex: 1;
-
   min-height: 0;
 
   display: grid;
 
-  grid-template-columns:
-    1fr 1fr;
+  grid-template-columns: 1fr 1fr;
 
   grid-template-rows:
     1fr
@@ -999,15 +966,6 @@ body {
     0 1px 0 rgba(255,255,255,.025);
 }
 
-
-/*
-   ボタン本体。
-
-   :activeだけではなく、
-   JavaScriptから .is-pressed / .is-releasing を
-   付け外しして動かします。
-*/
-
 .trigger-button {
   position: relative;
 
@@ -1023,8 +981,6 @@ body {
   -webkit-appearance: none;
 
   touch-action: none;
-
-  cursor: pointer;
 
   background:
     radial-gradient(
@@ -1052,9 +1008,6 @@ body {
     filter 90ms ease;
 }
 
-
-/* metallic top reflection */
-
 .trigger-button::before {
   content: "";
 
@@ -1062,7 +1015,6 @@ body {
 
   left: 10px;
   right: 10px;
-
   top: 7px;
 
   height: 8px;
@@ -1078,9 +1030,6 @@ body {
 
   pointer-events: none;
 }
-
-
-/* amber center */
 
 .trigger-button::after {
   content: "";
@@ -1112,14 +1061,10 @@ body {
 
   transition:
     transform 90ms ease,
-    box-shadow 90ms ease,
-    filter 90ms ease;
+    box-shadow 90ms ease;
 
   pointer-events: none;
 }
-
-
-/* finger is holding the button */
 
 .trigger-button.is-pressed {
   transform:
@@ -1143,14 +1088,6 @@ body {
     0 0 3px rgba(233,155,66,.25);
 }
 
-
-/*
-   Release rebound.
-
-   指を離した直後だけ少し上へ戻り、
-   そこから静止位置へ落ち着きます。
-*/
-
 .trigger-button.is-releasing {
   animation:
     triggerRelease 300ms cubic-bezier(.18,.85,.28,1);
@@ -1160,7 +1097,6 @@ body {
   animation:
     triggerLightRelease 300ms ease-out;
 }
-
 
 @keyframes triggerRelease {
 
@@ -1189,16 +1125,12 @@ body {
   }
 }
 
-
 @keyframes triggerLightRelease {
 
   0% {
     transform:
       translate(-50%, -50%)
       scale(.9);
-
-    box-shadow:
-      0 0 3px rgba(233,155,66,.25);
   }
 
   35% {
@@ -1214,9 +1146,6 @@ body {
     transform:
       translate(-50%, -50%)
       scale(1);
-
-    box-shadow:
-      0 0 5px rgba(233,155,66,.35);
   }
 }
 
@@ -1264,7 +1193,17 @@ body {
   background: #151719;
 }
 
+
+/*
+   ROTARY本体。
+
+   JSから --rotary-angle を変更します。
+   見た目全体がそのまま回転します。
+*/
+
 .rotary-knob {
+  --rotary-angle: 0deg;
+
   position: relative;
 
   z-index: 2;
@@ -1273,6 +1212,11 @@ body {
   height: 56px;
 
   border-radius: 50%;
+
+  touch-action: none;
+
+  transform:
+    rotate(var(--rotary-angle));
 
   background:
     radial-gradient(
@@ -1290,6 +1234,10 @@ body {
     0 6px 9px rgba(0,0,0,.48),
     inset 1px 1px 1px rgba(255,255,255,.25),
     inset -2px -3px 4px rgba(0,0,0,.25);
+
+  transition:
+    filter 80ms ease,
+    box-shadow 80ms ease;
 }
 
 .rotary-knob::before {
@@ -1299,7 +1247,6 @@ body {
 
   left: 10px;
   right: 10px;
-
   top: 7px;
 
   height: 8px;
@@ -1312,6 +1259,8 @@ body {
       rgba(255,255,255,.14),
       transparent
     );
+
+  pointer-events: none;
 }
 
 .rotary-knob::after {
@@ -1338,6 +1287,49 @@ body {
 
   box-shadow:
     0 0 5px rgba(89,216,210,.45);
+
+  pointer-events: none;
+}
+
+
+/*
+   指でつかんでいる間だけ、
+   ごくわずかに暗くして「接触」を表現。
+*/
+
+.rotary-knob.is-grabbed {
+  filter: brightness(.96);
+
+  box-shadow:
+    0 4px 6px rgba(0,0,0,.5),
+    inset 1px 1px 1px rgba(255,255,255,.22),
+    inset -2px -3px 4px rgba(0,0,0,.3);
+}
+
+
+/*
+   ステップをまたいだ瞬間の微細な反応。
+   大きく跳ねさせず、クリック感だけを出します。
+*/
+
+.rotary-knob.is-stepping {
+  animation:
+    rotaryStep 85ms ease-out;
+}
+
+@keyframes rotaryStep {
+
+  0% {
+    filter: brightness(.93);
+  }
+
+  45% {
+    filter: brightness(1.08);
+  }
+
+  100% {
+    filter: brightness(.96);
+  }
 }
 
 
@@ -1386,7 +1378,6 @@ body {
 
   left: 12px;
   right: 12px;
-
   top: 50%;
 
   height: 3px;
@@ -1445,7 +1436,6 @@ body {
 
   left: 4px;
   right: 4px;
-
   top: 3px;
 
   height: 1px;
@@ -1486,7 +1476,6 @@ body {
 
   left: 12px;
   right: 12px;
-
   bottom: 0;
 
   display: flex;
@@ -1606,7 +1595,6 @@ body {
 
   left: 6px;
   right: 7px;
-
   top: 4px;
 
   height: 6px;
@@ -1675,7 +1663,6 @@ body {
 
   left: 25px;
   right: 35px;
-
   top: 50%;
 
   height: 19px;
@@ -1736,7 +1723,6 @@ body {
 
   left: 4px;
   right: 4px;
-
   top: 3px;
 
   height: 1px;
@@ -1787,7 +1773,6 @@ body {
   padding: 0 3px;
 
   font-size: 5px;
-
   letter-spacing: .16em;
 
   color: #6c6d68;
@@ -1795,7 +1780,6 @@ body {
 
 .footer-lights {
   display: flex;
-
   gap: 5px;
 }
 
@@ -1817,7 +1801,7 @@ body {
 
 
 /* =========================================================
-   SHORTER IPHONES
+   SHORT IPHONES
    ========================================================= */
 
 @media (max-height: 700px) {
@@ -1870,6 +1854,10 @@ body {
     animation: none;
   }
 
+  .rotary-knob.is-stepping {
+    animation: none;
+  }
+
   @keyframes triggerReleaseReduced {
 
     0% {
@@ -1902,17 +1890,13 @@ body {
     <section class="faceplate">
 
 
-      <!-- mounting screws -->
-
       <div class="screw s1"></div>
       <div class="screw s2"></div>
       <div class="screw s3"></div>
       <div class="screw s4"></div>
 
 
-      <!-- =================================================
-           HEADER
-           ================================================= -->
+      <!-- HEADER -->
 
       <header class="header">
 
@@ -1942,9 +1926,7 @@ body {
       </header>
 
 
-      <!-- =================================================
-           MECHANISM
-           ================================================= -->
+      <!-- MECHANISM -->
 
       <section class="mechanism-section">
 
@@ -1960,7 +1942,6 @@ body {
 
 
         <div class="mechanism">
-
 
           <div class="path-horizontal"></div>
           <div class="path-vertical"></div>
@@ -2003,7 +1984,6 @@ body {
 
           </div>
 
-
         </div>
 
       </section>
@@ -2012,9 +1992,7 @@ body {
       <div class="divider"></div>
 
 
-      <!-- =================================================
-           CONTROLS
-           ================================================= -->
+      <!-- CONTROLS -->
 
       <section class="control-section">
 
@@ -2032,9 +2010,7 @@ body {
         <div class="controls">
 
 
-          <!-- =================================================
-               01 TRIGGER
-               ================================================= -->
+          <!-- 01 TRIGGER -->
 
           <div class="control">
 
@@ -2067,9 +2043,7 @@ body {
           </div>
 
 
-          <!-- =================================================
-               02 ROTARY
-               ================================================= -->
+          <!-- 02 ROTARY -->
 
           <div class="control">
 
@@ -2089,13 +2063,14 @@ body {
               <div class="rotary-scale">
 
                 <div
+                  id="rotaryKnob"
                   class="rotary-knob"
                   role="slider"
                   tabindex="0"
                   aria-label="Rotary control"
                   aria-valuemin="0"
-                  aria-valuemax="100"
-                  aria-valuenow="50"
+                  aria-valuemax="29"
+                  aria-valuenow="0"
                 ></div>
 
               </div>
@@ -2105,9 +2080,7 @@ body {
           </div>
 
 
-          <!-- =================================================
-               03 TRANSFER
-               ================================================= -->
+          <!-- 03 TRANSFER -->
 
           <div class="control transfer">
 
@@ -2158,9 +2131,7 @@ body {
           </div>
 
 
-          <!-- =================================================
-               04 LEVER
-               ================================================= -->
+          <!-- 04 LEVER -->
 
           <div class="control">
 
@@ -2200,9 +2171,7 @@ body {
           </div>
 
 
-          <!-- =================================================
-               05 TENSION
-               ================================================= -->
+          <!-- 05 TENSION -->
 
           <div class="control">
 
@@ -2239,15 +2208,12 @@ body {
 
           </div>
 
-
         </div>
 
       </section>
 
 
-      <!-- =================================================
-           FOOTER
-           ================================================= -->
+      <!-- FOOTER -->
 
       <footer class="footer">
 
@@ -2266,7 +2232,6 @@ body {
 
       </footer>
 
-
     </section>
 
   </section>
@@ -2278,26 +2243,36 @@ body {
 
 /* =========================================================
    SOFT MACHINE
-   STEP 3.1 — TRIGGER INTERACTION
+   STEP 3.2
    ========================================================= */
 
 
 /* =========================================================
    SETTINGS
-
-   この数字を変更すると、
-   後から操作感を簡単に調整できます。
    ========================================================= */
 
 const SETTINGS = {
 
   trigger: {
+    releaseDuration: 300
+  },
+
+  rotary: {
 
     /*
-       リリースアニメーションが終了するまでの時間。
-       CSSの300msと合わせています。
+       12°ごとに1段。
+
+       360 / 12 = 30段です。
     */
-    releaseDuration: 300
+
+    stepDegrees: 12,
+
+    /*
+       一度のpointermoveで異常に大きな角度差が
+       入った場合の安全制限です。
+    */
+
+    maxDeltaPerMove: 75
   }
 };
 
@@ -2308,6 +2283,9 @@ const SETTINGS = {
 
 const triggerButton =
   document.getElementById("triggerButton");
+
+const rotaryKnob =
+  document.getElementById("rotaryKnob");
 
 
 /* =========================================================
@@ -2325,26 +2303,48 @@ const triggerState = {
 
 
 /* =========================================================
+   ROTARY STATE
+   ========================================================= */
+
+const rotaryState = {
+
+  dragging: false,
+
+  pointerId: null,
+
+  /*
+     実際に蓄積している連続角度。
+     360°を越えて回すこともできます。
+  */
+
+  angle: 0,
+
+  /*
+     現在指がある角度。
+  */
+
+  previousPointerAngle: 0,
+
+  /*
+     現在の機械的ステップ番号。
+  */
+
+  step: 0,
+
+  stepTimer: null
+};
+
+
+/* =========================================================
    TRIGGER
-   POINTER DOWN
    ========================================================= */
 
 function pressTrigger(event) {
-
-  /*
-     主ポインター以外は無視します。
-     通常の1本指操作では event.isPrimary は true です。
-  */
 
   if (!event.isPrimary) {
     return;
   }
 
-
-  /*
-     前回の復帰処理が残っていた場合は止めます。
-     これにより連打してもタイマーが増殖しません。
-  */
 
   clearTriggerRelease();
 
@@ -2353,13 +2353,6 @@ function pressTrigger(event) {
   triggerState.pointerId = event.pointerId;
 
 
-  /*
-     Pointer Capture。
-
-     指がボタンから少し外れても、
-     pointerup をこのボタンが受け取れるようにします。
-  */
-
   try {
 
     triggerButton.setPointerCapture(
@@ -2367,12 +2360,7 @@ function pressTrigger(event) {
     );
 
   } catch (error) {
-
-    /*
-       Safariの状態によって取得できなくても、
-       ボタン全体が停止しないようにします。
-    */
-
+    /* Safari safety */
   }
 
 
@@ -2385,11 +2373,6 @@ function pressTrigger(event) {
   );
 }
 
-
-/* =========================================================
-   TRIGGER
-   POINTER UP
-   ========================================================= */
 
 function releaseTrigger(event) {
 
@@ -2413,21 +2396,10 @@ function releaseTrigger(event) {
     "is-pressed"
   );
 
-
-  /*
-     animationを確実に再スタートさせるため、
-     一度クラスを外します。
-  */
-
   triggerButton.classList.remove(
     "is-releasing"
   );
 
-
-  /*
-     Safariに前の状態を確定させます。
-     これにより高速連打でもanimationを再実行できます。
-  */
 
   void triggerButton.offsetWidth;
 
@@ -2444,16 +2416,11 @@ function releaseTrigger(event) {
     );
 
 
-  releasePointerCapture(event);
+  releaseTriggerPointerCapture(event);
 
   triggerState.pointerId = null;
 }
 
-
-/* =========================================================
-   TRIGGER
-   POINTER CANCEL
-   ========================================================= */
 
 function cancelTrigger(event) {
 
@@ -2472,26 +2439,20 @@ function cancelTrigger(event) {
 
   triggerState.pressed = false;
 
-
   triggerButton.classList.remove(
     "is-pressed"
   );
-
 
   triggerButton.classList.remove(
     "is-releasing"
   );
 
 
-  releasePointerCapture(event);
+  releaseTriggerPointerCapture(event);
 
   triggerState.pointerId = null;
 }
 
-
-/* =========================================================
-   RELEASE ANIMATION END
-   ========================================================= */
 
 function finishTriggerRelease() {
 
@@ -2502,10 +2463,6 @@ function finishTriggerRelease() {
   triggerState.releaseTimer = null;
 }
 
-
-/* =========================================================
-   CLEAR PREVIOUS RELEASE
-   ========================================================= */
 
 function clearTriggerRelease() {
 
@@ -2525,11 +2482,7 @@ function clearTriggerRelease() {
 }
 
 
-/* =========================================================
-   RELEASE POINTER CAPTURE
-   ========================================================= */
-
-function releasePointerCapture(event) {
+function releaseTriggerPointerCapture(event) {
 
   try {
 
@@ -2545,21 +2498,423 @@ function releasePointerCapture(event) {
     }
 
   } catch (error) {
+    /* Safari safety */
+  }
+}
 
-    /*
-       Pointer Captureがすでに解除済みでも
-       何もしません。
-    */
 
+/* =========================================================
+   ROTARY
+   ========================================================= */
+
+
+/*
+   指の位置から、
+   ノブ中心を基準にした角度を求めます。
+
+   上方向 = 0°
+   右方向 = 90°
+   下方向 = 180°
+   左方向 = -90°
+*/
+
+function getPointerAngle(event) {
+
+  const rect =
+    rotaryKnob.getBoundingClientRect();
+
+
+  const centerX =
+    rect.left + rect.width / 2;
+
+  const centerY =
+    rect.top + rect.height / 2;
+
+
+  const dx =
+    event.clientX - centerX;
+
+  const dy =
+    event.clientY - centerY;
+
+
+  return (
+    Math.atan2(dy, dx) *
+    180 /
+    Math.PI
+  ) + 90;
+}
+
+
+/*
+   -180°〜180°の範囲へ補正。
+
+   これがないと、
+   359° → 0°を通過したときに
+   ノブが逆方向へ大ジャンプします。
+*/
+
+function normalizeAngleDelta(delta) {
+
+  while (delta > 180) {
+    delta -= 360;
+  }
+
+  while (delta < -180) {
+    delta += 360;
+  }
+
+  return delta;
+}
+
+
+/* =========================================================
+   ROTARY POINTER DOWN
+   ========================================================= */
+
+function startRotary(event) {
+
+  if (!event.isPrimary) {
+    return;
+  }
+
+
+  rotaryState.dragging = true;
+
+  rotaryState.pointerId =
+    event.pointerId;
+
+
+  rotaryState.previousPointerAngle =
+    getPointerAngle(event);
+
+
+  try {
+
+    rotaryKnob.setPointerCapture(
+      event.pointerId
+    );
+
+  } catch (error) {
+    /* Safari safety */
+  }
+
+
+  rotaryKnob.classList.add(
+    "is-grabbed"
+  );
+
+
+  event.preventDefault();
+}
+
+
+/* =========================================================
+   ROTARY POINTER MOVE
+   ========================================================= */
+
+function moveRotary(event) {
+
+  if (!rotaryState.dragging) {
+    return;
+  }
+
+
+  if (
+    rotaryState.pointerId !== event.pointerId
+  ) {
+    return;
+  }
+
+
+  const currentPointerAngle =
+    getPointerAngle(event);
+
+
+  let delta =
+    currentPointerAngle -
+    rotaryState.previousPointerAngle;
+
+
+  delta =
+    normalizeAngleDelta(delta);
+
+
+  /*
+     Pointer座標が突然大きく飛んだ場合は
+     回転を制限します。
+  */
+
+  delta =
+    Math.max(
+      -SETTINGS.rotary.maxDeltaPerMove,
+      Math.min(
+        SETTINGS.rotary.maxDeltaPerMove,
+        delta
+      )
+    );
+
+
+  rotaryState.angle += delta;
+
+
+  rotaryState.previousPointerAngle =
+    currentPointerAngle;
+
+
+  updateRotary();
+
+
+  event.preventDefault();
+}
+
+
+/* =========================================================
+   ROTARY DISPLAY
+   ========================================================= */
+
+function updateRotary() {
+
+  const stepSize =
+    SETTINGS.rotary.stepDegrees;
+
+
+  /*
+     連続角度を最寄りの12°へ吸着。
+  */
+
+  const snappedAngle =
+    Math.round(
+      rotaryState.angle / stepSize
+    ) * stepSize;
+
+
+  const newStep =
+    Math.round(
+      rotaryState.angle / stepSize
+    );
+
+
+  rotaryKnob.style.setProperty(
+    "--rotary-angle",
+    snappedAngle + "deg"
+  );
+
+
+  /*
+     ステップが変わった瞬間だけ
+     微細なクリック表現を出します。
+  */
+
+  if (newStep !== rotaryState.step) {
+
+    rotaryState.step = newStep;
+
+    playRotaryStepVisual();
+  }
+
+
+  /*
+     aria値は0〜29へ循環させます。
+  */
+
+  const totalSteps =
+    Math.round(
+      360 / stepSize
+    );
+
+
+  const normalizedStep =
+    (
+      (newStep % totalSteps) +
+      totalSteps
+    ) % totalSteps;
+
+
+  rotaryKnob.setAttribute(
+    "aria-valuenow",
+    String(normalizedStep)
+  );
+}
+
+
+/* =========================================================
+   ROTARY STEP FEEDBACK
+   ========================================================= */
+
+function playRotaryStepVisual() {
+
+  if (rotaryState.stepTimer !== null) {
+
+    window.clearTimeout(
+      rotaryState.stepTimer
+    );
+
+    rotaryState.stepTimer = null;
+  }
+
+
+  rotaryKnob.classList.remove(
+    "is-stepping"
+  );
+
+
+  void rotaryKnob.offsetWidth;
+
+
+  rotaryKnob.classList.add(
+    "is-stepping"
+  );
+
+
+  rotaryState.stepTimer =
+    window.setTimeout(
+      () => {
+
+        rotaryKnob.classList.remove(
+          "is-stepping"
+        );
+
+        rotaryState.stepTimer = null;
+
+      },
+      85
+    );
+}
+
+
+/* =========================================================
+   ROTARY POINTER UP
+   ========================================================= */
+
+function endRotary(event) {
+
+  if (!rotaryState.dragging) {
+    return;
+  }
+
+
+  if (
+    rotaryState.pointerId !== event.pointerId
+  ) {
+    return;
+  }
+
+
+  rotaryState.dragging = false;
+
+
+  rotaryKnob.classList.remove(
+    "is-grabbed"
+  );
+
+
+  releaseRotaryPointerCapture(event);
+
+
+  rotaryState.pointerId = null;
+}
+
+
+/* =========================================================
+   ROTARY POINTER CANCEL
+   ========================================================= */
+
+function cancelRotary(event) {
+
+  if (
+    rotaryState.pointerId !== null &&
+    event.pointerId !== rotaryState.pointerId
+  ) {
+    return;
+  }
+
+
+  rotaryState.dragging = false;
+
+  rotaryState.pointerId = null;
+
+
+  rotaryKnob.classList.remove(
+    "is-grabbed"
+  );
+
+  rotaryKnob.classList.remove(
+    "is-stepping"
+  );
+
+
+  releaseRotaryPointerCapture(event);
+}
+
+
+function releaseRotaryPointerCapture(event) {
+
+  try {
+
+    if (
+      rotaryKnob.hasPointerCapture(
+        event.pointerId
+      )
+    ) {
+
+      rotaryKnob.releasePointerCapture(
+        event.pointerId
+      );
+    }
+
+  } catch (error) {
+    /* Safari safety */
   }
 }
 
 
 /* =========================================================
    KEYBOARD FALLBACK
+   ========================================================= */
 
-   iPhoneでは通常使いませんが、
-   PC確認とアクセシビリティのために残します。
+function handleRotaryKeyDown(event) {
+
+  let direction = 0;
+
+
+  if (
+    event.key === "ArrowRight" ||
+    event.key === "ArrowUp"
+  ) {
+
+    direction = 1;
+  }
+
+
+  if (
+    event.key === "ArrowLeft" ||
+    event.key === "ArrowDown"
+  ) {
+
+    direction = -1;
+  }
+
+
+  if (direction === 0) {
+    return;
+  }
+
+
+  event.preventDefault();
+
+
+  rotaryState.angle +=
+    SETTINGS.rotary.stepDegrees *
+    direction;
+
+
+  updateRotary();
+}
+
+
+/* =========================================================
+   TRIGGER KEYBOARD
    ========================================================= */
 
 function handleTriggerKeyDown(event) {
@@ -2614,7 +2969,6 @@ function handleTriggerKeyUp(event) {
     "is-pressed"
   );
 
-
   triggerButton.classList.remove(
     "is-releasing"
   );
@@ -2638,9 +2992,6 @@ function handleTriggerKeyUp(event) {
 
 /* =========================================================
    PAGE VISIBILITY
-
-   Safariを閉じたり別タブへ移動した場合に
-   ボタンが押されたまま残らないようにします。
    ========================================================= */
 
 function handleVisibilityChange() {
@@ -2650,12 +3001,12 @@ function handleVisibilityChange() {
   }
 
 
-  clearTriggerRelease();
+  /* Trigger reset */
 
+  clearTriggerRelease();
 
   triggerState.pressed = false;
   triggerState.pointerId = null;
-
 
   triggerButton.classList.remove(
     "is-pressed"
@@ -2664,11 +3015,35 @@ function handleVisibilityChange() {
   triggerButton.classList.remove(
     "is-releasing"
   );
+
+
+  /* Rotary interaction reset */
+
+  rotaryState.dragging = false;
+  rotaryState.pointerId = null;
+
+  rotaryKnob.classList.remove(
+    "is-grabbed"
+  );
+
+  rotaryKnob.classList.remove(
+    "is-stepping"
+  );
+
+
+  if (rotaryState.stepTimer !== null) {
+
+    window.clearTimeout(
+      rotaryState.stepTimer
+    );
+
+    rotaryState.stepTimer = null;
+  }
 }
 
 
 /* =========================================================
-   EVENT LISTENERS
+   EVENTS — TRIGGER
    ========================================================= */
 
 triggerButton.addEventListener(
@@ -2676,39 +3051,26 @@ triggerButton.addEventListener(
   pressTrigger
 );
 
-
 triggerButton.addEventListener(
   "pointerup",
   releaseTrigger
 );
-
 
 triggerButton.addEventListener(
   "pointercancel",
   cancelTrigger
 );
 
-
 triggerButton.addEventListener(
   "lostpointercapture",
   () => {
-
-    /*
-       pointerupによる正常なリリース後は
-       pressedがfalseなので何もしません。
-
-       Safari側で予期せずCaptureを失った場合だけ
-       安全に初期状態へ戻します。
-    */
 
     if (!triggerState.pressed) {
       return;
     }
 
-
     triggerState.pressed = false;
     triggerState.pointerId = null;
-
 
     triggerButton.classList.remove(
       "is-pressed"
@@ -2716,12 +3078,10 @@ triggerButton.addEventListener(
   }
 );
 
-
 triggerButton.addEventListener(
   "keydown",
   handleTriggerKeyDown
 );
-
 
 triggerButton.addEventListener(
   "keyup",
@@ -2729,10 +3089,68 @@ triggerButton.addEventListener(
 );
 
 
+/* =========================================================
+   EVENTS — ROTARY
+   ========================================================= */
+
+rotaryKnob.addEventListener(
+  "pointerdown",
+  startRotary
+);
+
+rotaryKnob.addEventListener(
+  "pointermove",
+  moveRotary
+);
+
+rotaryKnob.addEventListener(
+  "pointerup",
+  endRotary
+);
+
+rotaryKnob.addEventListener(
+  "pointercancel",
+  cancelRotary
+);
+
+rotaryKnob.addEventListener(
+  "lostpointercapture",
+  () => {
+
+    if (!rotaryState.dragging) {
+      return;
+    }
+
+    rotaryState.dragging = false;
+    rotaryState.pointerId = null;
+
+    rotaryKnob.classList.remove(
+      "is-grabbed"
+    );
+  }
+);
+
+rotaryKnob.addEventListener(
+  "keydown",
+  handleRotaryKeyDown
+);
+
+
+/* =========================================================
+   DOCUMENT
+   ========================================================= */
+
 document.addEventListener(
   "visibilitychange",
   handleVisibilityChange
 );
+
+
+/* =========================================================
+   INITIAL DISPLAY
+   ========================================================= */
+
+updateRotary();
 
 </script>
 
