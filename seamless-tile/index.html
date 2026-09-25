@@ -9,7 +9,6 @@
 >
 
 <meta name="theme-color" content="#211b16">
-
 <title>Seamless Tile</title>
 
 <style>
@@ -22,10 +21,9 @@
   --tray-light: #76563d;
 
   /*
-    今回の主役となる3種類の木材。
-    タイル・象嵌とも、この3色だけを使います。
+    今回使用する木材色は、この3種類だけです。
   */
-  --wood-light: #d7b27e;
+  --wood-light: #d8b47f;
   --wood-medium: #a87549;
   --wood-dark: #513323;
 
@@ -257,7 +255,7 @@ body {
 /* =========================================================
    WOOD TILE
 
-   ベース材も Light / Medium / Dark の3種類のみ。
+   ベース材も Light / Medium / Dark の3種類だけ。
    ========================================================= */
 
 .tile {
@@ -274,45 +272,36 @@ body {
     inset -1px -1px 2px rgba(45,28,18,.13);
 }
 
-
-/* ---------- LIGHT ---------- */
-
 .tile.wood-light {
   background:
     repeating-linear-gradient(
       5deg,
-      rgba(81,51,35,.040) 0,
-      rgba(81,51,35,.040) 1px,
+      rgba(81,51,35,.038) 0,
+      rgba(81,51,35,.038) 1px,
       transparent 2px,
       transparent 7px
     ),
     var(--wood-light);
 }
 
-
-/* ---------- MEDIUM ---------- */
-
 .tile.wood-medium {
   background:
     repeating-linear-gradient(
       -6deg,
-      rgba(67,40,26,.045) 0,
-      rgba(67,40,26,.045) 1px,
+      rgba(67,40,26,.044) 0,
+      rgba(67,40,26,.044) 1px,
       transparent 2px,
       transparent 7px
     ),
     var(--wood-medium);
 }
 
-
-/* ---------- DARK ---------- */
-
 .tile.wood-dark {
   background:
     repeating-linear-gradient(
       4deg,
-      rgba(20,12,8,.08) 0,
-      rgba(20,12,8,.08) 1px,
+      rgba(20,12,8,.075) 0,
+      rgba(20,12,8,.075) 1px,
       transparent 2px,
       transparent 7px
     ),
@@ -336,7 +325,7 @@ body {
 /* =========================================================
    THREE-WOOD INLAY SYSTEM
 
-   新しい色は一切追加しません。
+   図柄にも新しい色を追加しません。
    ========================================================= */
 
 .wood-fill-light {
@@ -355,12 +344,12 @@ body {
   fill: none;
 
   stroke: var(--wood-dark);
-  stroke-width: 2.2;
+  stroke-width: 2;
 
   stroke-linecap: round;
   stroke-linejoin: round;
 
-  opacity: .72;
+  opacity: .55;
 }
 
 
@@ -498,14 +487,12 @@ body {
     class="board-shell"
     id="boardShell"
   >
-
     <div
       class="board"
       id="board"
       role="application"
       aria-label="木製の幾何学タイル。行を左右、列を上下へ自由に動かせます。完成や正解はありません。"
     ></div>
-
   </div>
 
   <p
@@ -559,16 +546,14 @@ const prefersReducedMotion =
 
 
 /* =========================================================
-   36 UNIQUE WOODEN TILES
+   36 UNIQUE TILES
 
-   6つの幾何学ファミリー × 6変形。
+   6種類の図形 × 6変形 = 36枚。
 
    wood:
-   0 = light
-   1 = medium
-   2 = dark
-
-   使う木色はこの3種類だけです。
+   0 = Light
+   1 = Medium
+   2 = Dark
    ========================================================= */
 
 const WOOD_NAMES = [
@@ -609,13 +594,9 @@ const TILE_MAP =
 
 
 /* =========================================================
-   THREE-WOOD PALETTE LOGIC
+   THREE-WOOD RULE
 
-   ベース材に対して、
-   残り2種類の木を象嵌として使用します。
-
-   つまりどのタイルを見ても、
-   色体系は必ず同じ3種類です。
+   どのタイルも同じ3種類の木材だけで構成します。
    ========================================================= */
 
 function getWoodClasses(tile) {
@@ -645,7 +626,7 @@ function getWoodClasses(tile) {
 
 
 /* =========================================================
-   SVG GEOMETRY
+   TILE GEOMETRY
    ========================================================= */
 
 function tileSVG(tile) {
@@ -671,7 +652,6 @@ function tileSVG(tile) {
     /* 0 — LARGE TRIANGLE */
     `
     <g transform="${transform}">
-
       <polygon
         class="${wood.primary}"
         points="0,100 100,0 100,100"
@@ -686,7 +666,6 @@ function tileSVG(tile) {
         class="wood-line"
         d="M0 100 L100 0"
       />
-
     </g>
     `,
 
@@ -694,7 +673,6 @@ function tileSVG(tile) {
     /* 1 — DOUBLE TRIANGLE */
     `
     <g transform="${transform}">
-
       <polygon
         class="${wood.primary}"
         points="0,0 50,0 100,50 100,100"
@@ -710,7 +688,6 @@ function tileSVG(tile) {
         points="0,0 100,50 50,100"
         opacity=".82"
       />
-
     </g>
     `,
 
@@ -718,7 +695,6 @@ function tileSVG(tile) {
     /* 2 — DIAMOND */
     `
     <g transform="${transform}">
-
       <polygon
         class="${wood.primary}"
         points="
@@ -738,7 +714,6 @@ function tileSVG(tile) {
           22,50
         "
       />
-
     </g>
     `,
 
@@ -746,7 +721,6 @@ function tileSVG(tile) {
     /* 3 — QUARTER FORM */
     `
     <g transform="${transform}">
-
       <path
         class="${wood.primary}"
         d="
@@ -767,7 +741,6 @@ function tileSVG(tile) {
           Z
         "
       />
-
     </g>
     `,
 
@@ -775,7 +748,6 @@ function tileSVG(tile) {
     /* 4 — CHEVRON */
     `
     <g transform="${transform}">
-
       <polygon
         class="${wood.primary}"
         points="
@@ -798,7 +770,6 @@ function tileSVG(tile) {
           0,100
         "
       />
-
     </g>
     `,
 
@@ -806,7 +777,6 @@ function tileSVG(tile) {
     /* 5 — TRAPEZOID */
     `
     <g transform="${transform}">
-
       <polygon
         class="${wood.primary}"
         points="
@@ -828,7 +798,6 @@ function tileSVG(tile) {
           70,82
         "
       />
-
     </g>
     `
   ];
@@ -943,7 +912,11 @@ const drag = {
    HELPERS
    ========================================================= */
 
-function clamp(value, min, max) {
+function clamp(
+  value,
+  min,
+  max
+) {
   return Math.max(
     min,
     Math.min(max, value)
@@ -951,7 +924,10 @@ function clamp(value, min, max) {
 }
 
 
-function modulo(value, divisor) {
+function modulo(
+  value,
+  divisor
+) {
   return (
     (value % divisor) +
     divisor
@@ -987,6 +963,8 @@ function createTileElement(id) {
 
 /* =========================================================
    WORLD VALIDATION
+
+   36枚が必ず1枚ずつ存在することを確認します。
    ========================================================= */
 
 function validateWorld() {
@@ -995,7 +973,9 @@ function validateWorld() {
     world.flat();
 
   if (
-    flat.length !== 36
+    flat.length !==
+    CONFIG.worldSize *
+    CONFIG.worldSize
   ) {
     return false;
   }
@@ -1004,7 +984,8 @@ function validateWorld() {
     new Set(flat);
 
   if (
-    unique.size !== 36
+    unique.size !==
+    36
   ) {
     return false;
   }
@@ -1026,7 +1007,7 @@ function getVisibleGrid() {
 
   for (
     let row = 0;
-    row < 3;
+    row < CONFIG.visibleSize;
     row++
   ) {
 
@@ -1034,15 +1015,17 @@ function getVisibleGrid() {
 
     for (
       let column = 0;
-      column < 3;
+      column < CONFIG.visibleSize;
       column++
     ) {
 
       line.push(
         world[
-          WINDOW.rowStart + row
+          WINDOW.rowStart +
+          row
         ][
-          WINDOW.columnStart + column
+          WINDOW.columnStart +
+          column
         ]
       );
     }
@@ -1124,6 +1107,10 @@ function renderBoard() {
 
 /* =========================================================
    WORLD ROTATION
+
+   正のsteps:
+   行なら右
+   列なら下
    ========================================================= */
 
 function rotateWorldRow(
@@ -1195,7 +1182,10 @@ function rotateWorldColumn(
    DIRECTION LOCK
    ========================================================= */
 
-function determineDirection(dx, dy) {
+function determineDirection(
+  dx,
+  dy
+) {
 
   const ax =
     Math.abs(dx);
@@ -1204,4 +1194,1122 @@ function determineDirection(dx, dy) {
     Math.abs(dy);
 
   const distance =
-    Math.max(ax,
+    Math.max(ax, ay);
+
+
+  if (
+    distance <
+    CONFIG.directionThreshold
+  ) {
+    return null;
+  }
+
+
+  if (
+    ax >
+    ay *
+    CONFIG.directionBias
+  ) {
+    return "row";
+  }
+
+
+  if (
+    ay >
+    ax *
+    CONFIG.directionBias
+  ) {
+    return "column";
+  }
+
+
+  /*
+    ほぼ45度のまま一定距離を超えた場合は、
+    大きい方の軸へ固定します。
+  */
+  if (
+    distance >=
+    CONFIG.diagonalFallbackDistance
+  ) {
+
+    return (
+      ax >= ay
+        ? "row"
+        : "column"
+    );
+  }
+
+
+  return null;
+}
+
+
+/* =========================================================
+   PREPARE ROW DRAG
+
+   6枚の実在タイルに、
+   左右の補助1枚ずつを加えます。
+
+   表示窓はsource[1]〜source[3]。
+   ========================================================= */
+
+function prepareRowDrag() {
+
+  const layer =
+    document.getElementById(
+      "activeLayer"
+    );
+
+
+  const staticTiles =
+    board.querySelectorAll(
+      `.static-grid .tile[data-row="${drag.visibleRow}"]`
+    );
+
+
+  staticTiles.forEach(
+    tile =>
+      tile.classList.add(
+        "masked"
+      )
+  );
+
+
+  const wrapper =
+    document.createElement("div");
+
+  wrapper.className =
+    "drag-row";
+
+  wrapper.style.top =
+    `calc(${drag.visibleRow} * 100% / 3)`;
+
+
+  const strip =
+    document.createElement("div");
+
+  strip.className =
+    "drag-row-strip";
+
+
+  const source =
+    world[drag.worldRow];
+
+
+  /*
+    補助 + 6枚 + 補助
+  */
+  const ids = [
+    source[5],
+    ...source,
+    source[0]
+  ];
+
+
+  strip.style.width =
+    `${ids.length * drag.tileSize}px`;
+
+
+  ids.forEach(id => {
+
+    const tile =
+      createTileElement(id);
+
+    tile.style.width =
+      `${drag.tileSize}px`;
+
+    tile.style.height =
+      `${drag.tileSize}px`;
+
+    strip.appendChild(tile);
+  });
+
+
+  wrapper.appendChild(strip);
+  layer.appendChild(wrapper);
+
+  drag.strip =
+    strip;
+
+
+  /*
+    ids[0] = 左補助
+    ids[1] = source[0]
+    ids[2] = source[1]
+
+    表示窓先頭はsource[1]なので、
+    baselineは2枚分左へ。
+  */
+  const baseline =
+    -(
+      WINDOW.columnStart +
+      1
+    ) *
+    drag.tileSize;
+
+
+  strip.dataset.baseline =
+    String(baseline);
+
+
+  strip.style.transform =
+    `translate3d(${baseline}px,0,0)`;
+
+
+  board.classList.add(
+    "dragging"
+  );
+}
+
+
+/* =========================================================
+   PREPARE COLUMN DRAG
+   ========================================================= */
+
+function prepareColumnDrag() {
+
+  const layer =
+    document.getElementById(
+      "activeLayer"
+    );
+
+
+  const staticTiles =
+    board.querySelectorAll(
+      `.static-grid .tile[data-column="${drag.visibleColumn}"]`
+    );
+
+
+  staticTiles.forEach(
+    tile =>
+      tile.classList.add(
+        "masked"
+      )
+  );
+
+
+  const wrapper =
+    document.createElement("div");
+
+  wrapper.className =
+    "drag-column";
+
+  wrapper.style.left =
+    `calc(${drag.visibleColumn} * 100% / 3)`;
+
+
+  const strip =
+    document.createElement("div");
+
+  strip.className =
+    "drag-column-strip";
+
+
+  const source =
+    world.map(
+      row =>
+        row[drag.worldColumn]
+    );
+
+
+  const ids = [
+    source[5],
+    ...source,
+    source[0]
+  ];
+
+
+  strip.style.height =
+    `${ids.length * drag.tileSize}px`;
+
+
+  ids.forEach(id => {
+
+    const tile =
+      createTileElement(id);
+
+    tile.style.width =
+      `${drag.tileSize}px`;
+
+    tile.style.height =
+      `${drag.tileSize}px`;
+
+    strip.appendChild(tile);
+  });
+
+
+  wrapper.appendChild(strip);
+  layer.appendChild(wrapper);
+
+  drag.strip =
+    strip;
+
+
+  const baseline =
+    -(
+      WINDOW.rowStart +
+      1
+    ) *
+    drag.tileSize;
+
+
+  strip.dataset.baseline =
+    String(baseline);
+
+
+  strip.style.transform =
+    `translate3d(0,${baseline}px,0)`;
+
+
+  board.classList.add(
+    "dragging"
+  );
+}
+
+
+/* =========================================================
+   POINTER DOWN
+   ========================================================= */
+
+function pointerDown(event) {
+
+  if (
+    drag.active ||
+    drag.settling ||
+    !event.isPrimary
+  ) {
+    return;
+  }
+
+
+  const rect =
+    board.getBoundingClientRect();
+
+
+  const localX =
+    event.clientX -
+    rect.left;
+
+  const localY =
+    event.clientY -
+    rect.top;
+
+
+  drag.active = true;
+
+  drag.pointerId =
+    event.pointerId;
+
+  drag.direction = null;
+
+
+  drag.visibleRow =
+    clamp(
+      Math.floor(
+        localY /
+        (rect.height / 3)
+      ),
+      0,
+      2
+    );
+
+
+  drag.visibleColumn =
+    clamp(
+      Math.floor(
+        localX /
+        (rect.width / 3)
+      ),
+      0,
+      2
+    );
+
+
+  drag.worldRow =
+    WINDOW.rowStart +
+    drag.visibleRow;
+
+  drag.worldColumn =
+    WINDOW.columnStart +
+    drag.visibleColumn;
+
+
+  drag.startX =
+    event.clientX;
+
+  drag.startY =
+    event.clientY;
+
+  drag.lastX =
+    event.clientX;
+
+  drag.lastY =
+    event.clientY;
+
+  drag.lastTime =
+    performance.now();
+
+  drag.velocity = 0;
+  drag.offset = 0;
+
+  drag.tileSize =
+    rect.width / 3;
+
+  drag.strip = null;
+
+
+  try {
+
+    board.setPointerCapture(
+      event.pointerId
+    );
+
+  } catch (_) {
+    /* Safari safety */
+  }
+}
+
+
+/* =========================================================
+   POINTER MOVE
+   ========================================================= */
+
+function pointerMove(event) {
+
+  if (
+    !drag.active ||
+    event.pointerId !==
+      drag.pointerId
+  ) {
+    return;
+  }
+
+
+  event.preventDefault();
+
+
+  const dx =
+    event.clientX -
+    drag.startX;
+
+  const dy =
+    event.clientY -
+    drag.startY;
+
+
+  /*
+    最初の数pxでは方向を決めません。
+  */
+  if (!drag.direction) {
+
+    const direction =
+      determineDirection(
+        dx,
+        dy
+      );
+
+
+    if (!direction) {
+      return;
+    }
+
+
+    drag.direction =
+      direction;
+
+
+    hint.classList.add(
+      "hidden"
+    );
+
+
+    if (
+      direction === "row"
+    ) {
+
+      prepareRowDrag();
+
+    } else {
+
+      prepareColumnDrag();
+    }
+  }
+
+
+  const now =
+    performance.now();
+
+  const elapsed =
+    Math.max(
+      1,
+      now -
+      drag.lastTime
+    );
+
+
+  let movement;
+
+
+  if (
+    drag.direction === "row"
+  ) {
+
+    movement =
+      event.clientX -
+      drag.lastX;
+
+    drag.offset =
+      dx;
+
+    drag.lastX =
+      event.clientX;
+
+  } else {
+
+    movement =
+      event.clientY -
+      drag.lastY;
+
+    drag.offset =
+      dy;
+
+    drag.lastY =
+      event.clientY;
+  }
+
+
+  const instantVelocity =
+    movement /
+    elapsed;
+
+
+  drag.velocity =
+    drag.velocity * .72 +
+    instantVelocity * .28;
+
+
+  drag.lastTime =
+    now;
+
+
+  requestDragFrame();
+}
+
+
+/* =========================================================
+   REQUEST ANIMATION FRAME
+   ========================================================= */
+
+function requestDragFrame() {
+
+  if (
+    drag.animationFrame !==
+    null
+  ) {
+    return;
+  }
+
+
+  drag.animationFrame =
+    requestAnimationFrame(() => {
+
+      drag.animationFrame =
+        null;
+
+
+      if (
+        !drag.active ||
+        !drag.strip
+      ) {
+        return;
+      }
+
+
+      const baseline =
+        Number(
+          drag.strip.dataset.baseline
+        );
+
+
+      if (
+        drag.direction === "row"
+      ) {
+
+        drag.strip.style.transform =
+          `translate3d(${
+            baseline +
+            drag.offset
+          }px,0,0)`;
+
+      } else {
+
+        drag.strip.style.transform =
+          `translate3d(0,${
+            baseline +
+            drag.offset
+          }px,0)`;
+      }
+    });
+}
+
+
+/* =========================================================
+   FINISH DRAG
+   ========================================================= */
+
+function finishDrag(
+  event,
+  cancelled = false
+) {
+
+  if (!drag.active) {
+    return;
+  }
+
+
+  if (
+    event &&
+    event.pointerId !== undefined &&
+    event.pointerId !==
+      drag.pointerId
+  ) {
+    return;
+  }
+
+
+  drag.active = false;
+
+
+  board.classList.remove(
+    "dragging"
+  );
+
+
+  if (
+    drag.animationFrame !==
+    null
+  ) {
+
+    cancelAnimationFrame(
+      drag.animationFrame
+    );
+
+    drag.animationFrame =
+      null;
+  }
+
+
+  /*
+    方向決定前のタップなら、
+    何も変更しません。
+  */
+  if (
+    !drag.direction ||
+    !drag.strip
+  ) {
+
+    renderBoard();
+    resetDrag();
+
+    return;
+  }
+
+
+  /*
+    pointercancelの場合は
+    未確定操作を破棄します。
+  */
+  if (cancelled) {
+
+    renderBoard();
+    resetDrag();
+
+    return;
+  }
+
+
+  let projected =
+    drag.offset;
+
+
+  projected +=
+    clamp(
+      drag.velocity * .15,
+      -CONFIG.maxVelocityBonus,
+      CONFIG.maxVelocityBonus
+    ) *
+    drag.tileSize;
+
+
+  let steps =
+    Math.round(
+      projected /
+      drag.tileSize
+    );
+
+
+  steps =
+    clamp(
+      steps,
+      -CONFIG.maxStepsPerGesture,
+      CONFIG.maxStepsPerGesture
+    );
+
+
+  settle(
+    steps *
+    drag.tileSize,
+    steps
+  );
+}
+
+
+/* =========================================================
+   SETTLE
+   ========================================================= */
+
+function settle(
+  targetOffset,
+  steps
+) {
+
+  if (!drag.strip) {
+
+    renderBoard();
+    resetDrag();
+
+    return;
+  }
+
+
+  drag.settling = true;
+
+
+  const generation =
+    ++drag.settleGeneration;
+
+
+  const strip =
+    drag.strip;
+
+  const direction =
+    drag.direction;
+
+  const worldRow =
+    drag.worldRow;
+
+  const worldColumn =
+    drag.worldColumn;
+
+
+  const baseline =
+    Number(
+      strip.dataset.baseline
+    );
+
+
+  const duration =
+    prefersReducedMotion.matches
+      ? 65
+      : CONFIG.snapDuration;
+
+
+  strip.style.transition =
+    `transform ${duration}ms cubic-bezier(.20,.82,.24,1)`;
+
+
+  if (
+    direction === "row"
+  ) {
+
+    strip.style.transform =
+      `translate3d(${
+        baseline +
+        targetOffset
+      }px,0,0)`;
+
+  } else {
+
+    strip.style.transform =
+      `translate3d(0,${
+        baseline +
+        targetOffset
+      }px,0)`;
+  }
+
+
+  let completed =
+    false;
+
+
+  const complete = () => {
+
+    if (
+      completed ||
+      generation !==
+        drag.settleGeneration
+    ) {
+      return;
+    }
+
+
+    completed =
+      true;
+
+
+    strip.removeEventListener(
+      "transitionend",
+      transitionEnd
+    );
+
+
+    if (
+      drag.settleTimer !==
+      null
+    ) {
+
+      clearTimeout(
+        drag.settleTimer
+      );
+
+      drag.settleTimer =
+        null;
+    }
+
+
+    /*
+      見た目の移動方向と同じ方向へ
+      6×6 worldを循環させます。
+    */
+    if (
+      direction === "row"
+    ) {
+
+      rotateWorldRow(
+        worldRow,
+        steps
+      );
+
+    } else {
+
+      rotateWorldColumn(
+        worldColumn,
+        steps
+      );
+    }
+
+
+    /*
+      36枚の複製・消失チェック。
+    */
+    if (!validateWorld()) {
+
+      console.error(
+        "Seamless Tile: world validation failed."
+      );
+
+      resetWorld();
+    }
+
+
+    drag.settling =
+      false;
+
+
+    resetDrag();
+
+    renderBoard();
+
+    triggerSettlePulse();
+  };
+
+
+  const transitionEnd =
+    event => {
+
+      if (
+        event.target !== strip ||
+        event.propertyName !==
+          "transform"
+      ) {
+        return;
+      }
+
+      complete();
+    };
+
+
+  strip.addEventListener(
+    "transitionend",
+    transitionEnd
+  );
+
+
+  /*
+    Safariでtransitionendが来なかった場合の
+    安全用タイマー。
+  */
+  drag.settleTimer =
+    setTimeout(
+      complete,
+      duration + 80
+    );
+}
+
+
+/* =========================================================
+   SETTLE FEEDBACK
+   ========================================================= */
+
+function triggerSettlePulse() {
+
+  if (
+    prefersReducedMotion.matches
+  ) {
+    return;
+  }
+
+
+  boardShell.classList.remove(
+    "snap-pulse"
+  );
+
+
+  requestAnimationFrame(() => {
+
+    boardShell.classList.add(
+      "snap-pulse"
+    );
+  });
+}
+
+
+/* =========================================================
+   RESET DRAG STATE
+   ========================================================= */
+
+function resetDrag() {
+
+  drag.active =
+    false;
+
+  drag.pointerId =
+    null;
+
+  drag.direction =
+    null;
+
+  drag.visibleRow =
+    -1;
+
+  drag.visibleColumn =
+    -1;
+
+  drag.worldRow =
+    -1;
+
+  drag.worldColumn =
+    -1;
+
+  drag.startX =
+    0;
+
+  drag.startY =
+    0;
+
+  drag.lastX =
+    0;
+
+  drag.lastY =
+    0;
+
+  drag.lastTime =
+    0;
+
+  drag.velocity =
+    0;
+
+  drag.tileSize =
+    0;
+
+  drag.offset =
+    0;
+
+  drag.strip =
+    null;
+
+  drag.animationFrame =
+    null;
+}
+
+
+/* =========================================================
+   CANCEL INTERACTION
+
+   画面回転・バックグラウンド移行などでは
+   未確定操作をworldへ反映しません。
+   ========================================================= */
+
+function cancelInteraction() {
+
+  drag.settleGeneration++;
+
+
+  if (
+    drag.settleTimer !==
+    null
+  ) {
+
+    clearTimeout(
+      drag.settleTimer
+    );
+
+    drag.settleTimer =
+      null;
+  }
+
+
+  if (
+    drag.animationFrame !==
+    null
+  ) {
+
+    cancelAnimationFrame(
+      drag.animationFrame
+    );
+
+    drag.animationFrame =
+      null;
+  }
+
+
+  drag.active =
+    false;
+
+  drag.settling =
+    false;
+
+
+  board.classList.remove(
+    "dragging"
+  );
+
+
+  resetDrag();
+
+  renderBoard();
+}
+
+
+/* =========================================================
+   POINTER EVENTS
+   ========================================================= */
+
+board.addEventListener(
+  "pointerdown",
+  pointerDown
+);
+
+
+board.addEventListener(
+  "pointermove",
+  pointerMove,
+  {
+    passive: false
+  }
+);
+
+
+board.addEventListener(
+  "pointerup",
+  event => {
+
+    finishDrag(
+      event,
+      false
+    );
+  }
+);
+
+
+board.addEventListener(
+  "pointercancel",
+  event => {
+
+    finishDrag(
+      event,
+      true
+    );
+  }
+);
+
+
+/*
+  長押しメニューを抑制。
+*/
+board.addEventListener(
+  "contextmenu",
+  event => {
+
+    event.preventDefault();
+  }
+);
+
+
+/* =========================================================
+   RESIZE / ORIENTATION SAFETY
+   ========================================================= */
+
+window.addEventListener(
+  "resize",
+  () => {
+
+    if (
+      drag.active ||
+      drag.settling
+    ) {
+
+      cancelInteraction();
+
+      return;
+    }
+
+
+    renderBoard();
+  }
+);
+
+
+/* =========================================================
+   VISIBILITY SAFETY
+   ========================================================= */
+
+document.addEventListener(
+  "visibilitychange",
+  () => {
+
+    if (
+      document.hidden
+    ) {
+
+      cancelInteraction();
+    }
+  }
+);
+
+
+/* =========================================================
+   INITIAL VALIDATION / RENDER
+   ========================================================= */
+
+if (!validateWorld()) {
+  resetWorld();
+}
+
+renderBoard();
+
+})();
+</script>
+
+</body>
+</html>
