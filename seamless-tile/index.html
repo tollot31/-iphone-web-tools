@@ -20,16 +20,12 @@
   --tray-mid: #5a402d;
   --tray-light: #76563d;
 
-  /*
-    今回使用する木材色は、この3種類だけです。
-  */
   --wood-light: #d8b47f;
   --wood-medium: #a87549;
   --wood-dark: #513323;
 
   --board-size: min(86vw, 410px);
   --board-radius: 22px;
-
   --snap-duration: 185ms;
 }
 
@@ -42,7 +38,6 @@ html,
 body {
   width: 100%;
   min-height: 100%;
-
   margin: 0;
   padding: 0;
 
@@ -93,7 +88,7 @@ body {
   background:
     radial-gradient(
       circle at 50% 38%,
-      rgba(160, 116, 75, .12),
+      rgba(160,116,75,.12),
       transparent 43%
     ),
     linear-gradient(
@@ -113,7 +108,7 @@ body {
 
   text-transform: uppercase;
 
-  color: rgba(236, 221, 203, .61);
+  color: rgba(236,221,203,.61);
 }
 
 
@@ -129,8 +124,7 @@ body {
 
   padding: 10px;
 
-  border-radius:
-    calc(var(--board-radius) + 8px);
+  border-radius: calc(var(--board-radius) + 8px);
 
   background:
     repeating-linear-gradient(
@@ -161,17 +155,9 @@ body {
 }
 
 @keyframes settlePulse {
-  0% {
-    transform: translateY(0);
-  }
-
-  45% {
-    transform: translateY(1px);
-  }
-
-  100% {
-    transform: translateY(0);
-  }
+  0%   { transform: translateY(0); }
+  45%  { transform: translateY(1px); }
+  100% { transform: translateY(0); }
 }
 
 
@@ -233,11 +219,8 @@ body {
 
   display: grid;
 
-  grid-template-columns:
-    repeat(3, 1fr);
-
-  grid-template-rows:
-    repeat(3, 1fr);
+  grid-template-columns: repeat(3, 1fr);
+  grid-template-rows: repeat(3, 1fr);
 
   z-index: 1;
 }
@@ -254,8 +237,6 @@ body {
 
 /* =========================================================
    WOOD TILE
-
-   ベース材も Light / Medium / Dark の3種類だけ。
    ========================================================= */
 
 .tile {
@@ -267,9 +248,9 @@ body {
   overflow: hidden;
 
   box-shadow:
-    inset 0 0 0 .5px rgba(55,34,22,.30),
-    inset 1px 1px 1px rgba(255,255,255,.13),
-    inset -1px -1px 2px rgba(45,28,18,.13);
+    inset 0 0 0 .5px rgba(55,34,22,.28),
+    inset 1px 1px 1px rgba(255,255,255,.12),
+    inset -1px -1px 2px rgba(45,28,18,.12);
 }
 
 .tile.wood-light {
@@ -323,9 +304,7 @@ body {
 
 
 /* =========================================================
-   THREE-WOOD INLAY SYSTEM
-
-   図柄にも新しい色を追加しません。
+   THREE-WOOD SYSTEM
    ========================================================= */
 
 .wood-fill-light {
@@ -340,21 +319,25 @@ body {
   fill: var(--wood-dark);
 }
 
+
+/*
+  境界線も別色を増やさずDark Woodを使用。
+*/
 .wood-line {
   fill: none;
 
   stroke: var(--wood-dark);
-  stroke-width: 2;
+  stroke-width: 1.4;
 
   stroke-linecap: round;
   stroke-linejoin: round;
 
-  opacity: .55;
+  opacity: .28;
 }
 
 
 /* =========================================================
-   DRAG ROW
+   DRAG ROW / COLUMN
    ========================================================= */
 
 .drag-row {
@@ -385,10 +368,6 @@ body {
   flex: 0 0 auto;
 }
 
-
-/* =========================================================
-   DRAG COLUMN
-   ========================================================= */
 
 .drag-column {
   position: absolute;
@@ -449,8 +428,7 @@ body {
 
 @media (max-height: 620px) {
   :root {
-    --board-size:
-      min(76vw, 330px);
+    --board-size: min(76vw, 330px);
   }
 
   .title {
@@ -519,13 +497,11 @@ const CONFIG = {
 
   directionThreshold: 7,
   directionBias: 1.08,
-
   diagonalFallbackDistance: 22,
 
   snapDuration: 185,
 
   maxVelocityBonus: 0.25,
-
   maxStepsPerGesture: 2
 };
 
@@ -547,13 +523,6 @@ const prefersReducedMotion =
 
 /* =========================================================
    36 UNIQUE TILES
-
-   6種類の図形 × 6変形 = 36枚。
-
-   wood:
-   0 = Light
-   1 = Medium
-   2 = Dark
    ========================================================= */
 
 const WOOD_NAMES = [
@@ -594,39 +563,47 @@ const TILE_MAP =
 
 
 /* =========================================================
-   THREE-WOOD RULE
-
-   どのタイルも同じ3種類の木材だけで構成します。
+   THREE-WOOD ASSIGNMENT
    ========================================================= */
 
 function getWoodClasses(tile) {
 
   if (tile.wood === 0) {
     return {
-      primary: "wood-fill-dark",
-      secondary: "wood-fill-medium",
-      accent: "wood-fill-light"
+      a: "wood-fill-light",
+      b: "wood-fill-medium",
+      c: "wood-fill-dark"
     };
   }
 
   if (tile.wood === 1) {
     return {
-      primary: "wood-fill-dark",
-      secondary: "wood-fill-light",
-      accent: "wood-fill-medium"
+      a: "wood-fill-medium",
+      b: "wood-fill-dark",
+      c: "wood-fill-light"
     };
   }
 
   return {
-    primary: "wood-fill-light",
-    secondary: "wood-fill-medium",
-    accent: "wood-fill-dark"
+    a: "wood-fill-dark",
+    b: "wood-fill-light",
+    c: "wood-fill-medium"
   };
 }
 
 
 /* =========================================================
-   TILE GEOMETRY
+   STEP 5R-6 GEOMETRIC GRAMMAR
+
+   重要ルール：
+
+   ・主要な色面は必ず外周へ到達する
+   ・中央だけで完結する小図形を原則作らない
+   ・孤立色面は最大1色
+   ・図柄は「タイルの絵」ではなく
+     「大きな模様を切り取った断片」として設計
+
+   6 family × 6 transform = 36 tiles
    ========================================================= */
 
 function tileSVG(tile) {
@@ -649,155 +626,272 @@ function tileSVG(tile) {
 
   const patterns = [
 
-    /* 0 — LARGE TRIANGLE */
+    /* =====================================================
+       0 — DIAGONAL FIELD
+
+       3つの面すべてが外周へ到達。
+       ===================================================== */
     `
     <g transform="${transform}">
-      <polygon
-        class="${wood.primary}"
-        points="0,100 100,0 100,100"
-      />
 
       <polygon
-        class="${wood.secondary}"
-        points="0,0 100,0 0,100"
-      />
-
-      <path
-        class="wood-line"
-        d="M0 100 L100 0"
-      />
-    </g>
-    `,
-
-
-    /* 1 — DOUBLE TRIANGLE */
-    `
-    <g transform="${transform}">
-      <polygon
-        class="${wood.primary}"
-        points="0,0 50,0 100,50 100,100"
-      />
-
-      <polygon
-        class="${wood.secondary}"
-        points="0,0 0,100 50,100 100,50"
-      />
-
-      <polygon
-        class="${wood.accent}"
-        points="0,0 100,50 50,100"
-        opacity=".82"
-      />
-    </g>
-    `,
-
-
-    /* 2 — DIAMOND */
-    `
-    <g transform="${transform}">
-      <polygon
-        class="${wood.primary}"
+        class="${wood.a}"
         points="
+          0,0
+          100,0
+          0,100
+        "
+      />
+
+      <polygon
+        class="${wood.b}"
+        points="
+          100,0
+          100,50
+          50,100
+          0,100
+        "
+      />
+
+      <polygon
+        class="${wood.c}"
+        points="
+          100,50
+          100,100
+          50,100
+        "
+      />
+
+    </g>
+    `,
+
+
+    /* =====================================================
+       1 — CROSSING BAND
+
+       対角方向へ抜ける帯。
+       中央で完結しない。
+       ===================================================== */
+    `
+    <g transform="${transform}">
+
+      <polygon
+        class="${wood.a}"
+        points="
+          0,0
+          45,0
+          100,55
+          100,100
+          85,100
+          0,15
+        "
+      />
+
+      <polygon
+        class="${wood.b}"
+        points="
+          45,0
+          100,0
+          100,55
+        "
+      />
+
+      <polygon
+        class="${wood.c}"
+        points="
+          0,15
+          85,100
+          0,100
+        "
+      />
+
+    </g>
+    `,
+
+
+    /* =====================================================
+       2 — EDGE DIAMOND FRAGMENT
+
+       完全な菱形を中央に置かず、
+       巨大な菱形の一部分だけが
+       タイルを横切っている構成。
+       ===================================================== */
+    `
+    <g transform="${transform}">
+
+      <polygon
+        class="${wood.a}"
+        points="
+          0,0
           50,0
           100,50
+          100,100
           50,100
           0,50
         "
       />
 
       <polygon
-        class="${wood.secondary}"
-        points="
-          50,22
-          78,50
-          50,78
-          22,50
-        "
-      />
-    </g>
-    `,
-
-
-    /* 3 — QUARTER FORM */
-    `
-    <g transform="${transform}">
-      <path
-        class="${wood.primary}"
-        d="
-          M0 100
-          L0 0
-          L100 0
-          C45 8 8 45 0 100
-          Z
-        "
-      />
-
-      <path
-        class="${wood.secondary}"
-        d="
-          M100 100
-          L0 100
-          C8 45 45 8 100 0
-          Z
-        "
-      />
-    </g>
-    `,
-
-
-    /* 4 — CHEVRON */
-    `
-    <g transform="${transform}">
-      <polygon
-        class="${wood.primary}"
+        class="${wood.b}"
         points="
           0,0
-          50,50
-          100,0
-          100,38
-          50,88
-          0,38
+          0,50
+          50,0
         "
       />
 
       <polygon
-        class="${wood.secondary}"
+        class="${wood.c}"
         points="
-          0,62
           50,100
-          100,62
+          100,50
           100,100
-          0,100
         "
       />
+
     </g>
     `,
 
 
-    /* 5 — TRAPEZOID */
+    /* =====================================================
+       3 — BROAD CURVE
+
+       円そのものではなく、
+       大きな円弧の断片。
+
+       両色とも外周へ到達。
+       ===================================================== */
     `
     <g transform="${transform}">
+
+      <path
+        class="${wood.a}"
+        d="
+          M0 0
+          H100
+          V28
+          C58 28 28 58 28 100
+          H0
+          Z
+        "
+      />
+
+      <path
+        class="${wood.b}"
+        d="
+          M100 28
+          V100
+          H28
+          C28 58 58 28 100 28
+          Z
+        "
+      />
+
+      <path
+        class="${wood.c}"
+        d="
+          M0 72
+          C22 32 54 10 100 10
+          L100 0
+          L0 0
+          Z
+        "
+        opacity=".72"
+      />
+
+    </g>
+    `,
+
+
+    /* =====================================================
+       4 — OPEN CHEVRON
+
+       山形が中央で閉じず、
+       左右・上下へ抜ける。
+       ===================================================== */
+    `
+    <g transform="${transform}">
+
       <polygon
-        class="${wood.primary}"
+        class="${wood.a}"
         points="
           0,0
-          70,0
-          100,50
-          70,100
-          0,100
-          30,50
+          50,45
+          100,0
+          100,35
+          50,80
+          0,35
         "
       />
 
       <polygon
-        class="${wood.secondary}"
+        class="${wood.b}"
         points="
-          30,50
-          70,18
-          88,50
-          70,82
+          0,35
+          50,80
+          100,35
+          100,100
+          75,100
+          50,78
+          25,100
+          0,100
         "
       />
+
+      <polygon
+        class="${wood.c}"
+        points="
+          25,100
+          50,78
+          75,100
+        "
+      />
+
+    </g>
+    `,
+
+
+    /* =====================================================
+       5 — OFFSET TRAPEZOID FIELD
+
+       台形を「中央の図形」として置かず、
+       画面外まで続く巨大面として扱う。
+       ===================================================== */
+    `
+    <g transform="${transform}">
+
+      <polygon
+        class="${wood.a}"
+        points="
+          0,0
+          72,0
+          100,45
+          100,100
+          72,100
+          42,50
+          0,50
+        "
+      />
+
+      <polygon
+        class="${wood.b}"
+        points="
+          0,50
+          42,50
+          72,100
+          0,100
+        "
+      />
+
+      <polygon
+        class="${wood.c}"
+        points="
+          72,0
+          100,0
+          100,45
+        "
+      />
+
     </g>
     `
   ];
@@ -963,8 +1057,6 @@ function createTileElement(id) {
 
 /* =========================================================
    WORLD VALIDATION
-
-   36枚が必ず1枚ずつ存在することを確認します。
    ========================================================= */
 
 function validateWorld() {
@@ -980,15 +1072,19 @@ function validateWorld() {
     return false;
   }
 
+
   const unique =
     new Set(flat);
 
+
   if (
     unique.size !==
-    36
+    CONFIG.worldSize *
+    CONFIG.worldSize
   ) {
     return false;
   }
+
 
   return TILE_DEFS.every(
     tile =>
@@ -1005,6 +1101,7 @@ function getVisibleGrid() {
 
   const result = [];
 
+
   for (
     let row = 0;
     row < CONFIG.visibleSize;
@@ -1012,6 +1109,7 @@ function getVisibleGrid() {
   ) {
 
     const line = [];
+
 
     for (
       let column = 0;
@@ -1030,8 +1128,10 @@ function getVisibleGrid() {
       );
     }
 
+
     result.push(line);
   }
+
 
   return result;
 }
@@ -1045,8 +1145,10 @@ function renderBoard() {
 
   board.innerHTML = "";
 
+
   const visible =
     getVisibleGrid();
+
 
   const staticGrid =
     document.createElement("div");
@@ -1072,11 +1174,13 @@ function renderBoard() {
           visible[row][column]
         );
 
+
       tile.dataset.row =
         String(row);
 
       tile.dataset.column =
         String(column);
+
 
       staticGrid.appendChild(
         tile
@@ -1107,10 +1211,6 @@ function renderBoard() {
 
 /* =========================================================
    WORLD ROTATION
-
-   正のsteps:
-   行なら右
-   列なら下
    ========================================================= */
 
 function rotateWorldRow(
@@ -1121,15 +1221,18 @@ function rotateWorldRow(
   const row =
     world[rowIndex];
 
+
   const amount =
     modulo(
       steps,
       CONFIG.worldSize
     );
 
+
   if (!amount) {
     return;
   }
+
 
   world[rowIndex] = [
     ...row.slice(-amount),
@@ -1149,11 +1252,13 @@ function rotateWorldColumn(
         row[columnIndex]
     );
 
+
   const amount =
     modulo(
       steps,
       CONFIG.worldSize
     );
+
 
   if (!amount) {
     return;
@@ -1223,10 +1328,6 @@ function determineDirection(
   }
 
 
-  /*
-    ほぼ45度のまま一定距離を超えた場合は、
-    大きい方の軸へ固定します。
-  */
   if (
     distance >=
     CONFIG.diagonalFallbackDistance
@@ -1246,11 +1347,6 @@ function determineDirection(
 
 /* =========================================================
    PREPARE ROW DRAG
-
-   6枚の実在タイルに、
-   左右の補助1枚ずつを加えます。
-
-   表示窓はsource[1]〜source[3]。
    ========================================================= */
 
 function prepareRowDrag() {
@@ -1296,9 +1392,6 @@ function prepareRowDrag() {
     world[drag.worldRow];
 
 
-  /*
-    補助 + 6枚 + 補助
-  */
   const ids = [
     source[5],
     ...source,
@@ -1328,18 +1421,11 @@ function prepareRowDrag() {
   wrapper.appendChild(strip);
   layer.appendChild(wrapper);
 
+
   drag.strip =
     strip;
 
 
-  /*
-    ids[0] = 左補助
-    ids[1] = source[0]
-    ids[2] = source[1]
-
-    表示窓先頭はsource[1]なので、
-    baselineは2枚分左へ。
-  */
   const baseline =
     -(
       WINDOW.columnStart +
@@ -1441,6 +1527,7 @@ function prepareColumnDrag() {
   wrapper.appendChild(strip);
   layer.appendChild(wrapper);
 
+
   drag.strip =
     strip;
 
@@ -1495,12 +1582,14 @@ function pointerDown(event) {
     rect.top;
 
 
-  drag.active = true;
+  drag.active =
+    true;
 
   drag.pointerId =
     event.pointerId;
 
-  drag.direction = null;
+  drag.direction =
+    null;
 
 
   drag.visibleRow =
@@ -1549,13 +1638,17 @@ function pointerDown(event) {
   drag.lastTime =
     performance.now();
 
-  drag.velocity = 0;
-  drag.offset = 0;
+  drag.velocity =
+    0;
+
+  drag.offset =
+    0;
 
   drag.tileSize =
     rect.width / 3;
 
-  drag.strip = null;
+  drag.strip =
+    null;
 
 
   try {
@@ -1597,9 +1690,6 @@ function pointerMove(event) {
     drag.startY;
 
 
-  /*
-    最初の数pxでは方向を決めません。
-  */
   if (!drag.direction) {
 
     const direction =
@@ -1638,6 +1728,7 @@ function pointerMove(event) {
 
   const now =
     performance.now();
+
 
   const elapsed =
     Math.max(
@@ -1697,7 +1788,7 @@ function pointerMove(event) {
 
 
 /* =========================================================
-   REQUEST ANIMATION FRAME
+   DRAG FRAME
    ========================================================= */
 
 function requestDragFrame() {
@@ -1777,7 +1868,8 @@ function finishDrag(
   }
 
 
-  drag.active = false;
+  drag.active =
+    false;
 
 
   board.classList.remove(
@@ -1799,10 +1891,6 @@ function finishDrag(
   }
 
 
-  /*
-    方向決定前のタップなら、
-    何も変更しません。
-  */
   if (
     !drag.direction ||
     !drag.strip
@@ -1816,8 +1904,7 @@ function finishDrag(
 
 
   /*
-    pointercancelの場合は
-    未確定操作を破棄します。
+    pointercancel時は未確定操作を破棄。
   */
   if (cancelled) {
 
@@ -1882,7 +1969,8 @@ function settle(
   }
 
 
-  drag.settling = true;
+  drag.settling =
+    true;
 
 
   const generation =
@@ -1977,10 +2065,6 @@ function settle(
     }
 
 
-    /*
-      見た目の移動方向と同じ方向へ
-      6×6 worldを循環させます。
-    */
     if (
       direction === "row"
     ) {
@@ -1999,9 +2083,6 @@ function settle(
     }
 
 
-    /*
-      36枚の複製・消失チェック。
-    */
     if (!validateWorld()) {
 
       console.error(
@@ -2045,10 +2126,6 @@ function settle(
   );
 
 
-  /*
-    Safariでtransitionendが来なかった場合の
-    安全用タイマー。
-  */
   drag.settleTimer =
     setTimeout(
       complete,
@@ -2085,7 +2162,7 @@ function triggerSettlePulse() {
 
 
 /* =========================================================
-   RESET DRAG STATE
+   RESET DRAG
    ========================================================= */
 
 function resetDrag() {
@@ -2145,9 +2222,6 @@ function resetDrag() {
 
 /* =========================================================
    CANCEL INTERACTION
-
-   画面回転・バックグラウンド移行などでは
-   未確定操作をworldへ反映しません。
    ========================================================= */
 
 function cancelInteraction() {
@@ -2202,7 +2276,7 @@ function cancelInteraction() {
 
 
 /* =========================================================
-   POINTER EVENTS
+   EVENTS
    ========================================================= */
 
 board.addEventListener(
@@ -2244,9 +2318,6 @@ board.addEventListener(
 );
 
 
-/*
-  長押しメニューを抑制。
-*/
 board.addEventListener(
   "contextmenu",
   event => {
@@ -2257,7 +2328,7 @@ board.addEventListener(
 
 
 /* =========================================================
-   RESIZE / ORIENTATION SAFETY
+   RESIZE / ORIENTATION
    ========================================================= */
 
 window.addEventListener(
@@ -2281,7 +2352,7 @@ window.addEventListener(
 
 
 /* =========================================================
-   VISIBILITY SAFETY
+   VISIBILITY
    ========================================================= */
 
 document.addEventListener(
@@ -2299,7 +2370,7 @@ document.addEventListener(
 
 
 /* =========================================================
-   INITIAL VALIDATION / RENDER
+   INITIAL
    ========================================================= */
 
 if (!validateWorld()) {
