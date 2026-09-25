@@ -1,1 +1,648 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
 
+  <meta
+    name="viewport"
+    content="width=device-width, initial-scale=1, viewport-fit=cover, user-scalable=no"
+  >
+
+  <meta name="theme-color" content="#10191b">
+
+  <title>Seamless Tile</title>
+
+  <style>
+    /* =========================================================
+       Seamless Tile — Step 2
+       Static Soft Circuit Board
+       ========================================================= */
+
+    :root {
+      --page-bg: #10191b;
+      --page-bg-soft: #152124;
+
+      --tile-bg: #1c2a2d;
+      --tile-bg-2: #1e2e31;
+      --tile-bg-3: #1b292c;
+
+      --line: #65c7bb;
+      --line-soft: #89d8cf;
+      --node: #c1eee8;
+
+      --board-size: min(86vw, 410px);
+      --board-radius: 24px;
+    }
+
+    * {
+      box-sizing: border-box;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    html,
+    body {
+      width: 100%;
+      min-height: 100%;
+      margin: 0;
+      padding: 0;
+
+      overflow-x: hidden;
+      overscroll-behavior: none;
+
+      background: var(--page-bg);
+
+      -webkit-text-size-adjust: 100%;
+      -webkit-user-select: none;
+      user-select: none;
+
+      -webkit-touch-callout: none;
+    }
+
+    body {
+      min-height: 100vh;
+      min-height: 100svh;
+      min-height: 100dvh;
+
+      color: #dce9e7;
+
+      font-family:
+        -apple-system,
+        BlinkMacSystemFont,
+        "SF Pro Display",
+        "SF Pro Text",
+        system-ui,
+        sans-serif;
+    }
+
+    .app {
+      min-height: 100vh;
+      min-height: 100svh;
+      min-height: 100dvh;
+
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+
+      padding:
+        calc(env(safe-area-inset-top) + 28px)
+        max(calc(env(safe-area-inset-right) + 18px), 18px)
+        calc(env(safe-area-inset-bottom) + 28px)
+        max(calc(env(safe-area-inset-left) + 18px), 18px);
+
+      background:
+        radial-gradient(
+          circle at 50% 42%,
+          rgba(53, 91, 91, 0.13) 0%,
+          rgba(16, 25, 27, 0) 48%
+        ),
+        linear-gradient(
+          180deg,
+          #111b1d 0%,
+          var(--page-bg) 100%
+        );
+    }
+
+    .title {
+      margin: 0 0 22px;
+
+      font-size: 13px;
+      font-weight: 600;
+      line-height: 1;
+
+      letter-spacing: 0.16em;
+      text-transform: uppercase;
+
+      color: rgba(220, 239, 236, 0.62);
+    }
+
+    /* =========================================================
+       Board
+       ========================================================= */
+
+    .board-shell {
+      position: relative;
+
+      width: var(--board-size);
+      height: var(--board-size);
+
+      border-radius: var(--board-radius);
+
+      padding: 1px;
+
+      background:
+        linear-gradient(
+          145deg,
+          rgba(170, 231, 222, 0.18),
+          rgba(170, 231, 222, 0.035) 40%,
+          rgba(0, 0, 0, 0.24)
+        );
+
+      box-shadow:
+        0 22px 55px rgba(0, 0, 0, 0.32),
+        0 4px 12px rgba(0, 0, 0, 0.20);
+    }
+
+    .board {
+      position: relative;
+
+      width: 100%;
+      height: 100%;
+
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      grid-template-rows: repeat(3, 1fr);
+
+      overflow: hidden;
+
+      border-radius: calc(var(--board-radius) - 1px);
+
+      background: var(--tile-bg);
+
+      /* Step 3以降でドラッグ操作に使用します */
+      touch-action: none;
+
+      isolation: isolate;
+    }
+
+    /* ごく薄い盤面全体の光沢 */
+    .board::after {
+      content: "";
+
+      position: absolute;
+      inset: 0;
+
+      z-index: 20;
+
+      pointer-events: none;
+
+      border-radius: inherit;
+
+      background:
+        linear-gradient(
+          145deg,
+          rgba(255, 255, 255, 0.035),
+          rgba(255, 255, 255, 0) 28%,
+          rgba(0, 0, 0, 0.055) 100%
+        );
+
+      box-shadow:
+        inset 0 0 0 1px rgba(198, 239, 233, 0.035);
+    }
+
+    /* =========================================================
+       Tile
+       ========================================================= */
+
+    .tile {
+      position: relative;
+
+      width: 100%;
+      height: 100%;
+
+      overflow: hidden;
+
+      background: var(--tile-bg);
+    }
+
+    /*
+      タイル間の境界は「線」ではなく、
+      色のごく小さな差で感じられる程度にしています。
+    */
+
+    .tile:nth-child(3n + 2) {
+      background: var(--tile-bg-2);
+    }
+
+    .tile:nth-child(3n) {
+      background: var(--tile-bg-3);
+    }
+
+    .tile:nth-child(n + 4):nth-child(-n + 6) {
+      filter: brightness(1.015);
+    }
+
+    .tile::after {
+      content: "";
+
+      position: absolute;
+      inset: 0;
+
+      pointer-events: none;
+
+      background:
+        radial-gradient(
+          circle at 50% 50%,
+          rgba(133, 215, 204, 0.035),
+          transparent 57%
+        );
+
+      box-shadow:
+        inset 0 0 0 0.5px rgba(180, 229, 222, 0.028);
+    }
+
+    /* =========================================================
+       Soft Circuit SVG
+       ========================================================= */
+
+    .tile svg {
+      display: block;
+
+      width: 100%;
+      height: 100%;
+
+      overflow: visible;
+    }
+
+    .circuit-main {
+      fill: none;
+
+      stroke: var(--line);
+      stroke-width: 9;
+
+      stroke-linecap: round;
+      stroke-linejoin: round;
+
+      vector-effect: non-scaling-stroke;
+    }
+
+    .circuit-highlight {
+      fill: none;
+
+      stroke: rgba(192, 240, 233, 0.16);
+      stroke-width: 2;
+
+      stroke-linecap: round;
+
+      vector-effect: non-scaling-stroke;
+    }
+
+    .node {
+      fill: var(--node);
+
+      opacity: 0.92;
+    }
+
+    .node-ring {
+      fill: none;
+
+      stroke: rgba(130, 219, 208, 0.38);
+      stroke-width: 2;
+    }
+
+    .soft-node {
+      fill: var(--line-soft);
+
+      opacity: 0.75;
+    }
+
+    /* =========================================================
+       Hint
+       ========================================================= */
+
+    .hint {
+      margin: 24px 0 0;
+
+      font-size: 13px;
+      font-weight: 450;
+      line-height: 1.4;
+
+      letter-spacing: 0.035em;
+
+      color: rgba(216, 235, 232, 0.48);
+
+      text-align: center;
+    }
+
+    /* 小さな画面への対応 */
+    @media (max-height: 620px) {
+      :root {
+        --board-size: min(76vw, 330px);
+      }
+
+      .title {
+        margin-bottom: 15px;
+      }
+
+      .hint {
+        margin-top: 16px;
+      }
+    }
+
+    /*
+      Step 2では常時アニメーションがないため、
+      reduced-motionでも見た目はほぼ同一です。
+      Step 5で吸着アニメーションを調整します。
+    */
+    @media (prefers-reduced-motion: reduce) {
+      *,
+      *::before,
+      *::after {
+        scroll-behavior: auto !important;
+      }
+    }
+  </style>
+</head>
+
+<body>
+
+  <main class="app">
+
+    <h1 class="title">Seamless Tile</h1>
+
+    <div class="board-shell">
+
+      <div
+        class="board"
+        id="board"
+        role="img"
+        aria-label="触って行や列を組み替える抽象的なタイル模様。現在は静的なデザイン確認版です。"
+      >
+
+        <!-- =====================================================
+             TILE 1
+             上・右・下・左の中央へ線が到達します。
+             ===================================================== -->
+        <div class="tile" data-tile-id="A">
+          <svg viewBox="0 0 100 100" aria-hidden="true">
+
+            <path
+              class="circuit-main"
+              d="
+                M 50 0
+                C 50 20, 28 24, 28 44
+                C 28 62, 48 66, 50 100
+
+                M 0 50
+                C 18 50, 22 34, 40 34
+                C 62 34, 66 50, 100 50
+              "
+            />
+
+            <circle class="soft-node" cx="29" cy="44" r="6" />
+            <circle class="node" cx="50" cy="50" r="3.2" />
+
+          </svg>
+        </div>
+
+
+        <!-- TILE 2 -->
+        <div class="tile" data-tile-id="B">
+          <svg viewBox="0 0 100 100" aria-hidden="true">
+
+            <path
+              class="circuit-main"
+              d="
+                M 0 50
+                C 24 50, 28 27, 50 27
+                C 72 27, 76 50, 100 50
+
+                M 50 0
+                C 50 19, 68 25, 68 43
+                C 68 65, 50 70, 50 100
+              "
+            />
+
+            <circle class="soft-node" cx="68" cy="43" r="6.5" />
+
+            <circle class="node-ring" cx="50" cy="27" r="5" />
+            <circle class="node" cx="50" cy="27" r="2.5" />
+
+          </svg>
+        </div>
+
+
+        <!-- TILE 3 -->
+        <div class="tile" data-tile-id="C">
+          <svg viewBox="0 0 100 100" aria-hidden="true">
+
+            <path
+              class="circuit-main"
+              d="
+                M 50 0
+                C 50 23, 77 25, 77 50
+                C 77 74, 50 76, 50 100
+
+                M 0 50
+                C 18 50, 26 63, 44 63
+                C 63 63, 70 50, 100 50
+              "
+            />
+
+            <circle class="soft-node" cx="77" cy="50" r="6" />
+            <circle class="node" cx="44" cy="63" r="3.3" />
+
+          </svg>
+        </div>
+
+
+        <!-- TILE 4 -->
+        <div class="tile" data-tile-id="D">
+          <svg viewBox="0 0 100 100" aria-hidden="true">
+
+            <path
+              class="circuit-main"
+              d="
+                M 0 50
+                C 20 50, 25 26, 47 26
+                C 70 26, 73 50, 100 50
+
+                M 50 0
+                C 50 17, 35 26, 35 43
+                C 35 62, 50 72, 50 100
+              "
+            />
+
+            <circle class="node-ring" cx="35" cy="43" r="6" />
+            <circle class="node" cx="35" cy="43" r="2.8" />
+
+          </svg>
+        </div>
+
+
+        <!-- TILE 5 -->
+        <div class="tile" data-tile-id="E">
+          <svg viewBox="0 0 100 100" aria-hidden="true">
+
+            <!--
+              中央タイルだけ少し「分岐」の印象を強めています。
+              ただし交差点・迷路には見えすぎない形です。
+            -->
+
+            <path
+              class="circuit-main"
+              d="
+                M 50 0
+                C 50 22, 50 31, 50 50
+                C 50 69, 50 79, 50 100
+
+                M 0 50
+                C 22 50, 31 50, 50 50
+                C 69 50, 79 50, 100 50
+              "
+            />
+
+            <circle class="soft-node" cx="50" cy="50" r="11" />
+            <circle class="node-ring" cx="50" cy="50" r="6" />
+            <circle class="node" cx="50" cy="50" r="3" />
+
+          </svg>
+        </div>
+
+
+        <!-- TILE 6 -->
+        <div class="tile" data-tile-id="F">
+          <svg viewBox="0 0 100 100" aria-hidden="true">
+
+            <path
+              class="circuit-main"
+              d="
+                M 50 0
+                C 50 19, 31 26, 31 46
+                C 31 69, 50 74, 50 100
+
+                M 0 50
+                C 23 50, 29 67, 50 67
+                C 70 67, 77 50, 100 50
+              "
+            />
+
+            <circle class="soft-node" cx="31" cy="46" r="6.5" />
+            <circle class="node" cx="50" cy="67" r="3.2" />
+
+          </svg>
+        </div>
+
+
+        <!-- TILE 7 -->
+        <div class="tile" data-tile-id="G">
+          <svg viewBox="0 0 100 100" aria-hidden="true">
+
+            <path
+              class="circuit-main"
+              d="
+                M 0 50
+                C 17 50, 24 35, 42 35
+                C 65 35, 71 50, 100 50
+
+                M 50 0
+                C 50 24, 72 27, 72 48
+                C 72 70, 50 75, 50 100
+              "
+            />
+
+            <circle class="node-ring" cx="42" cy="35" r="5.5" />
+            <circle class="node" cx="42" cy="35" r="2.8" />
+
+            <circle class="soft-node" cx="72" cy="48" r="5" />
+
+          </svg>
+        </div>
+
+
+        <!-- TILE 8 -->
+        <div class="tile" data-tile-id="H">
+          <svg viewBox="0 0 100 100" aria-hidden="true">
+
+            <path
+              class="circuit-main"
+              d="
+                M 50 0
+                C 50 19, 27 26, 27 48
+                C 27 71, 50 77, 50 100
+
+                M 0 50
+                C 21 50, 27 68, 48 68
+                C 70 68, 77 50, 100 50
+              "
+            />
+
+            <circle class="soft-node" cx="27" cy="48" r="7" />
+            <circle class="node" cx="48" cy="68" r="3" />
+
+          </svg>
+        </div>
+
+
+        <!-- TILE 9 -->
+        <div class="tile" data-tile-id="I">
+          <svg viewBox="0 0 100 100" aria-hidden="true">
+
+            <path
+              class="circuit-main"
+              d="
+                M 0 50
+                C 23 50, 28 29, 50 29
+                C 73 29, 77 50, 100 50
+
+                M 50 0
+                C 50 20, 66 28, 66 47
+                C 66 68, 50 75, 50 100
+              "
+            />
+
+            <circle class="soft-node" cx="66" cy="47" r="6" />
+
+            <circle class="node-ring" cx="50" cy="29" r="5.5" />
+            <circle class="node" cx="50" cy="29" r="2.6" />
+
+          </svg>
+        </div>
+
+      </div>
+    </div>
+
+    <p class="hint">行や列を、好きな方向へ。</p>
+
+  </main>
+
+
+  <script>
+    /* =========================================================
+       Seamless Tile — Step 2
+       この段階では盤面の見た目だけを確認します。
+       ========================================================= */
+
+    const CONFIG = {
+      gridSize: 3,
+      expectedTileCount: 9
+    };
+
+    const board = document.getElementById("board");
+
+    /*
+      開発中の安全確認です。
+
+      Step 3以降では、このIDを二次元配列で管理します。
+      今回は静的版なのでDOM上の9枚だけを確認しています。
+    */
+    function validateTiles() {
+      const tiles = [...board.querySelectorAll(".tile")];
+      const ids = tiles.map(tile => tile.dataset.tileId);
+
+      const uniqueIds = new Set(ids);
+
+      return (
+        tiles.length === CONFIG.expectedTileCount &&
+        uniqueIds.size === CONFIG.expectedTileCount
+      );
+    }
+
+    validateTiles();
+
+    /*
+      Step 2では操作処理を追加しません。
+
+      次のStep 3で、
+      ・Pointer Events
+      ・横ドラッグ
+      ・循環表示
+      ・吸着
+      ・二次元配列
+
+      を追加します。
+    */
+  </script>
+
+</body>
+</html>
