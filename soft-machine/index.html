@@ -1,0 +1,1129 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport"
+      content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="theme-color" content="#111719">
+
+<title>Soft Machine</title>
+
+<style>
+/* =========================================================
+   Soft Machine
+   Step 2 : Static Prototype
+   ========================================================= */
+
+:root {
+  --bg: #0d1214;
+  --panel: #171e20;
+  --panel-light: #20292b;
+  --part: #657174;
+  --part-light: #879396;
+  --part-dark: #394447;
+
+  --cyan: #6fd7cc;
+  --amber: #e3ad63;
+
+  --text: #c8d0d1;
+  --muted: #697477;
+
+  --shadow:
+    0 10px 24px rgba(0, 0, 0, 0.28),
+    inset 0 1px 0 rgba(255, 255, 255, 0.05);
+}
+
+* {
+  box-sizing: border-box;
+  -webkit-tap-highlight-color: transparent;
+}
+
+html,
+body {
+  margin: 0;
+  width: 100%;
+  min-height: 100%;
+  background: var(--bg);
+  overflow: hidden;
+  overscroll-behavior: none;
+}
+
+body {
+  font-family:
+    -apple-system,
+    BlinkMacSystemFont,
+    "SF Pro Display",
+    "Helvetica Neue",
+    Arial,
+    sans-serif;
+
+  color: var(--text);
+  user-select: none;
+  -webkit-user-select: none;
+  touch-action: none;
+}
+
+/* =========================================================
+   APP
+   ========================================================= */
+
+.machine {
+  position: relative;
+
+  width: min(100vw, 460px);
+  height: 100dvh;
+  min-height: 560px;
+  margin: 0 auto;
+
+  padding:
+    max(18px, env(safe-area-inset-top))
+    16px
+    max(18px, env(safe-area-inset-bottom));
+
+  display: flex;
+  flex-direction: column;
+
+  background:
+    radial-gradient(
+      circle at 50% 30%,
+      rgba(100, 180, 175, 0.035),
+      transparent 40%
+    ),
+    linear-gradient(
+      180deg,
+      #111719 0%,
+      #0c1113 100%
+    );
+}
+
+/* =========================================================
+   HEADER
+   ========================================================= */
+
+.header {
+  height: 42px;
+
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+
+  flex: 0 0 auto;
+}
+
+.brand {
+  font-size: 12px;
+  letter-spacing: 0.22em;
+  font-weight: 600;
+  color: #8d999b;
+}
+
+.sound-placeholder {
+  width: 34px;
+  height: 34px;
+
+  border-radius: 50%;
+
+  display: grid;
+  place-items: center;
+
+  color: #687477;
+
+  border: 1px solid rgba(255,255,255,0.06);
+  background: rgba(255,255,255,0.025);
+
+  font-size: 13px;
+}
+
+/* =========================================================
+   DISPLAY / CHAIN AREA
+   ========================================================= */
+
+.chain-panel {
+  position: relative;
+
+  flex: 0 0 36%;
+
+  margin-top: 6px;
+
+  border-radius: 28px;
+
+  background:
+    linear-gradient(
+      145deg,
+      rgba(255,255,255,0.035),
+      rgba(255,255,255,0.012)
+    ),
+    var(--panel);
+
+  box-shadow: var(--shadow);
+
+  border: 1px solid rgba(255,255,255,0.045);
+
+  overflow: hidden;
+}
+
+/* subtle internal machine lines */
+
+.machine-line {
+  position: absolute;
+  height: 3px;
+
+  background: #313b3d;
+
+  border-radius: 3px;
+
+  opacity: 0.7;
+}
+
+.line-a {
+  left: 24%;
+  top: 39%;
+  width: 30%;
+}
+
+.line-b {
+  right: 17%;
+  top: 63%;
+  width: 24%;
+}
+
+.line-c {
+  left: 31%;
+  top: 41%;
+  width: 3px;
+  height: 31%;
+}
+
+/* =========================================================
+   LAMP
+   ========================================================= */
+
+.lamp {
+  position: absolute;
+
+  top: 13%;
+  left: 50%;
+
+  transform: translateX(-50%);
+
+  width: 44px;
+  height: 44px;
+
+  border-radius: 50%;
+
+  background:
+    radial-gradient(
+      circle at 40% 35%,
+      #a6d8d3,
+      #5c8581 45%,
+      #344746 70%
+    );
+
+  box-shadow:
+    inset 0 2px 5px rgba(255,255,255,0.12),
+    inset 0 -5px 8px rgba(0,0,0,0.25),
+    0 0 0 7px #252e30;
+
+  opacity: 0.72;
+}
+
+/* =========================================================
+   GEAR
+   ========================================================= */
+
+.gear {
+  position: absolute;
+
+  left: 15%;
+  top: 36%;
+
+  width: 66px;
+  height: 66px;
+
+  border-radius: 50%;
+
+  background:
+    repeating-conic-gradient(
+      from 0deg,
+      #647174 0deg 13deg,
+      #303a3c 13deg 26deg
+    );
+
+  box-shadow:
+    0 5px 10px rgba(0,0,0,0.3),
+    inset 0 2px 2px rgba(255,255,255,0.08);
+}
+
+.gear::before {
+  content: "";
+
+  position: absolute;
+  inset: 11px;
+
+  border-radius: 50%;
+
+  background: #4d595c;
+
+  border: 6px solid #20282a;
+}
+
+.gear::after {
+  content: "";
+
+  position: absolute;
+
+  width: 12px;
+  height: 12px;
+
+  border-radius: 50%;
+
+  background: #151c1e;
+
+  top: 50%;
+  left: 50%;
+
+  transform: translate(-50%, -50%);
+}
+
+/* =========================================================
+   RAIL
+   ========================================================= */
+
+.rail {
+  position: absolute;
+
+  right: 10%;
+  top: 42%;
+
+  width: 42%;
+  height: 28px;
+
+  border-radius: 14px;
+
+  background: #252e30;
+
+  box-shadow:
+    inset 0 3px 5px rgba(0,0,0,0.35),
+    inset 0 -1px 1px rgba(255,255,255,0.05);
+}
+
+.rail::after {
+  content: "";
+
+  position: absolute;
+
+  left: 10px;
+  right: 10px;
+
+  top: 50%;
+
+  height: 3px;
+
+  transform: translateY(-50%);
+
+  border-radius: 2px;
+
+  background: #465255;
+}
+
+.ball {
+  position: absolute;
+
+  left: 14px;
+  top: 50%;
+
+  width: 18px;
+  height: 18px;
+
+  transform: translateY(-50%);
+
+  border-radius: 50%;
+
+  background:
+    radial-gradient(
+      circle at 35% 30%,
+      #a9b3b4,
+      #647174 45%,
+      #384244 75%
+    );
+
+  box-shadow:
+    0 3px 5px rgba(0,0,0,0.35);
+}
+
+/* =========================================================
+   PISTON
+   ========================================================= */
+
+.piston {
+  position: absolute;
+
+  left: 23%;
+  bottom: 14%;
+
+  width: 92px;
+  height: 34px;
+}
+
+.piston-body {
+  position: absolute;
+
+  left: 0;
+  top: 3px;
+
+  width: 48px;
+  height: 28px;
+
+  border-radius: 8px;
+
+  background: #3c484a;
+
+  box-shadow:
+    inset 0 2px 2px rgba(255,255,255,0.05);
+}
+
+.piston-arm {
+  position: absolute;
+
+  left: 42px;
+  top: 11px;
+
+  width: 42px;
+  height: 12px;
+
+  border-radius: 6px;
+
+  background: #707d80;
+}
+
+/* =========================================================
+   DECORATIVE SPRING
+   ========================================================= */
+
+.chain-spring {
+  position: absolute;
+
+  right: 14%;
+  bottom: 13%;
+
+  width: 64px;
+  height: 34px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.spring-coil {
+  width: 52px;
+  height: 20px;
+
+  background:
+    repeating-linear-gradient(
+      90deg,
+      transparent 0 5px,
+      #647174 5px 8px,
+      transparent 8px 13px
+    );
+
+  border-top: 3px solid #647174;
+  border-bottom: 3px solid #647174;
+
+  border-radius: 6px;
+}
+
+/* =========================================================
+   CONTROL PANEL
+   ========================================================= */
+
+.controls {
+  flex: 1;
+
+  min-height: 0;
+
+  padding-top: 15px;
+
+  display: grid;
+
+  grid-template-columns: 1fr 1fr;
+  grid-template-rows: 1fr 0.72fr 1fr;
+
+  gap: 12px;
+}
+
+.control {
+  position: relative;
+
+  min-width: 0;
+  min-height: 0;
+
+  border-radius: 23px;
+
+  background:
+    linear-gradient(
+      145deg,
+      rgba(255,255,255,0.025),
+      rgba(0,0,0,0.025)
+    ),
+    #151c1e;
+
+  border: 1px solid rgba(255,255,255,0.04);
+
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,0.025);
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  touch-action: none;
+}
+
+/* =========================================================
+   BUTTON
+   ========================================================= */
+
+.push-button {
+  width: 74px;
+  height: 74px;
+
+  border: 0;
+  border-radius: 50%;
+
+  background:
+    radial-gradient(
+      circle at 40% 32%,
+      #86a4a0,
+      #58726f 50%,
+      #3b514f 75%
+    );
+
+  box-shadow:
+    0 9px 0 #263735,
+    0 12px 18px rgba(0,0,0,0.32),
+    inset 0 2px 3px rgba(255,255,255,0.14);
+
+  cursor: pointer;
+
+  transition:
+    transform 100ms ease,
+    box-shadow 100ms ease;
+}
+
+.push-button:active {
+  transform: translateY(6px);
+
+  box-shadow:
+    0 3px 0 #263735,
+    0 6px 9px rgba(0,0,0,0.25),
+    inset 0 2px 5px rgba(0,0,0,0.12);
+}
+
+/* =========================================================
+   DIAL
+   ========================================================= */
+
+.dial {
+  position: relative;
+
+  width: 86px;
+  height: 86px;
+
+  border-radius: 50%;
+
+  background:
+    repeating-conic-gradient(
+      from -4deg,
+      #677477 0deg 4deg,
+      #536063 4deg 24deg
+    );
+
+  box-shadow:
+    0 8px 14px rgba(0,0,0,0.28),
+    inset 0 2px 2px rgba(255,255,255,0.08);
+
+  cursor: grab;
+}
+
+.dial::before {
+  content: "";
+
+  position: absolute;
+
+  inset: 9px;
+
+  border-radius: 50%;
+
+  background:
+    radial-gradient(
+      circle at 40% 32%,
+      #718083,
+      #4c595c 65%,
+      #394447
+    );
+}
+
+.dial::after {
+  content: "";
+
+  position: absolute;
+
+  width: 5px;
+  height: 22px;
+
+  border-radius: 3px;
+
+  background: var(--cyan);
+
+  top: 11px;
+  left: 50%;
+
+  transform: translateX(-50%);
+
+  box-shadow:
+    0 0 6px rgba(111,215,204,0.25);
+}
+
+/* =========================================================
+   SLIDER
+   ========================================================= */
+
+.slider-control {
+  grid-column: 1 / 3;
+}
+
+.slider-track {
+  position: relative;
+
+  width: 78%;
+  height: 26px;
+
+  border-radius: 13px;
+
+  background: #252e30;
+
+  box-shadow:
+    inset 0 4px 7px rgba(0,0,0,0.3),
+    inset 0 -1px 1px rgba(255,255,255,0.04);
+}
+
+.slider-track::after {
+  content: "";
+
+  position: absolute;
+
+  left: 8%;
+  right: 8%;
+  top: 50%;
+
+  height: 3px;
+
+  transform: translateY(-50%);
+
+  background: #4d595c;
+
+  border-radius: 3px;
+}
+
+.slider-knob {
+  position: absolute;
+
+  width: 58px;
+  height: 48px;
+
+  left: 50%;
+  top: 50%;
+
+  transform: translate(-50%, -50%);
+
+  border-radius: 17px;
+
+  background:
+    linear-gradient(
+      145deg,
+      #738083,
+      #4d595c
+    );
+
+  box-shadow:
+    0 6px 10px rgba(0,0,0,0.3),
+    inset 0 2px 2px rgba(255,255,255,0.08);
+
+  z-index: 2;
+}
+
+/* little grip */
+
+.slider-knob::after {
+  content: "";
+
+  position: absolute;
+
+  left: 50%;
+  top: 50%;
+
+  width: 16px;
+  height: 3px;
+
+  transform: translate(-50%, -50%);
+
+  border-radius: 2px;
+
+  background: #283234;
+
+  box-shadow:
+    0 -6px #283234,
+    0 6px #283234;
+}
+
+/* =========================================================
+   LEVER
+   ========================================================= */
+
+.lever-base {
+  position: relative;
+
+  width: 88px;
+  height: 60px;
+
+  border-radius: 30px;
+
+  background: #252e30;
+
+  box-shadow:
+    inset 0 4px 8px rgba(0,0,0,0.3),
+    0 2px 2px rgba(255,255,255,0.025);
+}
+
+.lever-arm {
+  position: absolute;
+
+  width: 16px;
+  height: 65px;
+
+  left: 50%;
+  bottom: 27px;
+
+  transform:
+    translateX(-50%)
+    rotate(-12deg);
+
+  transform-origin: 50% 100%;
+
+  border-radius: 8px;
+
+  background:
+    linear-gradient(
+      90deg,
+      #4a5659,
+      #7b888a,
+      #4a5659
+    );
+
+  box-shadow:
+    3px 3px 7px rgba(0,0,0,0.25);
+}
+
+.lever-handle {
+  position: absolute;
+
+  width: 42px;
+  height: 42px;
+
+  left: 50%;
+  top: -14px;
+
+  transform: translateX(-50%);
+
+  border-radius: 50%;
+
+  background:
+    radial-gradient(
+      circle at 38% 30%,
+      #d0a875,
+      #9a744b 58%,
+      #6f5134
+    );
+
+  box-shadow:
+    0 5px 9px rgba(0,0,0,0.3),
+    inset 0 2px 2px rgba(255,255,255,0.12);
+}
+
+/* =========================================================
+   PULL SPRING
+   ========================================================= */
+
+.pull-spring {
+  position: relative;
+
+  width: 105px;
+  height: 80px;
+}
+
+.pull-anchor {
+  position: absolute;
+
+  left: 0;
+  top: 50%;
+
+  transform: translateY(-50%);
+
+  width: 25px;
+  height: 48px;
+
+  border-radius: 10px;
+
+  background: #394447;
+
+  box-shadow:
+    inset 0 2px 2px rgba(255,255,255,0.05);
+}
+
+.pull-coil {
+  position: absolute;
+
+  left: 21px;
+  right: 27px;
+  top: 50%;
+
+  height: 24px;
+
+  transform: translateY(-50%);
+
+  background:
+    repeating-linear-gradient(
+      90deg,
+      transparent 0 5px,
+      #667477 5px 8px,
+      transparent 8px 13px
+    );
+
+  border-top: 3px solid #667477;
+  border-bottom: 3px solid #667477;
+
+  border-radius: 5px;
+}
+
+.pull-handle {
+  position: absolute;
+
+  right: 0;
+  top: 50%;
+
+  width: 44px;
+  height: 58px;
+
+  transform: translateY(-50%);
+
+  border-radius: 16px;
+
+  background:
+    linear-gradient(
+      145deg,
+      #718083,
+      #4b575a
+    );
+
+  box-shadow:
+    0 6px 10px rgba(0,0,0,0.28),
+    inset 0 2px 2px rgba(255,255,255,0.08);
+}
+
+.pull-handle::after {
+  content: "";
+
+  position: absolute;
+
+  width: 4px;
+  height: 20px;
+
+  border-radius: 2px;
+
+  background: var(--amber);
+
+  left: 50%;
+  top: 50%;
+
+  transform: translate(-50%, -50%);
+
+  opacity: 0.8;
+}
+
+/* =========================================================
+   SMALL CONTROL INDICATORS
+   No text labels are required for operation.
+   ========================================================= */
+
+.control::after {
+  content: "";
+
+  position: absolute;
+
+  bottom: 10px;
+
+  width: 4px;
+  height: 4px;
+
+  border-radius: 50%;
+
+  background: #465154;
+}
+
+.button-control::after {
+  background: var(--cyan);
+  opacity: 0.45;
+}
+
+.spring-control::after {
+  background: var(--amber);
+  opacity: 0.45;
+}
+
+/* =========================================================
+   VERY SHORT SCREENS
+   ========================================================= */
+
+@media (max-height: 650px) {
+
+  .machine {
+    padding-top: max(10px, env(safe-area-inset-top));
+    padding-bottom: max(10px, env(safe-area-inset-bottom));
+  }
+
+  .header {
+    height: 34px;
+  }
+
+  .chain-panel {
+    flex-basis: 32%;
+  }
+
+  .controls {
+    gap: 8px;
+    padding-top: 9px;
+  }
+
+  .push-button {
+    width: 62px;
+    height: 62px;
+  }
+
+  .dial {
+    width: 72px;
+    height: 72px;
+  }
+
+  .lever-arm {
+    height: 53px;
+  }
+}
+
+/* =========================================================
+   REDUCED MOTION
+   ========================================================= */
+
+@media (prefers-reduced-motion: reduce) {
+
+  .push-button {
+    transition-duration: 40ms;
+  }
+
+}
+</style>
+</head>
+
+<body>
+
+<main class="machine">
+
+  <!-- =====================================================
+       HEADER
+       ===================================================== -->
+
+  <header class="header">
+
+    <div class="brand">
+      SOFT MACHINE
+    </div>
+
+    <!--
+      Step 2では音声機能はまだありません。
+      後の工程で音声ON/OFFボタンになります。
+    -->
+    <div
+      class="sound-placeholder"
+      aria-hidden="true"
+    >
+      ◌
+    </div>
+
+  </header>
+
+
+  <!-- =====================================================
+       MACHINE / CHAIN DISPLAY
+       後の工程で部品間の連鎖がここを通ります。
+       ===================================================== -->
+
+  <section
+    class="chain-panel"
+    aria-label="Mechanical chain display"
+  >
+
+    <div class="machine-line line-a"></div>
+    <div class="machine-line line-b"></div>
+    <div class="machine-line line-c"></div>
+
+    <div class="lamp"></div>
+
+    <div class="gear"></div>
+
+    <div class="rail">
+      <div class="ball"></div>
+    </div>
+
+    <div class="piston">
+      <div class="piston-body"></div>
+      <div class="piston-arm"></div>
+    </div>
+
+    <div class="chain-spring">
+      <div class="spring-coil"></div>
+    </div>
+
+  </section>
+
+
+  <!-- =====================================================
+       DIRECT CONTROLS
+       ===================================================== -->
+
+  <section class="controls">
+
+    <!-- PUSH BUTTON -->
+
+    <div class="control button-control">
+
+      <button
+        class="push-button"
+        type="button"
+        aria-label="Push button"
+      ></button>
+
+    </div>
+
+
+    <!-- DIAL -->
+
+    <div class="control">
+
+      <div
+        class="dial"
+        role="slider"
+        tabindex="0"
+        aria-label="Rotary dial"
+        aria-valuemin="0"
+        aria-valuemax="100"
+        aria-valuenow="50"
+      ></div>
+
+    </div>
+
+
+    <!-- SLIDER -->
+
+    <div class="control slider-control">
+
+      <div
+        class="slider-track"
+        role="slider"
+        tabindex="0"
+        aria-label="Horizontal slider"
+        aria-valuemin="0"
+        aria-valuemax="100"
+        aria-valuenow="50"
+      >
+
+        <div class="slider-knob"></div>
+
+      </div>
+
+    </div>
+
+
+    <!-- LEVER -->
+
+    <div class="control">
+
+      <div
+        class="lever-base"
+        role="slider"
+        tabindex="0"
+        aria-label="Lever"
+        aria-valuemin="0"
+        aria-valuemax="100"
+        aria-valuenow="50"
+      >
+
+        <div class="lever-arm">
+
+          <div class="lever-handle"></div>
+
+        </div>
+
+      </div>
+
+    </div>
+
+
+    <!-- PULL SPRING -->
+
+    <div class="control spring-control">
+
+      <div
+        class="pull-spring"
+        role="slider"
+        tabindex="0"
+        aria-label="Pull spring"
+        aria-valuemin="0"
+        aria-valuemax="100"
+        aria-valuenow="0"
+      >
+
+        <div class="pull-anchor"></div>
+
+        <div class="pull-coil"></div>
+
+        <div class="pull-handle"></div>
+
+      </div>
+
+    </div>
+
+  </section>
+
+</main>
+
+
+<script>
+/* =========================================================
+   Soft Machine — Step 2
+   =========================================================
+
+   この段階では意図的にJavaScriptによる操作処理を
+   実装していません。
+
+   Step 3で以下を追加します。
+
+   - Push Button
+   - Lever drag
+   - Dial rotation
+   - Slider drag
+   - Pull Spring
+
+   ========================================================= */
+</script>
+
+</body>
+</html>
