@@ -16,28 +16,20 @@
 
 /* =========================================================
    SOFT MACHINE
-   STEP 3.2 — ROTARY INTERACTION
+   STEP 3.4
+   TRIGGER + ROTARY + TRANSFER + LEVER
    ========================================================= */
 
 :root {
   --page: #0c0907;
 
-  --wood-deep: #24130c;
   --wood-dark: #3c2115;
   --wood-mid: #633b25;
   --wood-light: #8a5938;
 
   --panel: #17191b;
-  --panel-deep: #090b0c;
-
-  --line: #414445;
-
-  --metal-dark: #343a3c;
-  --metal-mid: #747b7c;
-  --metal-light: #c2c6c4;
 
   --text: #deddd6;
-  --text-mid: #949690;
 
   --cyan: #59d8d2;
   --amber: #e99b42;
@@ -56,6 +48,7 @@
 html,
 body {
   margin: 0;
+
   width: 100%;
   height: 100%;
 
@@ -113,13 +106,14 @@ body {
 
 
 /* =========================================================
-   WOODEN CHASSIS
+   WOOD CHASSIS
    ========================================================= */
 
 .chassis {
   position: relative;
 
   flex: 1;
+
   min-width: 0;
   min-height: 0;
 
@@ -329,6 +323,7 @@ body {
 .brand {
   display: flex;
   flex-direction: column;
+
   gap: 4px;
 }
 
@@ -346,13 +341,16 @@ body {
 
 .subtitle {
   font-size: 5.5px;
+
   letter-spacing: .18em;
+
   color: #797a75;
 }
 
 .status {
   display: flex;
   align-items: center;
+
   gap: 7px;
 
   padding-top: 3px;
@@ -360,13 +358,13 @@ body {
 
 .status-text {
   font-size: 5px;
+
   letter-spacing: .17em;
+
   color: #737570;
 }
 
 .status-led {
-  position: relative;
-
   width: 7px;
   height: 7px;
 
@@ -388,7 +386,7 @@ body {
 
 
 /* =========================================================
-   SECTION HEADINGS
+   SECTION
    ========================================================= */
 
 .section-heading {
@@ -420,6 +418,7 @@ body {
 
 .mechanism-section {
   flex: 0 0 40%;
+
   min-height: 0;
 
   display: flex;
@@ -430,6 +429,7 @@ body {
   position: relative;
 
   flex: 1;
+
   min-height: 0;
 
   overflow: hidden;
@@ -457,15 +457,14 @@ body {
 }
 
 
-/* =========================================================
-   MECHANICAL PATH
-   ========================================================= */
+/* paths */
 
 .path-horizontal {
   position: absolute;
 
   left: 11%;
   right: 10%;
+
   top: 49%;
 
   height: 2px;
@@ -482,6 +481,7 @@ body {
   position: absolute;
 
   left: 23%;
+
   top: 49%;
 
   width: 2px;
@@ -496,9 +496,7 @@ body {
 }
 
 
-/* =========================================================
-   GEAR
-   ========================================================= */
+/* gear */
 
 .gear-unit {
   position: absolute;
@@ -514,6 +512,7 @@ body {
 
 .gear {
   position: absolute;
+
   inset: 0;
 
   border-radius: 50%;
@@ -534,6 +533,7 @@ body {
   content: "";
 
   position: absolute;
+
   inset: 12px;
 
   border-radius: 50%;
@@ -565,7 +565,8 @@ body {
   left: 50%;
   top: 50%;
 
-  transform: translate(-50%, -50%);
+  transform:
+    translate(-50%, -50%);
 
   border-radius: 50%;
 
@@ -575,21 +576,17 @@ body {
       #242829,
       #050607 70%
     );
-
-  box-shadow:
-    0 0 0 1px rgba(255,255,255,.05);
 }
 
 
-/* =========================================================
-   BALL TRACK
-   ========================================================= */
+/* track */
 
 .track {
   position: absolute;
 
   left: 37%;
   right: 8%;
+
   top: 30%;
 
   height: 27px;
@@ -606,8 +603,7 @@ body {
   border: 1px solid #3b3e3f;
 
   box-shadow:
-    inset 0 3px 6px rgba(0,0,0,.8),
-    inset 0 1px 0 rgba(255,255,255,.018);
+    inset 0 3px 6px rgba(0,0,0,.8);
 }
 
 .track-line {
@@ -615,6 +611,7 @@ body {
 
   left: 10px;
   right: 10px;
+
   top: 50%;
 
   height: 3px;
@@ -630,9 +627,6 @@ body {
       #7b8180 38%,
       #444a4b 100%
     );
-
-  box-shadow:
-    0 1px 1px rgba(0,0,0,.7);
 }
 
 .ball {
@@ -659,14 +653,11 @@ body {
     );
 
   box-shadow:
-    0 3px 5px rgba(0,0,0,.65),
-    inset -1px -1px 2px rgba(0,0,0,.35);
+    0 3px 5px rgba(0,0,0,.65);
 }
 
 
-/* =========================================================
-   PISTON
-   ========================================================= */
+/* piston */
 
 .piston {
   position: absolute;
@@ -726,14 +717,11 @@ body {
     );
 
   box-shadow:
-    0 2px 3px rgba(0,0,0,.45),
-    inset 0 1px 0 rgba(255,255,255,.45);
+    0 2px 3px rgba(0,0,0,.45);
 }
 
 
-/* =========================================================
-   DISPLAY SPRING
-   ========================================================= */
+/* spring */
 
 .display-spring {
   position: absolute;
@@ -760,19 +748,22 @@ body {
       #b0b4b1 48%,
       #606666
     );
-
-  box-shadow:
-    1px 2px 2px rgba(0,0,0,.4);
 }
 
-.spring-stop.left { left: 0; }
-.spring-stop.right { right: 0; }
+.spring-stop.left {
+  left: 0;
+}
+
+.spring-stop.right {
+  right: 0;
+}
 
 .spring-coil {
   position: absolute;
 
   left: 5px;
   right: 5px;
+
   top: 6px;
 
   height: 18px;
@@ -788,15 +779,10 @@ body {
       #5d6362 8px 10px,
       transparent 10px 14px
     );
-
-  filter:
-    drop-shadow(0 2px 1px rgba(0,0,0,.4));
 }
 
 
-/* =========================================================
-   INDICATOR
-   ========================================================= */
+/* indicator */
 
 .indicator {
   position: absolute;
@@ -806,6 +792,7 @@ body {
 
   display: flex;
   align-items: center;
+
   gap: 7px;
 }
 
@@ -832,12 +819,7 @@ body {
   width: 27px;
   height: 2px;
 
-  background:
-    linear-gradient(
-      180deg,
-      #646968,
-      #353a3b
-    );
+  background: #555b5b;
 }
 
 
@@ -847,6 +829,7 @@ body {
 
 .divider {
   flex: 0 0 12px;
+
   position: relative;
 }
 
@@ -857,6 +840,7 @@ body {
 
   left: 0;
   right: 0;
+
   top: 50%;
 
   height: 1px;
@@ -878,6 +862,7 @@ body {
 
 .control-section {
   flex: 1;
+
   min-height: 0;
 
   display: flex;
@@ -886,11 +871,13 @@ body {
 
 .controls {
   flex: 1;
+
   min-height: 0;
 
   display: grid;
 
-  grid-template-columns: 1fr 1fr;
+  grid-template-columns:
+    1fr 1fr;
 
   grid-template-rows:
     1fr
@@ -942,8 +929,6 @@ body {
 }
 
 .trigger-well {
-  position: relative;
-
   width: 65px;
   height: 65px;
 
@@ -962,8 +947,7 @@ body {
   border: 1px solid #444849;
 
   box-shadow:
-    inset 0 5px 8px rgba(0,0,0,.82),
-    0 1px 0 rgba(255,255,255,.025);
+    inset 0 5px 8px rgba(0,0,0,.82);
 }
 
 .trigger-button {
@@ -1027,8 +1011,6 @@ body {
       rgba(255,255,255,.18),
       transparent
     );
-
-  pointer-events: none;
 }
 
 .trigger-button::after {
@@ -1043,8 +1025,7 @@ body {
   top: 50%;
 
   transform:
-    translate(-50%, -50%)
-    scale(1);
+    translate(-50%, -50%);
 
   border-radius: 50%;
 
@@ -1058,12 +1039,6 @@ body {
 
   box-shadow:
     0 0 5px rgba(233,155,66,.35);
-
-  transition:
-    transform 90ms ease,
-    box-shadow 90ms ease;
-
-  pointer-events: none;
 }
 
 .trigger-button.is-pressed {
@@ -1079,23 +1054,10 @@ body {
   filter: brightness(.92);
 }
 
-.trigger-button.is-pressed::after {
-  transform:
-    translate(-50%, -50%)
-    scale(.9);
-
-  box-shadow:
-    0 0 3px rgba(233,155,66,.25);
-}
-
 .trigger-button.is-releasing {
   animation:
-    triggerRelease 300ms cubic-bezier(.18,.85,.28,1);
-}
-
-.trigger-button.is-releasing::after {
-  animation:
-    triggerLightRelease 300ms ease-out;
+    triggerRelease 300ms
+    cubic-bezier(.18,.85,.28,1);
 }
 
 @keyframes triggerRelease {
@@ -1121,30 +1083,6 @@ body {
   100% {
     transform:
       translateY(0)
-      scale(1);
-  }
-}
-
-@keyframes triggerLightRelease {
-
-  0% {
-    transform:
-      translate(-50%, -50%)
-      scale(.9);
-  }
-
-  35% {
-    transform:
-      translate(-50%, -50%)
-      scale(1.25);
-
-    box-shadow:
-      0 0 8px rgba(233,155,66,.55);
-  }
-
-  100% {
-    transform:
-      translate(-50%, -50%)
       scale(1);
   }
 }
@@ -1193,14 +1131,6 @@ body {
   background: #151719;
 }
 
-
-/*
-   ROTARY本体。
-
-   JSから --rotary-angle を変更します。
-   見た目全体がそのまま回転します。
-*/
-
 .rotary-knob {
   --rotary-angle: 0deg;
 
@@ -1234,10 +1164,6 @@ body {
     0 6px 9px rgba(0,0,0,.48),
     inset 1px 1px 1px rgba(255,255,255,.25),
     inset -2px -3px 4px rgba(0,0,0,.25);
-
-  transition:
-    filter 80ms ease,
-    box-shadow 80ms ease;
 }
 
 .rotary-knob::before {
@@ -1259,8 +1185,6 @@ body {
       rgba(255,255,255,.14),
       transparent
     );
-
-  pointer-events: none;
 }
 
 .rotary-knob::after {
@@ -1274,7 +1198,8 @@ body {
   left: 50%;
   top: 8px;
 
-  transform: translateX(-50%);
+  transform:
+    translateX(-50%);
 
   border-radius: 2px;
 
@@ -1287,30 +1212,11 @@ body {
 
   box-shadow:
     0 0 5px rgba(89,216,210,.45);
-
-  pointer-events: none;
 }
-
-
-/*
-   指でつかんでいる間だけ、
-   ごくわずかに暗くして「接触」を表現。
-*/
 
 .rotary-knob.is-grabbed {
-  filter: brightness(.96);
-
-  box-shadow:
-    0 4px 6px rgba(0,0,0,.5),
-    inset 1px 1px 1px rgba(255,255,255,.22),
-    inset -2px -3px 4px rgba(0,0,0,.3);
+  filter: brightness(.95);
 }
-
-
-/*
-   ステップをまたいだ瞬間の微細な反応。
-   大きく跳ねさせず、クリック感だけを出します。
-*/
 
 .rotary-knob.is-stepping {
   animation:
@@ -1358,6 +1264,8 @@ body {
 
   border-radius: 3px;
 
+  touch-action: none;
+
   background:
     linear-gradient(
       180deg,
@@ -1378,11 +1286,13 @@ body {
 
   left: 12px;
   right: 12px;
+
   top: 50%;
 
   height: 3px;
 
-  transform: translateY(-50%);
+  transform:
+    translateY(-50%);
 
   border-radius: 2px;
 
@@ -1396,6 +1306,8 @@ body {
 }
 
 .slider-knob {
+  --slider-x: 0px;
+
   position: absolute;
 
   width: 44px;
@@ -1404,10 +1316,13 @@ body {
   left: 50%;
   top: 50%;
 
-  transform:
-    translate(-50%, -50%);
-
   z-index: 2;
+
+  transform:
+    translate(
+      calc(-50% + var(--slider-x)),
+      -50%
+    );
 
   border-radius: 4px;
 
@@ -1427,6 +1342,10 @@ body {
     0 6px 9px rgba(0,0,0,.48),
     inset 1px 1px 1px rgba(255,255,255,.28),
     inset -1px -2px 3px rgba(0,0,0,.25);
+
+  transition:
+    filter 80ms ease,
+    box-shadow 80ms ease;
 }
 
 .slider-knob::before {
@@ -1436,6 +1355,7 @@ body {
 
   left: 4px;
   right: 4px;
+
   top: 3px;
 
   height: 1px;
@@ -1471,11 +1391,23 @@ body {
     0 0 4px rgba(233,155,66,.25);
 }
 
+.slider-knob.is-grabbed {
+  filter: brightness(.94);
+}
+
+.slider-knob.is-snapping {
+  transition:
+    transform 160ms cubic-bezier(.2,.82,.28,1),
+    filter 80ms ease,
+    box-shadow 80ms ease;
+}
+
 .slider-scale {
   position: absolute;
 
   left: 12px;
   right: 12px;
+
   bottom: 0;
 
   display: flex;
@@ -1504,11 +1436,38 @@ body {
   justify-content: center;
 }
 
-.lever-slot {
+
+/*
+   レバーの指操作領域。
+
+   見た目より少し広く取って、
+   iPhoneで掴みやすくしています。
+*/
+
+.lever-touch-area {
   position: relative;
+
+  width: 112px;
+  height: 92px;
+
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+
+  touch-action: none;
+}
+
+
+.lever-slot {
+  position: absolute;
+
+  left: 50%;
+  bottom: 5px;
 
   width: 78px;
   height: 52px;
+
+  transform: translateX(-50%);
 
   border-radius: 5px;
 
@@ -1525,20 +1484,32 @@ body {
     inset 0 5px 9px rgba(0,0,0,.82);
 }
 
+
+/*
+   レバー本体。
+
+   --lever-angle をJavaScriptから変更します。
+*/
+
 .lever-arm {
+  --lever-angle: 0deg;
+
   position: absolute;
+
+  z-index: 3;
 
   width: 10px;
   height: 50px;
 
   left: 50%;
-  bottom: 23px;
+  bottom: 28px;
 
   transform:
     translateX(-50%)
-    rotate(-12deg);
+    rotate(var(--lever-angle));
 
-  transform-origin: 50% 100%;
+  transform-origin:
+    50% 100%;
 
   border-radius: 2px;
 
@@ -1566,7 +1537,8 @@ body {
   left: 50%;
   top: -9px;
 
-  transform: translateX(-50%);
+  transform:
+    translateX(-50%);
 
   border-radius: 50%;
 
@@ -1595,6 +1567,7 @@ body {
 
   left: 6px;
   right: 7px;
+
   top: 4px;
 
   height: 6px;
@@ -1607,6 +1580,61 @@ body {
       rgba(255,230,200,.18),
       transparent
     );
+}
+
+
+/*
+   指で掴んでいるとき。
+*/
+
+.lever-touch-area.is-grabbed
+.lever-handle {
+  filter: brightness(.94);
+}
+
+
+/*
+   閾値を越えたときの「カコン」。
+
+   JavaScriptで一瞬だけ付けます。
+*/
+
+.lever-touch-area.is-latched
+.lever-handle {
+  animation:
+    leverLatch 110ms ease-out;
+}
+
+@keyframes leverLatch {
+
+  0% {
+    transform:
+      translateX(-50%)
+      scale(1);
+  }
+
+  45% {
+    transform:
+      translateX(-50%)
+      scale(.92);
+  }
+
+  100% {
+    transform:
+      translateX(-50%)
+      scale(1);
+  }
+}
+
+
+/*
+   指を離した後の中央復帰。
+*/
+
+.lever-arm.is-returning {
+  transition:
+    transform 380ms
+    cubic-bezier(.16,.86,.28,1.08);
 }
 
 
@@ -1638,7 +1666,8 @@ body {
   width: 27px;
   height: 39px;
 
-  transform: translateY(-50%);
+  transform:
+    translateY(-50%);
 
   border-radius: 4px;
 
@@ -1652,10 +1681,6 @@ body {
     );
 
   border: 1px solid #7c817e;
-
-  box-shadow:
-    inset 1px 1px 1px rgba(255,255,255,.18),
-    0 4px 6px rgba(0,0,0,.35);
 }
 
 .tension-spring {
@@ -1663,14 +1688,19 @@ body {
 
   left: 25px;
   right: 35px;
+
   top: 50%;
 
   height: 19px;
 
-  transform: translateY(-50%);
+  transform:
+    translateY(-50%);
 
-  border-top: 2px solid #b5b9b5;
-  border-bottom: 2px solid #656b69;
+  border-top:
+    2px solid #b5b9b5;
+
+  border-bottom:
+    2px solid #656b69;
 
   background:
     repeating-linear-gradient(
@@ -1680,9 +1710,6 @@ body {
       #686e6c 8px 10px,
       transparent 10px 15px
     );
-
-  filter:
-    drop-shadow(0 2px 1px rgba(0,0,0,.42));
 }
 
 .tension-handle {
@@ -1694,7 +1721,8 @@ body {
   width: 41px;
   height: 47px;
 
-  transform: translateY(-50%);
+  transform:
+    translateY(-50%);
 
   border-radius: 4px;
 
@@ -1712,23 +1740,7 @@ body {
 
   box-shadow:
     0 6px 9px rgba(0,0,0,.46),
-    inset 1px 1px 1px rgba(255,255,255,.24),
-    inset -1px -2px 3px rgba(0,0,0,.24);
-}
-
-.tension-handle::before {
-  content: "";
-
-  position: absolute;
-
-  left: 4px;
-  right: 4px;
-  top: 3px;
-
-  height: 1px;
-
-  background:
-    rgba(255,255,255,.22);
+    inset 1px 1px 1px rgba(255,255,255,.24);
 }
 
 .tension-handle::after {
@@ -1773,6 +1785,7 @@ body {
   padding: 0 3px;
 
   font-size: 5px;
+
   letter-spacing: .16em;
 
   color: #6c6d68;
@@ -1780,6 +1793,7 @@ body {
 
 .footer-lights {
   display: flex;
+
   gap: 5px;
 }
 
@@ -1841,36 +1855,25 @@ body {
 
 @media (prefers-reduced-motion: reduce) {
 
-  .trigger-button {
-    transition-duration: 50ms;
-  }
-
   .trigger-button.is-releasing {
-    animation-name: triggerReleaseReduced;
-    animation-duration: 150ms;
-  }
-
-  .trigger-button.is-releasing::after {
-    animation: none;
+    animation-duration: 140ms;
   }
 
   .rotary-knob.is-stepping {
     animation: none;
   }
 
-  @keyframes triggerReleaseReduced {
+  .slider-knob.is-snapping {
+    transition-duration: 80ms;
+  }
 
-    0% {
-      transform:
-        translateY(2px)
-        scale(.99);
-    }
+  .lever-arm.is-returning {
+    transition-duration: 160ms;
+  }
 
-    100% {
-      transform:
-        translateY(0)
-        scale(1);
-    }
+  .lever-touch-area.is-latched
+  .lever-handle {
+    animation: none;
   }
 }
 
@@ -1882,370 +1885,376 @@ body {
 
 <main class="app">
 
-  <section
-    class="chassis"
-    aria-label="Soft Machine"
-  >
+<section
+  class="chassis"
+  aria-label="Soft Machine"
+>
 
-    <section class="faceplate">
-
-
-      <div class="screw s1"></div>
-      <div class="screw s2"></div>
-      <div class="screw s3"></div>
-      <div class="screw s4"></div>
+<section class="faceplate">
 
 
-      <!-- HEADER -->
+<div class="screw s1"></div>
+<div class="screw s2"></div>
+<div class="screw s3"></div>
+<div class="screw s4"></div>
 
-      <header class="header">
 
-        <div class="brand">
+<!-- =====================================================
+     HEADER
+     ===================================================== -->
 
-          <div class="title">
-            SOFT MACHINE
-          </div>
+<header class="header">
 
-          <div class="subtitle">
-            KINETIC INSTRUMENT · SM–01
-          </div>
+  <div class="brand">
+
+    <div class="title">
+      SOFT MACHINE
+    </div>
+
+    <div class="subtitle">
+      KINETIC INSTRUMENT · SM–01
+    </div>
+
+  </div>
+
+
+  <div class="status">
+
+    <div class="status-text">
+      READY
+    </div>
+
+    <div class="status-led"></div>
+
+  </div>
+
+</header>
+
+
+<!-- =====================================================
+     MECHANISM
+     ===================================================== -->
+
+<section class="mechanism-section">
+
+  <div class="section-heading">
+
+    <span class="section-index">
+      01
+    </span>
+
+    MECHANISM
+
+  </div>
+
+
+  <div class="mechanism">
+
+    <div class="path-horizontal"></div>
+    <div class="path-vertical"></div>
+
+
+    <div class="gear-unit">
+      <div class="gear"></div>
+    </div>
+
+
+    <div class="track">
+
+      <div class="track-line"></div>
+      <div class="ball"></div>
+
+    </div>
+
+
+    <div class="piston">
+
+      <div class="piston-body"></div>
+      <div class="piston-rod"></div>
+
+    </div>
+
+
+    <div class="display-spring">
+
+      <div class="spring-stop left"></div>
+      <div class="spring-coil"></div>
+      <div class="spring-stop right"></div>
+
+    </div>
+
+
+    <div class="indicator">
+
+      <div class="indicator-led"></div>
+      <div class="indicator-bar"></div>
+
+    </div>
+
+  </div>
+
+</section>
+
+
+<div class="divider"></div>
+
+
+<!-- =====================================================
+     CONTROLS
+     ===================================================== -->
+
+<section class="control-section">
+
+  <div class="section-heading">
+
+    <span class="section-index">
+      02
+    </span>
+
+    CONTROLS
+
+  </div>
+
+
+  <div class="controls">
+
+
+    <!-- TRIGGER -->
+
+    <div class="control">
+
+      <div class="control-name">
+
+        <span class="control-number">
+          01
+        </span>
+
+        TRIGGER
+
+      </div>
+
+
+      <div class="trigger-body">
+
+        <div class="trigger-well">
+
+          <button
+            id="triggerButton"
+            class="trigger-button"
+            type="button"
+            aria-label="Trigger"
+          ></button>
+
+        </div>
+
+      </div>
+
+    </div>
+
+
+    <!-- ROTARY -->
+
+    <div class="control">
+
+      <div class="control-name">
+
+        <span class="control-number">
+          02
+        </span>
+
+        ROTARY
+
+      </div>
+
+
+      <div class="rotary-body">
+
+        <div class="rotary-scale">
+
+          <div
+            id="rotaryKnob"
+            class="rotary-knob"
+            role="slider"
+            tabindex="0"
+            aria-label="Rotary control"
+            aria-valuemin="0"
+            aria-valuemax="29"
+            aria-valuenow="0"
+          ></div>
+
+        </div>
+
+      </div>
+
+    </div>
+
+
+    <!-- TRANSFER -->
+
+    <div class="control transfer">
+
+      <div class="control-name">
+
+        <span class="control-number">
+          03
+        </span>
+
+        TRANSFER
+
+      </div>
+
+
+      <div class="transfer-body">
+
+        <div
+          id="sliderTrack"
+          class="slider-track"
+          role="slider"
+          tabindex="0"
+          aria-label="Transfer slider"
+          aria-valuemin="0"
+          aria-valuemax="8"
+          aria-valuenow="4"
+        >
+
+          <div
+            id="sliderKnob"
+            class="slider-knob"
+          ></div>
 
         </div>
 
 
-        <div class="status">
-
-          <div class="status-text">
-            READY
-          </div>
-
-          <div class="status-led"></div>
-
-        </div>
-
-      </header>
-
-
-      <!-- MECHANISM -->
-
-      <section class="mechanism-section">
-
-        <div class="section-heading">
-
-          <span class="section-index">
-            01
-          </span>
-
-          MECHANISM
-
-        </div>
-
-
-        <div class="mechanism">
-
-          <div class="path-horizontal"></div>
-          <div class="path-vertical"></div>
-
-
-          <div class="gear-unit">
-            <div class="gear"></div>
-          </div>
-
-
-          <div class="track">
-
-            <div class="track-line"></div>
-            <div class="ball"></div>
-
-          </div>
-
-
-          <div class="piston">
-
-            <div class="piston-body"></div>
-            <div class="piston-rod"></div>
-
-          </div>
-
-
-          <div class="display-spring">
-
-            <div class="spring-stop left"></div>
-            <div class="spring-coil"></div>
-            <div class="spring-stop right"></div>
-
-          </div>
-
-
-          <div class="indicator">
-
-            <div class="indicator-led"></div>
-            <div class="indicator-bar"></div>
-
-          </div>
-
-        </div>
-
-      </section>
-
-
-      <div class="divider"></div>
-
-
-      <!-- CONTROLS -->
-
-      <section class="control-section">
-
-        <div class="section-heading">
-
-          <span class="section-index">
-            02
-          </span>
-
-          CONTROLS
-
-        </div>
-
-
-        <div class="controls">
-
-
-          <!-- 01 TRIGGER -->
-
-          <div class="control">
-
-            <div class="control-name">
-
-              <span class="control-number">
-                01
-              </span>
-
-              TRIGGER
-
-            </div>
-
-
-            <div class="trigger-body">
-
-              <div class="trigger-well">
-
-                <button
-                  id="triggerButton"
-                  class="trigger-button"
-                  type="button"
-                  aria-label="Trigger"
-                ></button>
-
-              </div>
-
-            </div>
-
-          </div>
-
-
-          <!-- 02 ROTARY -->
-
-          <div class="control">
-
-            <div class="control-name">
-
-              <span class="control-number">
-                02
-              </span>
-
-              ROTARY
-
-            </div>
-
-
-            <div class="rotary-body">
-
-              <div class="rotary-scale">
-
-                <div
-                  id="rotaryKnob"
-                  class="rotary-knob"
-                  role="slider"
-                  tabindex="0"
-                  aria-label="Rotary control"
-                  aria-valuemin="0"
-                  aria-valuemax="29"
-                  aria-valuenow="0"
-                ></div>
-
-              </div>
-
-            </div>
-
-          </div>
-
-
-          <!-- 03 TRANSFER -->
-
-          <div class="control transfer">
-
-            <div class="control-name">
-
-              <span class="control-number">
-                03
-              </span>
-
-              TRANSFER
-
-            </div>
-
-
-            <div class="transfer-body">
-
-              <div
-                class="slider-track"
-                role="slider"
-                tabindex="0"
-                aria-label="Transfer slider"
-                aria-valuemin="0"
-                aria-valuemax="100"
-                aria-valuenow="50"
-              >
-
-                <div class="slider-knob"></div>
-
-              </div>
-
-
-              <div class="slider-scale">
-
-                <span></span>
-                <span></span>
-                <span></span>
-                <span></span>
-                <span></span>
-                <span></span>
-                <span></span>
-                <span></span>
-                <span></span>
-
-              </div>
-
-            </div>
-
-          </div>
-
-
-          <!-- 04 LEVER -->
-
-          <div class="control">
-
-            <div class="control-name">
-
-              <span class="control-number">
-                04
-              </span>
-
-              LEVER
-
-            </div>
-
-
-            <div class="lever-body">
-
-              <div class="lever-slot">
-
-                <div
-                  class="lever-arm"
-                  role="slider"
-                  tabindex="0"
-                  aria-label="Lever"
-                  aria-valuemin="0"
-                  aria-valuemax="100"
-                  aria-valuenow="50"
-                >
-
-                  <div class="lever-handle"></div>
-
-                </div>
-
-              </div>
-
-            </div>
-
-          </div>
-
-
-          <!-- 05 TENSION -->
-
-          <div class="control">
-
-            <div class="control-name">
-
-              <span class="control-number">
-                05
-              </span>
-
-              TENSION
-
-            </div>
-
-
-            <div class="tension-body">
-
-              <div
-                class="tension-unit"
-                role="slider"
-                tabindex="0"
-                aria-label="Tension spring"
-                aria-valuemin="0"
-                aria-valuemax="100"
-                aria-valuenow="0"
-              >
-
-                <div class="tension-anchor"></div>
-                <div class="tension-spring"></div>
-                <div class="tension-handle"></div>
-
-              </div>
-
-            </div>
-
-          </div>
-
-        </div>
-
-      </section>
-
-
-      <!-- FOOTER -->
-
-      <footer class="footer">
-
-        <div>
-          SM–01
-        </div>
-
-
-        <div class="footer-lights">
-
+        <div class="slider-scale">
+
+          <span></span>
+          <span></span>
+          <span></span>
+          <span></span>
+          <span></span>
+          <span></span>
           <span></span>
           <span></span>
           <span></span>
 
         </div>
 
-      </footer>
+      </div>
 
-    </section>
+    </div>
 
-  </section>
+
+    <!-- LEVER -->
+
+    <div class="control">
+
+      <div class="control-name">
+
+        <span class="control-number">
+          04
+        </span>
+
+        LEVER
+
+      </div>
+
+
+      <div class="lever-body">
+
+        <div
+          id="leverTouchArea"
+          class="lever-touch-area"
+          role="slider"
+          tabindex="0"
+          aria-label="Lever"
+          aria-valuemin="-1"
+          aria-valuemax="1"
+          aria-valuenow="0"
+        >
+
+          <div class="lever-slot"></div>
+
+
+          <div
+            id="leverArm"
+            class="lever-arm"
+          >
+
+            <div class="lever-handle"></div>
+
+          </div>
+
+        </div>
+
+      </div>
+
+    </div>
+
+
+    <!-- TENSION -->
+
+    <div class="control">
+
+      <div class="control-name">
+
+        <span class="control-number">
+          05
+        </span>
+
+        TENSION
+
+      </div>
+
+
+      <div class="tension-body">
+
+        <div class="tension-unit">
+
+          <div class="tension-anchor"></div>
+
+          <div class="tension-spring"></div>
+
+          <div class="tension-handle"></div>
+
+        </div>
+
+      </div>
+
+    </div>
+
+
+  </div>
+
+</section>
+
+
+<!-- FOOTER -->
+
+<footer class="footer">
+
+  <div>
+    SM–01
+  </div>
+
+
+  <div class="footer-lights">
+
+    <span></span>
+    <span></span>
+    <span></span>
+
+  </div>
+
+</footer>
+
+
+</section>
+</section>
 
 </main>
 
 
 <script>
-
-/* =========================================================
-   SOFT MACHINE
-   STEP 3.2
-   ========================================================= */
-
 
 /* =========================================================
    SETTINGS
@@ -2258,21 +2267,39 @@ const SETTINGS = {
   },
 
   rotary: {
-
-    /*
-       12°ごとに1段。
-
-       360 / 12 = 30段です。
-    */
-
     stepDegrees: 12,
+    maxDeltaPerMove: 75
+  },
+
+  transfer: {
+    steps: 9
+  },
+
+  lever: {
 
     /*
-       一度のpointermoveで異常に大きな角度差が
-       入った場合の安全制限です。
+       レバー最大角度
     */
 
-    maxDeltaPerMove: 75
+    maxAngle: 31,
+
+    /*
+       ここを越えると端まで「カコン」と入る
+    */
+
+    latchThreshold: 19,
+
+    /*
+       指を離してから戻り始めるまで
+    */
+
+    returnDelay: 230,
+
+    /*
+       中央復帰時間
+    */
+
+    returnDuration: 380
   }
 };
 
@@ -2287,57 +2314,80 @@ const triggerButton =
 const rotaryKnob =
   document.getElementById("rotaryKnob");
 
+const sliderTrack =
+  document.getElementById("sliderTrack");
+
+const sliderKnob =
+  document.getElementById("sliderKnob");
+
+const leverTouchArea =
+  document.getElementById("leverTouchArea");
+
+const leverArm =
+  document.getElementById("leverArm");
+
 
 /* =========================================================
-   TRIGGER STATE
+   STATE
    ========================================================= */
 
 const triggerState = {
-
   pressed: false,
-
   pointerId: null,
-
   releaseTimer: null
 };
 
 
-/* =========================================================
-   ROTARY STATE
-   ========================================================= */
-
 const rotaryState = {
-
   dragging: false,
-
   pointerId: null,
-
-  /*
-     実際に蓄積している連続角度。
-     360°を越えて回すこともできます。
-  */
-
   angle: 0,
-
-  /*
-     現在指がある角度。
-  */
-
   previousPointerAngle: 0,
-
-  /*
-     現在の機械的ステップ番号。
-  */
-
   step: 0,
-
   stepTimer: null
+};
+
+
+const transferState = {
+  dragging: false,
+  pointerId: null,
+  step: 4,
+  steps: SETTINGS.transfer.steps,
+  x: 0,
+  snapTimer: null
+};
+
+
+const leverState = {
+  dragging: false,
+  pointerId: null,
+  angle: 0,
+  latchedSide: 0,
+  returnTimer: null,
+  latchTimer: null
 };
 
 
 /* =========================================================
    TRIGGER
    ========================================================= */
+
+function clearTriggerRelease() {
+
+  if (triggerState.releaseTimer !== null) {
+
+    clearTimeout(
+      triggerState.releaseTimer
+    );
+
+    triggerState.releaseTimer = null;
+  }
+
+  triggerButton.classList.remove(
+    "is-releasing"
+  );
+}
+
 
 function pressTrigger(event) {
 
@@ -2354,19 +2404,11 @@ function pressTrigger(event) {
 
 
   try {
-
     triggerButton.setPointerCapture(
       event.pointerId
     );
+  } catch (error) {}
 
-  } catch (error) {
-    /* Safari safety */
-  }
-
-
-  triggerButton.classList.remove(
-    "is-releasing"
-  );
 
   triggerButton.classList.add(
     "is-pressed"
@@ -2382,8 +2424,8 @@ function releaseTrigger(event) {
 
 
   if (
-    triggerState.pointerId !== null &&
-    event.pointerId !== triggerState.pointerId
+    event.pointerId !==
+    triggerState.pointerId
   ) {
     return;
   }
@@ -2410,113 +2452,40 @@ function releaseTrigger(event) {
 
 
   triggerState.releaseTimer =
-    window.setTimeout(
-      finishTriggerRelease,
+    setTimeout(
+      () => {
+
+        triggerButton.classList.remove(
+          "is-releasing"
+        );
+
+        triggerState.releaseTimer = null;
+
+      },
       SETTINGS.trigger.releaseDuration
     );
 
 
-  releaseTriggerPointerCapture(event);
-
   triggerState.pointerId = null;
 }
 
 
-function cancelTrigger(event) {
-
-  if (!triggerState.pressed) {
-    return;
-  }
-
-
-  if (
-    triggerState.pointerId !== null &&
-    event.pointerId !== triggerState.pointerId
-  ) {
-    return;
-  }
-
+function cancelTrigger() {
 
   triggerState.pressed = false;
+  triggerState.pointerId = null;
+
+  clearTriggerRelease();
 
   triggerButton.classList.remove(
     "is-pressed"
   );
-
-  triggerButton.classList.remove(
-    "is-releasing"
-  );
-
-
-  releaseTriggerPointerCapture(event);
-
-  triggerState.pointerId = null;
-}
-
-
-function finishTriggerRelease() {
-
-  triggerButton.classList.remove(
-    "is-releasing"
-  );
-
-  triggerState.releaseTimer = null;
-}
-
-
-function clearTriggerRelease() {
-
-  if (triggerState.releaseTimer !== null) {
-
-    window.clearTimeout(
-      triggerState.releaseTimer
-    );
-
-    triggerState.releaseTimer = null;
-  }
-
-
-  triggerButton.classList.remove(
-    "is-releasing"
-  );
-}
-
-
-function releaseTriggerPointerCapture(event) {
-
-  try {
-
-    if (
-      triggerButton.hasPointerCapture(
-        event.pointerId
-      )
-    ) {
-
-      triggerButton.releasePointerCapture(
-        event.pointerId
-      );
-    }
-
-  } catch (error) {
-    /* Safari safety */
-  }
 }
 
 
 /* =========================================================
    ROTARY
    ========================================================= */
-
-
-/*
-   指の位置から、
-   ノブ中心を基準にした角度を求めます。
-
-   上方向 = 0°
-   右方向 = 90°
-   下方向 = 180°
-   左方向 = -90°
-*/
 
 function getPointerAngle(event) {
 
@@ -2546,14 +2515,6 @@ function getPointerAngle(event) {
 }
 
 
-/*
-   -180°〜180°の範囲へ補正。
-
-   これがないと、
-   359° → 0°を通過したときに
-   ノブが逆方向へ大ジャンプします。
-*/
-
 function normalizeAngleDelta(delta) {
 
   while (delta > 180) {
@@ -2568,130 +2529,23 @@ function normalizeAngleDelta(delta) {
 }
 
 
-/* =========================================================
-   ROTARY POINTER DOWN
-   ========================================================= */
-
-function startRotary(event) {
-
-  if (!event.isPrimary) {
-    return;
-  }
-
-
-  rotaryState.dragging = true;
-
-  rotaryState.pointerId =
-    event.pointerId;
-
-
-  rotaryState.previousPointerAngle =
-    getPointerAngle(event);
-
-
-  try {
-
-    rotaryKnob.setPointerCapture(
-      event.pointerId
-    );
-
-  } catch (error) {
-    /* Safari safety */
-  }
-
-
-  rotaryKnob.classList.add(
-    "is-grabbed"
-  );
-
-
-  event.preventDefault();
-}
-
-
-/* =========================================================
-   ROTARY POINTER MOVE
-   ========================================================= */
-
-function moveRotary(event) {
-
-  if (!rotaryState.dragging) {
-    return;
-  }
-
-
-  if (
-    rotaryState.pointerId !== event.pointerId
-  ) {
-    return;
-  }
-
-
-  const currentPointerAngle =
-    getPointerAngle(event);
-
-
-  let delta =
-    currentPointerAngle -
-    rotaryState.previousPointerAngle;
-
-
-  delta =
-    normalizeAngleDelta(delta);
-
-
-  /*
-     Pointer座標が突然大きく飛んだ場合は
-     回転を制限します。
-  */
-
-  delta =
-    Math.max(
-      -SETTINGS.rotary.maxDeltaPerMove,
-      Math.min(
-        SETTINGS.rotary.maxDeltaPerMove,
-        delta
-      )
-    );
-
-
-  rotaryState.angle += delta;
-
-
-  rotaryState.previousPointerAngle =
-    currentPointerAngle;
-
-
-  updateRotary();
-
-
-  event.preventDefault();
-}
-
-
-/* =========================================================
-   ROTARY DISPLAY
-   ========================================================= */
-
 function updateRotary() {
 
   const stepSize =
     SETTINGS.rotary.stepDegrees;
 
 
-  /*
-     連続角度を最寄りの12°へ吸着。
-  */
-
   const snappedAngle =
     Math.round(
-      rotaryState.angle / stepSize
+      rotaryState.angle /
+      stepSize
     ) * stepSize;
 
 
   const newStep =
     Math.round(
-      rotaryState.angle / stepSize
+      rotaryState.angle /
+      stepSize
     );
 
 
@@ -2701,22 +2555,42 @@ function updateRotary() {
   );
 
 
-  /*
-     ステップが変わった瞬間だけ
-     微細なクリック表現を出します。
-  */
-
   if (newStep !== rotaryState.step) {
 
     rotaryState.step = newStep;
 
-    playRotaryStepVisual();
+    rotaryKnob.classList.remove(
+      "is-stepping"
+    );
+
+    void rotaryKnob.offsetWidth;
+
+    rotaryKnob.classList.add(
+      "is-stepping"
+    );
+
+
+    if (rotaryState.stepTimer) {
+
+      clearTimeout(
+        rotaryState.stepTimer
+      );
+    }
+
+
+    rotaryState.stepTimer =
+      setTimeout(
+        () => {
+
+          rotaryKnob.classList.remove(
+            "is-stepping"
+          );
+
+        },
+        85
+      );
   }
 
-
-  /*
-     aria値は0〜29へ循環させます。
-  */
 
   const totalSteps =
     Math.round(
@@ -2738,56 +2612,37 @@ function updateRotary() {
 }
 
 
-/* =========================================================
-   ROTARY STEP FEEDBACK
-   ========================================================= */
+function startRotary(event) {
 
-function playRotaryStepVisual() {
-
-  if (rotaryState.stepTimer !== null) {
-
-    window.clearTimeout(
-      rotaryState.stepTimer
-    );
-
-    rotaryState.stepTimer = null;
+  if (!event.isPrimary) {
+    return;
   }
 
 
-  rotaryKnob.classList.remove(
-    "is-stepping"
-  );
+  rotaryState.dragging = true;
+  rotaryState.pointerId = event.pointerId;
+
+  rotaryState.previousPointerAngle =
+    getPointerAngle(event);
 
 
-  void rotaryKnob.offsetWidth;
+  try {
+    rotaryKnob.setPointerCapture(
+      event.pointerId
+    );
+  } catch (error) {}
 
 
   rotaryKnob.classList.add(
-    "is-stepping"
+    "is-grabbed"
   );
 
 
-  rotaryState.stepTimer =
-    window.setTimeout(
-      () => {
-
-        rotaryKnob.classList.remove(
-          "is-stepping"
-        );
-
-        rotaryState.stepTimer = null;
-
-      },
-      85
-    );
+  event.preventDefault();
 }
 
 
-/* =========================================================
-   ROTARY POINTER UP
-   ========================================================= */
-
-function endRotary(event) {
+function moveRotary(event) {
 
   if (!rotaryState.dragging) {
     return;
@@ -2795,85 +2650,714 @@ function endRotary(event) {
 
 
   if (
-    rotaryState.pointerId !== event.pointerId
+    event.pointerId !==
+    rotaryState.pointerId
+  ) {
+    return;
+  }
+
+
+  const currentAngle =
+    getPointerAngle(event);
+
+
+  let delta =
+    normalizeAngleDelta(
+      currentAngle -
+      rotaryState.previousPointerAngle
+    );
+
+
+  delta =
+    Math.max(
+      -SETTINGS.rotary.maxDeltaPerMove,
+      Math.min(
+        SETTINGS.rotary.maxDeltaPerMove,
+        delta
+      )
+    );
+
+
+  rotaryState.angle += delta;
+
+  rotaryState.previousPointerAngle =
+    currentAngle;
+
+
+  updateRotary();
+
+  event.preventDefault();
+}
+
+
+function endRotary(event) {
+
+  if (
+    event.pointerId !==
+    rotaryState.pointerId
   ) {
     return;
   }
 
 
   rotaryState.dragging = false;
-
+  rotaryState.pointerId = null;
 
   rotaryKnob.classList.remove(
     "is-grabbed"
   );
-
-
-  releaseRotaryPointerCapture(event);
-
-
-  rotaryState.pointerId = null;
 }
 
 
 /* =========================================================
-   ROTARY POINTER CANCEL
+   TRANSFER
    ========================================================= */
 
-function cancelRotary(event) {
+function getTransferGeometry() {
+
+  const trackRect =
+    sliderTrack.getBoundingClientRect();
+
+
+  const knobWidth =
+    sliderKnob.offsetWidth;
+
+
+  const maxTravel =
+    Math.max(
+      0,
+      (
+        trackRect.width -
+        knobWidth -
+        4
+      ) / 2
+    );
+
+
+  return {
+    trackRect,
+    maxTravel
+  };
+}
+
+
+function getTransferStepPosition(step) {
+
+  const geometry =
+    getTransferGeometry();
+
+
+  const interval =
+    (
+      geometry.maxTravel * 2
+    ) /
+    (
+      transferState.steps - 1
+    );
+
+
+  return (
+    -geometry.maxTravel +
+    interval * step
+  );
+}
+
+
+function updateTransferPosition(
+  x,
+  animate = false
+) {
+
+  if (animate) {
+
+    sliderKnob.classList.add(
+      "is-snapping"
+    );
+
+  } else {
+
+    sliderKnob.classList.remove(
+      "is-snapping"
+    );
+  }
+
+
+  transferState.x = x;
+
+
+  sliderKnob.style.setProperty(
+    "--slider-x",
+    x + "px"
+  );
+}
+
+
+function startTransfer(event) {
+
+  if (!event.isPrimary) {
+    return;
+  }
+
+
+  if (transferState.snapTimer) {
+
+    clearTimeout(
+      transferState.snapTimer
+    );
+
+    transferState.snapTimer = null;
+  }
+
+
+  transferState.dragging = true;
+  transferState.pointerId = event.pointerId;
+
+
+  sliderKnob.classList.remove(
+    "is-snapping"
+  );
+
+  sliderKnob.classList.add(
+    "is-grabbed"
+  );
+
+
+  try {
+    sliderTrack.setPointerCapture(
+      event.pointerId
+    );
+  } catch (error) {}
+
+
+  moveTransfer(event);
+
+  event.preventDefault();
+}
+
+
+function moveTransfer(event) {
+
+  if (!transferState.dragging) {
+    return;
+  }
+
 
   if (
-    rotaryState.pointerId !== null &&
-    event.pointerId !== rotaryState.pointerId
+    event.pointerId !==
+    transferState.pointerId
   ) {
     return;
   }
 
 
-  rotaryState.dragging = false;
+  const geometry =
+    getTransferGeometry();
 
-  rotaryState.pointerId = null;
+
+  const center =
+    geometry.trackRect.left +
+    geometry.trackRect.width / 2;
 
 
-  rotaryKnob.classList.remove(
-    "is-grabbed"
+  let x =
+    event.clientX - center;
+
+
+  x =
+    Math.max(
+      -geometry.maxTravel,
+      Math.min(
+        geometry.maxTravel,
+        x
+      )
+    );
+
+
+  updateTransferPosition(
+    x,
+    false
   );
 
-  rotaryKnob.classList.remove(
-    "is-stepping"
-  );
 
-
-  releaseRotaryPointerCapture(event);
+  event.preventDefault();
 }
 
 
-function releaseRotaryPointerCapture(event) {
+function snapTransfer() {
+
+  const geometry =
+    getTransferGeometry();
+
+
+  const interval =
+    (
+      geometry.maxTravel * 2
+    ) /
+    (
+      transferState.steps - 1
+    );
+
+
+  let step =
+    Math.round(
+      (
+        transferState.x +
+        geometry.maxTravel
+      ) /
+      interval
+    );
+
+
+  step =
+    Math.max(
+      0,
+      Math.min(
+        transferState.steps - 1,
+        step
+      )
+    );
+
+
+  transferState.step = step;
+
+
+  updateTransferPosition(
+    getTransferStepPosition(step),
+    true
+  );
+
+
+  sliderTrack.setAttribute(
+    "aria-valuenow",
+    String(step)
+  );
+
+
+  transferState.snapTimer =
+    setTimeout(
+      () => {
+
+        sliderKnob.classList.remove(
+          "is-snapping"
+        );
+
+        transferState.snapTimer = null;
+
+      },
+      180
+    );
+}
+
+
+function endTransfer(event) {
+
+  if (
+    event.pointerId !==
+    transferState.pointerId
+  ) {
+    return;
+  }
+
+
+  transferState.dragging = false;
+  transferState.pointerId = null;
+
+
+  sliderKnob.classList.remove(
+    "is-grabbed"
+  );
+
+
+  snapTransfer();
+}
+
+
+/* =========================================================
+   LEVER
+   ========================================================= */
+
+function setLeverAngle(
+  angle,
+  returning = false
+) {
+
+  leverState.angle = angle;
+
+
+  if (returning) {
+
+    leverArm.classList.add(
+      "is-returning"
+    );
+
+  } else {
+
+    leverArm.classList.remove(
+      "is-returning"
+    );
+  }
+
+
+  leverArm.style.setProperty(
+    "--lever-angle",
+    angle + "deg"
+  );
+}
+
+
+/*
+   レバーの基点から、
+   指の横位置を角度へ変換します。
+*/
+
+function getLeverAngle(event) {
+
+  const rect =
+    leverTouchArea.getBoundingClientRect();
+
+
+  const centerX =
+    rect.left + rect.width / 2;
+
+
+  const dx =
+    event.clientX - centerX;
+
+
+  /*
+     タッチ領域の半分程度を使って
+     -31°〜+31°へ変換。
+  */
+
+  const normalized =
+    dx / (rect.width * .38);
+
+
+  const angle =
+    normalized *
+    SETTINGS.lever.maxAngle;
+
+
+  return Math.max(
+    -SETTINGS.lever.maxAngle,
+    Math.min(
+      SETTINGS.lever.maxAngle,
+      angle
+    )
+  );
+}
+
+
+/*
+   閾値を越えた瞬間の
+   「カコン」処理。
+*/
+
+function latchLever(side) {
+
+  if (
+    leverState.latchedSide === side
+  ) {
+    return;
+  }
+
+
+  leverState.latchedSide = side;
+
+
+  leverTouchArea.classList.remove(
+    "is-latched"
+  );
+
+
+  void leverTouchArea.offsetWidth;
+
+
+  leverTouchArea.classList.add(
+    "is-latched"
+  );
+
+
+  setLeverAngle(
+    SETTINGS.lever.maxAngle * side,
+    false
+  );
+
+
+  leverTouchArea.setAttribute(
+    "aria-valuenow",
+    String(side)
+  );
+
+
+  if (leverState.latchTimer) {
+
+    clearTimeout(
+      leverState.latchTimer
+    );
+  }
+
+
+  leverState.latchTimer =
+    setTimeout(
+      () => {
+
+        leverTouchArea.classList.remove(
+          "is-latched"
+        );
+
+        leverState.latchTimer = null;
+
+      },
+      120
+    );
+}
+
+
+/* =========================================================
+   LEVER START
+   ========================================================= */
+
+function startLever(event) {
+
+  if (!event.isPrimary) {
+    return;
+  }
+
+
+  if (leverState.returnTimer) {
+
+    clearTimeout(
+      leverState.returnTimer
+    );
+
+    leverState.returnTimer = null;
+  }
+
+
+  leverState.dragging = true;
+
+  leverState.pointerId =
+    event.pointerId;
+
+  leverState.latchedSide = 0;
+
+
+  leverArm.classList.remove(
+    "is-returning"
+  );
+
+  leverTouchArea.classList.add(
+    "is-grabbed"
+  );
+
 
   try {
 
-    if (
-      rotaryKnob.hasPointerCapture(
-        event.pointerId
-      )
-    ) {
+    leverTouchArea.setPointerCapture(
+      event.pointerId
+    );
 
-      rotaryKnob.releasePointerCapture(
-        event.pointerId
-      );
-    }
+  } catch (error) {}
 
-  } catch (error) {
-    /* Safari safety */
-  }
+
+  moveLever(event);
+
+  event.preventDefault();
 }
 
 
 /* =========================================================
-   KEYBOARD FALLBACK
+   LEVER MOVE
    ========================================================= */
 
-function handleRotaryKeyDown(event) {
+function moveLever(event) {
+
+  if (!leverState.dragging) {
+    return;
+  }
+
+
+  if (
+    event.pointerId !==
+    leverState.pointerId
+  ) {
+    return;
+  }
+
+
+  const angle =
+    getLeverAngle(event);
+
+
+  /*
+     一度ラッチした側では、
+     指を大きく中央へ戻すまで
+     端位置を保持します。
+  */
+
+  if (leverState.latchedSide !== 0) {
+
+    const releaseThreshold =
+      SETTINGS.lever.latchThreshold * .55;
+
+
+    if (
+      Math.abs(angle) >
+      releaseThreshold
+    ) {
+
+      setLeverAngle(
+        SETTINGS.lever.maxAngle *
+        leverState.latchedSide,
+        false
+      );
+
+      return;
+    }
+
+
+    leverState.latchedSide = 0;
+  }
+
+
+  /*
+     閾値を越えたら端まで入る。
+  */
+
+  if (
+    Math.abs(angle) >=
+    SETTINGS.lever.latchThreshold
+  ) {
+
+    latchLever(
+      angle < 0 ? -1 : 1
+    );
+
+    return;
+  }
+
+
+  setLeverAngle(
+    angle,
+    false
+  );
+
+
+  leverTouchArea.setAttribute(
+    "aria-valuenow",
+    "0"
+  );
+
+
+  event.preventDefault();
+}
+
+
+/* =========================================================
+   LEVER RETURN
+   ========================================================= */
+
+function scheduleLeverReturn() {
+
+  if (leverState.returnTimer) {
+
+    clearTimeout(
+      leverState.returnTimer
+    );
+  }
+
+
+  leverState.returnTimer =
+    setTimeout(
+      () => {
+
+        leverState.latchedSide = 0;
+
+
+        setLeverAngle(
+          0,
+          true
+        );
+
+
+        leverTouchArea.setAttribute(
+          "aria-valuenow",
+          "0"
+        );
+
+
+        leverState.returnTimer =
+          setTimeout(
+            () => {
+
+              leverArm.classList.remove(
+                "is-returning"
+              );
+
+              leverState.returnTimer = null;
+
+            },
+            SETTINGS.lever.returnDuration
+          );
+
+      },
+      SETTINGS.lever.returnDelay
+    );
+}
+
+
+/* =========================================================
+   LEVER END
+   ========================================================= */
+
+function endLever(event) {
+
+  if (
+    event.pointerId !==
+    leverState.pointerId
+  ) {
+    return;
+  }
+
+
+  leverState.dragging = false;
+  leverState.pointerId = null;
+
+
+  leverTouchArea.classList.remove(
+    "is-grabbed"
+  );
+
+
+  scheduleLeverReturn();
+}
+
+
+/* =========================================================
+   LEVER CANCEL
+   ========================================================= */
+
+function cancelLever() {
+
+  leverState.dragging = false;
+  leverState.pointerId = null;
+
+
+  leverTouchArea.classList.remove(
+    "is-grabbed"
+  );
+
+
+  scheduleLeverReturn();
+}
+
+
+/* =========================================================
+   KEYBOARD
+   ========================================================= */
+
+function handleRotaryKey(event) {
 
   let direction = 0;
 
@@ -2882,7 +3366,6 @@ function handleRotaryKeyDown(event) {
     event.key === "ArrowRight" ||
     event.key === "ArrowUp"
   ) {
-
     direction = 1;
   }
 
@@ -2891,12 +3374,11 @@ function handleRotaryKeyDown(event) {
     event.key === "ArrowLeft" ||
     event.key === "ArrowDown"
   ) {
-
     direction = -1;
   }
 
 
-  if (direction === 0) {
+  if (!direction) {
     return;
   }
 
@@ -2913,43 +3395,28 @@ function handleRotaryKeyDown(event) {
 }
 
 
-/* =========================================================
-   TRIGGER KEYBOARD
-   ========================================================= */
+function handleTransferKey(event) {
 
-function handleTriggerKeyDown(event) {
+  let direction = 0;
+
 
   if (
-    event.key !== "Enter" &&
-    event.key !== " "
+    event.key === "ArrowRight" ||
+    event.key === "ArrowUp"
   ) {
-    return;
+    direction = 1;
   }
 
 
-  if (event.repeat) {
-    return;
+  if (
+    event.key === "ArrowLeft" ||
+    event.key === "ArrowDown"
+  ) {
+    direction = -1;
   }
 
 
-  event.preventDefault();
-
-  clearTriggerRelease();
-
-  triggerState.pressed = true;
-
-  triggerButton.classList.add(
-    "is-pressed"
-  );
-}
-
-
-function handleTriggerKeyUp(event) {
-
-  if (
-    event.key !== "Enter" &&
-    event.key !== " "
-  ) {
+  if (!direction) {
     return;
   }
 
@@ -2957,67 +3424,68 @@ function handleTriggerKeyUp(event) {
   event.preventDefault();
 
 
-  if (!triggerState.pressed) {
-    return;
-  }
-
-
-  triggerState.pressed = false;
-
-
-  triggerButton.classList.remove(
-    "is-pressed"
-  );
-
-  triggerButton.classList.remove(
-    "is-releasing"
-  );
-
-
-  void triggerButton.offsetWidth;
-
-
-  triggerButton.classList.add(
-    "is-releasing"
-  );
-
-
-  triggerState.releaseTimer =
-    window.setTimeout(
-      finishTriggerRelease,
-      SETTINGS.trigger.releaseDuration
+  transferState.step =
+    Math.max(
+      0,
+      Math.min(
+        transferState.steps - 1,
+        transferState.step + direction
+      )
     );
+
+
+  updateTransferPosition(
+    getTransferStepPosition(
+      transferState.step
+    ),
+    true
+  );
+
+
+  sliderTrack.setAttribute(
+    "aria-valuenow",
+    String(transferState.step)
+  );
 }
 
 
-/* =========================================================
-   PAGE VISIBILITY
-   ========================================================= */
+function handleLeverKey(event) {
 
-function handleVisibilityChange() {
+  let side = 0;
 
-  if (!document.hidden) {
+
+  if (event.key === "ArrowLeft") {
+    side = -1;
+  }
+
+
+  if (event.key === "ArrowRight") {
+    side = 1;
+  }
+
+
+  if (!side) {
     return;
   }
 
 
-  /* Trigger reset */
-
-  clearTriggerRelease();
-
-  triggerState.pressed = false;
-  triggerState.pointerId = null;
-
-  triggerButton.classList.remove(
-    "is-pressed"
-  );
-
-  triggerButton.classList.remove(
-    "is-releasing"
-  );
+  event.preventDefault();
 
 
-  /* Rotary interaction reset */
+  latchLever(side);
+
+  scheduleLeverReturn();
+}
+
+
+/* =========================================================
+   VISIBILITY SAFETY
+   ========================================================= */
+
+function resetInteractions() {
+
+  cancelTrigger();
+
 
   rotaryState.dragging = false;
   rotaryState.pointerId = null;
@@ -3026,20 +3494,41 @@ function handleVisibilityChange() {
     "is-grabbed"
   );
 
-  rotaryKnob.classList.remove(
-    "is-stepping"
+
+  transferState.dragging = false;
+  transferState.pointerId = null;
+
+  sliderKnob.classList.remove(
+    "is-grabbed"
   );
 
+  snapTransfer();
 
-  if (rotaryState.stepTimer !== null) {
 
-    window.clearTimeout(
-      rotaryState.stepTimer
-    );
+  leverState.dragging = false;
+  leverState.pointerId = null;
 
-    rotaryState.stepTimer = null;
-  }
+  leverTouchArea.classList.remove(
+    "is-grabbed"
+  );
+
+  setLeverAngle(
+    0,
+    false
+  );
 }
+
+
+document.addEventListener(
+  "visibilitychange",
+  () => {
+
+    if (document.hidden) {
+      resetInteractions();
+    }
+
+  }
+);
 
 
 /* =========================================================
@@ -3059,33 +3548,6 @@ triggerButton.addEventListener(
 triggerButton.addEventListener(
   "pointercancel",
   cancelTrigger
-);
-
-triggerButton.addEventListener(
-  "lostpointercapture",
-  () => {
-
-    if (!triggerState.pressed) {
-      return;
-    }
-
-    triggerState.pressed = false;
-    triggerState.pointerId = null;
-
-    triggerButton.classList.remove(
-      "is-pressed"
-    );
-  }
-);
-
-triggerButton.addEventListener(
-  "keydown",
-  handleTriggerKeyDown
-);
-
-triggerButton.addEventListener(
-  "keyup",
-  handleTriggerKeyUp
 );
 
 
@@ -3110,47 +3572,93 @@ rotaryKnob.addEventListener(
 
 rotaryKnob.addEventListener(
   "pointercancel",
-  cancelRotary
-);
-
-rotaryKnob.addEventListener(
-  "lostpointercapture",
-  () => {
-
-    if (!rotaryState.dragging) {
-      return;
-    }
-
-    rotaryState.dragging = false;
-    rotaryState.pointerId = null;
-
-    rotaryKnob.classList.remove(
-      "is-grabbed"
-    );
-  }
+  endRotary
 );
 
 rotaryKnob.addEventListener(
   "keydown",
-  handleRotaryKeyDown
+  handleRotaryKey
 );
 
 
 /* =========================================================
-   DOCUMENT
+   EVENTS — TRANSFER
    ========================================================= */
 
-document.addEventListener(
-  "visibilitychange",
-  handleVisibilityChange
+sliderTrack.addEventListener(
+  "pointerdown",
+  startTransfer
+);
+
+sliderTrack.addEventListener(
+  "pointermove",
+  moveTransfer
+);
+
+sliderTrack.addEventListener(
+  "pointerup",
+  endTransfer
+);
+
+sliderTrack.addEventListener(
+  "pointercancel",
+  endTransfer
+);
+
+sliderTrack.addEventListener(
+  "keydown",
+  handleTransferKey
 );
 
 
 /* =========================================================
-   INITIAL DISPLAY
+   EVENTS — LEVER
+   ========================================================= */
+
+leverTouchArea.addEventListener(
+  "pointerdown",
+  startLever
+);
+
+leverTouchArea.addEventListener(
+  "pointermove",
+  moveLever
+);
+
+leverTouchArea.addEventListener(
+  "pointerup",
+  endLever
+);
+
+leverTouchArea.addEventListener(
+  "pointercancel",
+  cancelLever
+);
+
+leverTouchArea.addEventListener(
+  "keydown",
+  handleLeverKey
+);
+
+
+/* =========================================================
+   INITIAL STATE
    ========================================================= */
 
 updateRotary();
+
+
+updateTransferPosition(
+  getTransferStepPosition(
+    transferState.step
+  )
+);
+
+
+setLeverAngle(
+  0,
+  false
+);
 
 </script>
 
