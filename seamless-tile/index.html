@@ -1,2232 +1,2354 @@
 <!DOCTYPE html>
 <html lang="ja">
 <head>
-  <meta charset="UTF-8">
+<meta charset="UTF-8">
+
+<meta
+  name="viewport"
+  content="width=device-width, initial-scale=1, viewport-fit=cover, user-scalable=no"
+>
+
+<meta name="theme-color" content="#10191b">
+
+<title>Seamless Tile</title>
+
+<style>
+:root {
+  --page-bg: #0d1719;
+  --page-top: #111d20;
+
+  --ambient: 55, 135, 140;
+  --ambient-alpha: .20;
+
+  --tile-1: #19282b;
+  --tile-2: #1b2c2f;
+  --tile-3: #172629;
+
+  --line: #66d3c5;
+  --line-soft: #91e4d9;
+  --node: #d0fff8;
+
+  --glow: 0.12;
+  --board-glow: 0.25;
+
+  --board-size: min(86vw, 410px);
+  --board-radius: 24px;
+
+  --atmosphere-time: 850ms;
+}
+
+* {
+  box-sizing: border-box;
+  -webkit-tap-highlight-color: transparent;
+}
+
+html,
+body {
+  width: 100%;
+  min-height: 100%;
+  margin: 0;
+  overflow: hidden;
+  overscroll-behavior: none;
+
+  background: var(--page-bg);
+
+  -webkit-user-select: none;
+  user-select: none;
+
+  -webkit-touch-callout: none;
+  -webkit-text-size-adjust: 100%;
+}
+
+body {
+  min-height: 100vh;
+  min-height: 100svh;
+  min-height: 100dvh;
+
+  font-family:
+    -apple-system,
+    BlinkMacSystemFont,
+    "SF Pro Display",
+    "SF Pro Text",
+    system-ui,
+    sans-serif;
+
+  color: #e0efed;
+}
+
+.app {
+  min-height: 100vh;
+  min-height: 100svh;
+  min-height: 100dvh;
+
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+
+  padding:
+    calc(env(safe-area-inset-top) + 28px)
+    max(calc(env(safe-area-inset-right) + 18px), 18px)
+    calc(env(safe-area-inset-bottom) + 28px)
+    max(calc(env(safe-area-inset-left) + 18px), 18px);
+
+  background:
+    radial-gradient(
+      circle at 50% 40%,
+      rgba(var(--ambient), var(--ambient-alpha)),
+      rgba(var(--ambient), 0) 52%
+    ),
+    linear-gradient(
+      180deg,
+      var(--page-top),
+      var(--page-bg)
+    );
 
-  <meta
-    name="viewport"
-    content="width=device-width, initial-scale=1, viewport-fit=cover, user-scalable=no"
-  >
+  transition:
+    background var(--atmosphere-time) ease;
+}
 
-  <meta name="theme-color" content="#10191b">
+.title {
+  margin: 0 0 22px;
 
-  <title>Seamless Tile</title>
-
-  <style>
-    :root {
-      /* =====================================================
-         ATMOSPHERE VARIABLES
-
-         JavaScriptが操作終了後だけ、ここに対応する値を変更します。
-         ドラッグ中には変更しません。
-         ===================================================== */
-
-      --page-bg: #10191b;
-      --page-bg-top: #111b1d;
-
-      --ambient-r: 53;
-      --ambient-g: 91;
-      --ambient-b: 91;
-      --ambient-alpha: 0.13;
-
-      --tile-bg: #1c2a2d;
-      --tile-bg-2: #1e2e31;
-      --tile-bg-3: #1b292c;
-
-      --line: #65c7bb;
-      --line-soft: #89d8cf;
-      --node: #c1eee8;
-
-      --line-glow-alpha: 0.00;
-      --board-glow-alpha: 0.18;
-
-      --board-size: min(86vw, 410px);
-      --board-radius: 24px;
-
-      --atmosphere-duration: 900ms;
-    }
-
-    * {
-      box-sizing: border-box;
-      -webkit-tap-highlight-color: transparent;
-    }
-
-    html,
-    body {
-      width: 100%;
-      min-height: 100%;
-
-      margin: 0;
-      padding: 0;
-
-      overflow: hidden;
-      overscroll-behavior: none;
-
-      background: var(--page-bg);
-
-      -webkit-text-size-adjust: 100%;
-      -webkit-user-select: none;
-      user-select: none;
-
-      -webkit-touch-callout: none;
-    }
-
-    body {
-      min-height: 100vh;
-      min-height: 100svh;
-      min-height: 100dvh;
-
-      color: #dce9e7;
-
-      font-family:
-        -apple-system,
-        BlinkMacSystemFont,
-        "SF Pro Display",
-        "SF Pro Text",
-        system-ui,
-        sans-serif;
-
-      transition:
-        background-color var(--atmosphere-duration) ease;
-    }
-
-    .app {
-      min-height: 100vh;
-      min-height: 100svh;
-      min-height: 100dvh;
-
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-
-      padding:
-        calc(env(safe-area-inset-top) + 28px)
-        max(calc(env(safe-area-inset-right) + 18px), 18px)
-        calc(env(safe-area-inset-bottom) + 28px)
-        max(calc(env(safe-area-inset-left) + 18px), 18px);
-
-      background:
-        radial-gradient(
-          circle at 50% 42%,
-          rgba(
-            var(--ambient-r),
-            var(--ambient-g),
-            var(--ambient-b),
-            var(--ambient-alpha)
-          ) 0%,
-          rgba(
-            var(--ambient-r),
-            var(--ambient-g),
-            var(--ambient-b),
-            0
-          ) 49%
-        ),
-        linear-gradient(
-          180deg,
-          var(--page-bg-top) 0%,
-          var(--page-bg) 100%
-        );
-
-      transition:
-        background var(--atmosphere-duration) ease;
-    }
-
-    .title {
-      margin: 0 0 22px;
-
-      font-size: 13px;
-      font-weight: 600;
-      line-height: 1;
-
-      letter-spacing: 0.16em;
-      text-transform: uppercase;
-
-      color: rgba(220, 239, 236, 0.62);
-    }
-
-    /* =========================================================
-       BOARD
-       ========================================================= */
-
-    .board-shell {
-      position: relative;
-
-      width: var(--board-size);
-      height: var(--board-size);
-
-      padding: 1px;
-
-      border-radius: var(--board-radius);
-
-      background:
-        linear-gradient(
-          145deg,
-          rgba(
-            170,
-            231,
-            222,
-            var(--board-glow-alpha)
-          ),
-          rgba(170, 231, 222, 0.035) 40%,
-          rgba(0, 0, 0, 0.24)
-        );
-
-      box-shadow:
-        0 22px 55px rgba(0, 0, 0, 0.32),
-        0 4px 12px rgba(0, 0, 0, 0.20);
-
-      transition:
-        background var(--atmosphere-duration) ease,
-        box-shadow var(--atmosphere-duration) ease;
-    }
-
-    /*
-      スナップ直後だけ付与される微細な反応。
+  font-size: 13px;
+  font-weight: 600;
+  letter-spacing: .16em;
+  text-transform: uppercase;
 
-      常時動き続けるアニメーションではありません。
-    */
-    .board-shell.snap-pulse {
-      animation:
-        snapPulse 260ms cubic-bezier(0.22, 0.78, 0.25, 1);
-    }
+  color: rgba(225, 243, 240, .65);
+}
 
-    @keyframes snapPulse {
-      0% {
-        transform: scale(1);
-      }
+/* =========================================================
+   BOARD
+   ========================================================= */
 
-      52% {
-        transform: scale(1.0035);
-      }
+.board-shell {
+  position: relative;
 
-      100% {
-        transform: scale(1);
-      }
-    }
+  width: var(--board-size);
+  height: var(--board-size);
 
-    .board {
-      position: relative;
+  padding: 1px;
 
-      width: 100%;
-      height: 100%;
+  border-radius: var(--board-radius);
 
-      overflow: hidden;
+  background:
+    linear-gradient(
+      145deg,
+      rgba(190, 255, 246, var(--board-glow)),
+      rgba(140, 230, 220, .04) 42%,
+      rgba(0, 0, 0, .28)
+    );
 
-      border-radius: calc(var(--board-radius) - 1px);
+  box-shadow:
+    0 24px 60px rgba(0,0,0,.34),
+    0 0 32px rgba(var(--ambient), calc(var(--glow) * .65));
 
-      background: var(--tile-bg);
+  transition:
+    background var(--atmosphere-time) ease,
+    box-shadow var(--atmosphere-time) ease;
+}
 
-      touch-action: none;
+.board-shell.snap-pulse {
+  animation:
+    snapPulse 270ms cubic-bezier(.2,.8,.24,1);
+}
 
-      isolation: isolate;
+@keyframes snapPulse {
+  0% {
+    transform: scale(1);
+  }
 
-      cursor: grab;
-    }
+  48% {
+    transform: scale(1.0045);
+  }
 
-    .board.dragging {
-      cursor: grabbing;
-    }
+  100% {
+    transform: scale(1);
+  }
+}
 
-    .board::after {
-      content: "";
+.board {
+  position: relative;
 
-      position: absolute;
-      inset: 0;
+  width: 100%;
+  height: 100%;
 
-      z-index: 100;
+  overflow: hidden;
 
-      pointer-events: none;
+  border-radius:
+    calc(var(--board-radius) - 1px);
 
-      border-radius: inherit;
+  background: var(--tile-1);
 
-      background:
-        linear-gradient(
-          145deg,
-          rgba(255, 255, 255, 0.035),
-          rgba(255, 255, 255, 0) 28%,
-          rgba(0, 0, 0, 0.055) 100%
-        );
+  touch-action: none;
+  isolation: isolate;
 
-      box-shadow:
-        inset 0 0 0 1px rgba(198, 239, 233, 0.035);
-    }
+  cursor: grab;
+}
 
-    /* =========================================================
-       STATIC GRID
-       ========================================================= */
+.board.dragging {
+  cursor: grabbing;
+}
 
-    .static-grid {
-      position: absolute;
-      inset: 0;
+.board::after {
+  content: "";
 
-      display: grid;
+  position: absolute;
+  inset: 0;
 
-      grid-template-columns: repeat(3, 1fr);
-      grid-template-rows: repeat(3, 1fr);
+  z-index: 100;
 
-      z-index: 1;
-    }
+  pointer-events: none;
 
-    /* =========================================================
-       ACTIVE LAYER
+  border-radius: inherit;
 
-       Step 4方式です。
+  background:
+    linear-gradient(
+      145deg,
+      rgba(255,255,255,.045),
+      transparent 27%,
+      rgba(0,0,0,.07)
+    );
 
-       必要な方向が決定してから、
-       その行または列だけ生成します。
-       ========================================================= */
+  box-shadow:
+    inset 0 0 0 1px
+    rgba(210,255,249,.045);
+}
 
-    .active-layer {
-      position: absolute;
-      inset: 0;
+/* =========================================================
+   GRID
+   ========================================================= */
 
-      z-index: 20;
+.static-grid {
+  position: absolute;
+  inset: 0;
 
-      pointer-events: none;
-    }
+  display: grid;
 
-    /* =========================================================
-       TILE
-       ========================================================= */
+  grid-template-columns:
+    repeat(3, 1fr);
 
-    .tile {
-      position: relative;
+  grid-template-rows:
+    repeat(3, 1fr);
 
-      width: 100%;
-      height: 100%;
+  z-index: 1;
+}
 
-      overflow: hidden;
+.active-layer {
+  position: absolute;
+  inset: 0;
 
-      background: var(--tile-bg);
-    }
+  z-index: 20;
 
-    .tile.tone-2 {
-      background: var(--tile-bg-2);
-    }
+  pointer-events: none;
+}
 
-    .tile.tone-3 {
-      background: var(--tile-bg-3);
-    }
+/* =========================================================
+   TILE
+   ========================================================= */
 
-    .tile::after {
-      content: "";
+.tile {
+  position: relative;
 
-      position: absolute;
-      inset: 0;
+  width: 100%;
+  height: 100%;
 
-      pointer-events: none;
+  overflow: hidden;
 
-      background:
-        radial-gradient(
-          circle at 50% 50%,
-          rgba(133, 215, 204, 0.035),
-          transparent 57%
-        );
+  background: var(--tile-1);
 
-      box-shadow:
-        inset 0 0 0 0.5px rgba(180, 229, 222, 0.028);
-    }
+  transition:
+    background var(--atmosphere-time) ease;
+}
 
-    .tile.masked {
-      visibility: hidden;
-    }
+.tile.tone-2 {
+  background: var(--tile-2);
+}
 
-    /* =========================================================
-       ROW
-       ========================================================= */
+.tile.tone-3 {
+  background: var(--tile-3);
+}
 
-    .drag-row {
-      position: absolute;
+.tile::after {
+  content: "";
 
-      left: 0;
+  position: absolute;
+  inset: 0;
 
-      width: 100%;
-      height: calc(100% / 3);
+  pointer-events: none;
 
-      overflow: visible;
-    }
+  background:
+    radial-gradient(
+      circle at 50% 50%,
+      rgba(var(--ambient), .055),
+      transparent 58%
+    );
 
-    .drag-row-strip {
-      position: absolute;
+  box-shadow:
+    inset 0 0 0 .5px
+    rgba(210,255,249,.035);
+}
 
-      top: 0;
-      left: 0;
+.tile.masked {
+  visibility: hidden;
+}
 
-      display: flex;
+/* =========================================================
+   ROW
+   ========================================================= */
 
-      width: calc(500% / 3);
-      height: 100%;
+.drag-row {
+  position: absolute;
 
-      will-change: transform;
-    }
+  left: 0;
 
-    .drag-row-strip .tile {
-      flex: 0 0 20%;
-    }
+  width: 100%;
+  height: calc(100% / 3);
+}
 
-    /* =========================================================
-       COLUMN
-       ========================================================= */
+.drag-row-strip {
+  position: absolute;
 
-    .drag-column {
-      position: absolute;
+  top: 0;
+  left: 0;
 
-      top: 0;
+  display: flex;
 
-      width: calc(100% / 3);
-      height: 100%;
+  width: calc(500% / 3);
+  height: 100%;
 
-      overflow: visible;
-    }
+  will-change: transform;
+}
 
-    .drag-column-strip {
-      position: absolute;
+.drag-row-strip .tile {
+  flex: 0 0 20%;
+}
 
-      top: 0;
-      left: 0;
+/* =========================================================
+   COLUMN
+   ========================================================= */
 
-      display: flex;
-      flex-direction: column;
+.drag-column {
+  position: absolute;
 
-      width: 100%;
-      height: calc(500% / 3);
+  top: 0;
 
-      will-change: transform;
-    }
+  width: calc(100% / 3);
+  height: 100%;
+}
 
-    .drag-column-strip .tile {
-      flex: 0 0 20%;
-    }
+.drag-column-strip {
+  position: absolute;
 
-    /* =========================================================
-       SOFT CIRCUIT
-       ========================================================= */
+  top: 0;
+  left: 0;
 
-    .tile svg {
-      display: block;
+  display: flex;
+  flex-direction: column;
 
-      width: 100%;
-      height: 100%;
+  width: 100%;
+  height: calc(500% / 3);
 
-      overflow: visible;
-    }
+  will-change: transform;
+}
 
-    .circuit-main {
-      fill: none;
+.drag-column-strip .tile {
+  flex: 0 0 20%;
+}
 
-      stroke: var(--line);
-      stroke-width: 9;
+/* =========================================================
+   SOFT CIRCUIT
+   ========================================================= */
 
-      stroke-linecap: round;
-      stroke-linejoin: round;
+.tile svg {
+  display: block;
 
-      vector-effect: non-scaling-stroke;
+  width: 100%;
+  height: 100%;
 
-      /*
-        Atmosphere変更時だけ色がゆっくり変わります。
-      */
-      transition:
-        stroke var(--atmosphere-duration) ease;
+  overflow: visible;
+}
 
-      filter:
-        drop-shadow(
-          0 0 5px
-          rgba(
-            122,
-            221,
-            208,
-            var(--line-glow-alpha)
-          )
-        );
-    }
+.circuit-main {
+  fill: none;
 
-    .node {
-      fill: var(--node);
-      opacity: 0.92;
+  stroke: var(--line);
+  stroke-width: 9;
 
-      transition:
-        fill var(--atmosphere-duration) ease;
-    }
+  stroke-linecap: round;
+  stroke-linejoin: round;
 
-    .node-ring {
-      fill: none;
+  vector-effect: non-scaling-stroke;
 
-      stroke: rgba(130, 219, 208, 0.38);
-      stroke-width: 2;
-    }
+  transition:
+    stroke var(--atmosphere-time) ease;
 
-    .soft-node {
-      fill: var(--line-soft);
-      opacity: 0.75;
+  filter:
+    drop-shadow(
+      0 0 6px
+      rgba(var(--ambient), var(--glow))
+    );
+}
 
-      transition:
-        fill var(--atmosphere-duration) ease;
-    }
+.circuit-thin {
+  fill: none;
 
-    /* =========================================================
-       HINT
-       ========================================================= */
+  stroke: var(--line-soft);
+  stroke-width: 4;
 
-    .hint {
-      margin: 24px 0 0;
+  stroke-linecap: round;
+  stroke-linejoin: round;
 
-      font-size: 13px;
-      font-weight: 450;
-      line-height: 1.4;
+  opacity: .68;
 
-      letter-spacing: 0.035em;
+  vector-effect: non-scaling-stroke;
 
-      color: rgba(216, 235, 232, 0.48);
+  transition:
+    stroke var(--atmosphere-time) ease;
+}
 
-      text-align: center;
+.node {
+  fill: var(--node);
 
-      transition:
-        opacity 400ms ease,
-        transform 400ms ease;
-    }
+  opacity: .95;
 
-    .hint.hidden {
-      opacity: 0;
-      transform: translateY(4px);
-    }
+  filter:
+    drop-shadow(
+      0 0 5px
+      rgba(var(--ambient), calc(var(--glow) + .06))
+    );
 
-    /* =========================================================
-       RESPONSIVE
-       ========================================================= */
+  transition:
+    fill var(--atmosphere-time) ease;
+}
 
-    @media (max-height: 620px) {
-      :root {
-        --board-size: min(76vw, 330px);
-      }
+.node-ring {
+  fill: none;
 
-      .title {
-        margin-bottom: 15px;
-      }
+  stroke: var(--line-soft);
+  stroke-width: 2;
 
-      .hint {
-        margin-top: 16px;
-      }
-    }
+  opacity: .55;
 
-    /* =========================================================
-       REDUCED MOTION
-       ========================================================= */
+  transition:
+    stroke var(--atmosphere-time) ease;
+}
 
-    @media (prefers-reduced-motion: reduce) {
-      :root {
-        --atmosphere-duration: 180ms;
-      }
+.soft-node {
+  fill: var(--line-soft);
 
-      .hint {
-        transition-duration: 100ms;
-      }
+  opacity: .80;
 
-      .board-shell.snap-pulse {
-        animation: none;
-      }
-    }
-  </style>
+  transition:
+    fill var(--atmosphere-time) ease;
+}
+
+/* =========================================================
+   HINT
+   ========================================================= */
+
+.hint {
+  margin: 24px 0 0;
+
+  font-size: 13px;
+  line-height: 1.4;
+  letter-spacing: .035em;
+
+  color: rgba(216,235,232,.48);
+
+  text-align: center;
+
+  transition:
+    opacity 400ms ease,
+    transform 400ms ease;
+}
+
+.hint.hidden {
+  opacity: 0;
+  transform: translateY(4px);
+}
+
+@media (max-height: 620px) {
+  :root {
+    --board-size:
+      min(76vw, 330px);
+  }
+
+  .title {
+    margin-bottom: 15px;
+  }
+
+  .hint {
+    margin-top: 16px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  :root {
+    --atmosphere-time: 180ms;
+  }
+
+  .board-shell.snap-pulse {
+    animation: none;
+  }
+
+  .hint {
+    transition-duration: 100ms;
+  }
+}
+</style>
 </head>
 
 <body>
 
-  <main class="app">
+<main class="app">
 
-    <h1 class="title">Seamless Tile</h1>
+  <h1 class="title">
+    Seamless Tile
+  </h1>
+
+  <div
+    class="board-shell"
+    id="boardShell"
+  >
 
     <div
-      class="board-shell"
-      id="boardShell"
-    >
+      class="board"
+      id="board"
+      role="application"
+      aria-label="Seamless Tile。行を左右、列を上下へ動かせます。正解や完成はありません。"
+    ></div>
 
-      <div
-        class="board"
-        id="board"
-        role="application"
-        aria-label="Seamless Tile。行を左右、列を上下へ動かせます。正解や完成はありません。"
-      ></div>
+  </div>
 
-    </div>
+  <p
+    class="hint"
+    id="hint"
+  >
+    行や列を、好きな方向へ。
+  </p>
 
-    <p
-      class="hint"
-      id="hint"
-    >
-      行や列を、好きな方向へ。
-    </p>
-
-  </main>
+</main>
 
 
-  <script>
-    (() => {
-      "use strict";
+<script>
+(() => {
+"use strict";
 
-      /* =======================================================
-         CONFIG
-         ======================================================= */
+/* =========================================================
+   CONFIG
+   ========================================================= */
 
-      const CONFIG = {
-        gridSize: 3,
+const CONFIG = {
+  gridSize: 3,
 
-        /*
-          方向判定を始める距離。
-        */
-        directionThreshold: 7,
+  directionThreshold: 7,
+  directionBias: 1.08,
 
-        /*
-          斜め操作の誤判定を防ぐため、
-          少しだけ優勢方向を要求します。
-        */
-        directionBias: 1.08,
+  snapDuration: 185,
 
-        /*
-          基本スナップ時間。
-        */
-        snapDuration: 185,
+  maxVelocityBonus: 0.28,
+  maxStepsPerGesture: 2,
 
-        /*
-          速いフリックによる補正は小さくします。
-          長い慣性移動にはしません。
-        */
-        maxVelocityBonus: 0.28,
-
-        /*
-          1ジェスチャーで最大2マス。
-        */
-        maxStepsPerGesture: 2
-      };
+  /*
+    17種類から9種類を選択。
+  */
+  tilesPerBoard: 9
+};
 
 
-      const board =
-        document.getElementById("board");
+const board =
+  document.getElementById("board");
 
-      const boardShell =
-        document.getElementById("boardShell");
+const boardShell =
+  document.getElementById("boardShell");
 
-      const hint =
-        document.getElementById("hint");
+const hint =
+  document.getElementById("hint");
 
-      const root =
-        document.documentElement;
+const root =
+  document.documentElement;
 
-      const prefersReducedMotion =
-        window.matchMedia(
-          "(prefers-reduced-motion: reduce)"
+const prefersReducedMotion =
+  window.matchMedia(
+    "(prefers-reduced-motion: reduce)"
+  );
+
+
+/* =========================================================
+   17 SOFT CIRCUIT PATTERNS
+
+   全パターン共通：
+   上    50,0
+   右   100,50
+   下    50,100
+   左   0,50
+
+   に接続します。
+
+   そのため、どのタイル同士が隣接しても
+   線は必ず境界中央で接続されます。
+   ========================================================= */
+
+const TILE_DATA = {
+
+A: `
+<svg viewBox="0 0 100 100" aria-hidden="true">
+  <path class="circuit-main"
+    d="
+    M50 0
+    C50 20 28 24 28 44
+    C28 63 48 67 50 100
+
+    M0 50
+    C18 50 22 34 40 34
+    C62 34 67 50 100 50
+    "
+  />
+  <circle class="soft-node" cx="28" cy="44" r="6"/>
+  <circle class="node" cx="50" cy="50" r="3.2"/>
+</svg>
+`,
+
+B: `
+<svg viewBox="0 0 100 100" aria-hidden="true">
+  <path class="circuit-main"
+    d="
+    M0 50
+    C24 50 28 27 50 27
+    C72 27 76 50 100 50
+
+    M50 0
+    C50 19 68 25 68 43
+    C68 65 50 70 50 100
+    "
+  />
+  <circle class="soft-node" cx="68" cy="43" r="6.5"/>
+  <circle class="node-ring" cx="50" cy="27" r="5"/>
+  <circle class="node" cx="50" cy="27" r="2.5"/>
+</svg>
+`,
+
+C: `
+<svg viewBox="0 0 100 100" aria-hidden="true">
+  <path class="circuit-main"
+    d="
+    M50 0
+    C50 23 77 25 77 50
+    C77 74 50 76 50 100
+
+    M0 50
+    C18 50 26 63 44 63
+    C63 63 70 50 100 50
+    "
+  />
+  <circle class="soft-node" cx="77" cy="50" r="6"/>
+  <circle class="node" cx="44" cy="63" r="3.3"/>
+</svg>
+`,
+
+D: `
+<svg viewBox="0 0 100 100" aria-hidden="true">
+  <path class="circuit-main"
+    d="
+    M0 50
+    C20 50 25 26 47 26
+    C70 26 73 50 100 50
+
+    M50 0
+    C50 17 35 26 35 43
+    C35 62 50 72 50 100
+    "
+  />
+  <circle class="node-ring" cx="35" cy="43" r="6"/>
+  <circle class="node" cx="35" cy="43" r="2.8"/>
+</svg>
+`,
+
+E: `
+<svg viewBox="0 0 100 100" aria-hidden="true">
+  <path class="circuit-main"
+    d="
+    M50 0
+    C50 22 50 31 50 50
+    C50 69 50 79 50 100
+
+    M0 50
+    C22 50 31 50 50 50
+    C69 50 79 50 100 50
+    "
+  />
+  <circle class="soft-node" cx="50" cy="50" r="11"/>
+  <circle class="node-ring" cx="50" cy="50" r="6"/>
+  <circle class="node" cx="50" cy="50" r="3"/>
+</svg>
+`,
+
+F: `
+<svg viewBox="0 0 100 100" aria-hidden="true">
+  <path class="circuit-main"
+    d="
+    M50 0
+    C50 19 31 26 31 46
+    C31 69 50 74 50 100
+
+    M0 50
+    C23 50 29 67 50 67
+    C70 67 77 50 100 50
+    "
+  />
+  <circle class="soft-node" cx="31" cy="46" r="6.5"/>
+  <circle class="node" cx="50" cy="67" r="3.2"/>
+</svg>
+`,
+
+G: `
+<svg viewBox="0 0 100 100" aria-hidden="true">
+  <path class="circuit-main"
+    d="
+    M0 50
+    C17 50 24 35 42 35
+    C65 35 71 50 100 50
+
+    M50 0
+    C50 24 72 27 72 48
+    C72 70 50 75 50 100
+    "
+  />
+  <circle class="node-ring" cx="42" cy="35" r="5.5"/>
+  <circle class="node" cx="42" cy="35" r="2.8"/>
+  <circle class="soft-node" cx="72" cy="48" r="5"/>
+</svg>
+`,
+
+H: `
+<svg viewBox="0 0 100 100" aria-hidden="true">
+  <path class="circuit-main"
+    d="
+    M50 0
+    C50 19 27 26 27 48
+    C27 71 50 77 50 100
+
+    M0 50
+    C21 50 27 68 48 68
+    C70 68 77 50 100 50
+    "
+  />
+  <circle class="soft-node" cx="27" cy="48" r="7"/>
+  <circle class="node" cx="48" cy="68" r="3"/>
+</svg>
+`,
+
+I: `
+<svg viewBox="0 0 100 100" aria-hidden="true">
+  <path class="circuit-main"
+    d="
+    M0 50
+    C23 50 28 29 50 29
+    C73 29 77 50 100 50
+
+    M50 0
+    C50 20 66 28 66 47
+    C66 68 50 75 50 100
+    "
+  />
+  <circle class="soft-node" cx="66" cy="47" r="6"/>
+  <circle class="node-ring" cx="50" cy="29" r="5.5"/>
+  <circle class="node" cx="50" cy="29" r="2.6"/>
+</svg>
+`,
+
+/* =========================================================
+   NEW PATTERNS J - Q
+   ========================================================= */
+
+J: `
+<svg viewBox="0 0 100 100" aria-hidden="true">
+  <path class="circuit-main"
+    d="
+    M50 0
+    C50 16 74 19 74 38
+    C74 57 26 43 26 63
+    C26 82 50 83 50 100
+
+    M0 50
+    C19 50 27 50 38 50
+
+    M62 50
+    C73 50 82 50 100 50
+    "
+  />
+
+  <path class="circuit-thin"
+    d="
+    M38 50
+    C44 50 46 44 50 44
+    C54 44 56 50 62 50
+    "
+  />
+
+  <circle class="node" cx="50" cy="44" r="3"/>
+</svg>
+`,
+
+K: `
+<svg viewBox="0 0 100 100" aria-hidden="true">
+  <path class="circuit-main"
+    d="
+    M50 0
+    C50 20 29 21 29 41
+    C29 58 50 60 50 78
+    C50 88 50 94 50 100
+
+    M0 50
+    C20 50 27 72 49 72
+    C72 72 78 50 100 50
+    "
+  />
+
+  <circle class="soft-node" cx="29" cy="41" r="5.5"/>
+  <circle class="node-ring" cx="50" cy="72" r="6"/>
+</svg>
+`,
+
+L: `
+<svg viewBox="0 0 100 100" aria-hidden="true">
+  <path class="circuit-main"
+    d="
+    M50 0
+    C50 18 72 24 72 42
+    C72 64 51 65 50 100
+
+    M0 50
+    C15 50 21 31 39 31
+    C58 31 63 50 100 50
+    "
+  />
+
+  <path class="circuit-thin"
+    d="
+    M39 31
+    C40 47 49 51 60 52
+    "
+  />
+
+  <circle class="node" cx="39" cy="31" r="3"/>
+  <circle class="soft-node" cx="72" cy="42" r="6"/>
+</svg>
+`,
+
+M: `
+<svg viewBox="0 0 100 100" aria-hidden="true">
+  <path class="circuit-main"
+    d="
+    M50 0
+    C50 19 36 25 36 39
+    C36 54 64 48 64 64
+    C64 79 50 84 50 100
+
+    M0 50
+    C17 50 25 61 39 61
+
+    M61 61
+    C76 61 82 50 100 50
+    "
+  />
+
+  <path class="circuit-thin"
+    d="
+    M39 61
+    C45 61 46 54 50 54
+    C55 54 56 61 61 61
+    "
+  />
+
+  <circle class="node-ring" cx="50" cy="54" r="5"/>
+  <circle class="node" cx="50" cy="54" r="2.5"/>
+</svg>
+`,
+
+N: `
+<svg viewBox="0 0 100 100" aria-hidden="true">
+  <path class="circuit-main"
+    d="
+    M50 0
+    C50 23 25 24 25 49
+    C25 72 50 75 50 100
+
+    M0 50
+    C19 50 30 38 50 38
+    C70 38 80 50 100 50
+    "
+  />
+
+  <circle class="soft-node" cx="25" cy="49" r="7"/>
+
+  <path class="circuit-thin"
+    d="
+    M50 38
+    C50 48 56 55 65 58
+    "
+  />
+
+  <circle class="node" cx="65" cy="58" r="3"/>
+</svg>
+`,
+
+O: `
+<svg viewBox="0 0 100 100" aria-hidden="true">
+  <path class="circuit-main"
+    d="
+    M50 0
+    C50 17 66 22 66 37
+    C66 52 35 53 35 68
+    C35 83 50 87 50 100
+
+    M0 50
+    C18 50 25 35 42 35
+
+    M58 65
+    C75 65 81 50 100 50
+    "
+  />
+
+  <path class="circuit-thin"
+    d="
+    M42 35
+    C52 35 55 43 55 50
+    C55 57 53 65 58 65
+    "
+  />
+
+  <circle class="node-ring" cx="55" cy="50" r="6"/>
+</svg>
+`,
+
+P: `
+<svg viewBox="0 0 100 100" aria-hidden="true">
+  <path class="circuit-main"
+    d="
+    M50 0
+    C50 22 75 27 75 50
+    C75 73 50 79 50 100
+
+    M0 50
+    C18 50 26 27 48 27
+    C68 27 76 50 100 50
+    "
+  />
+
+  <path class="circuit-thin"
+    d="
+    M48 27
+    C45 40 38 47 28 50
+    "
+  />
+
+  <circle class="soft-node" cx="75" cy="50" r="7"/>
+  <circle class="node" cx="48" cy="27" r="3"/>
+</svg>
+`,
+
+Q: `
+<svg viewBox="0 0 100 100" aria-hidden="true">
+  <path class="circuit-main"
+    d="
+    M50 0
+    C50 18 32 24 32 40
+    C32 58 69 42 69 61
+    C69 80 50 83 50 100
+
+    M0 50
+    C19 50 29 67 48 67
+    C70 67 78 50 100 50
+    "
+  />
+
+  <path class="circuit-thin"
+    d="
+    M32 40
+    C45 40 48 48 48 67
+    "
+  />
+
+  <circle class="node-ring" cx="48" cy="67" r="6"/>
+  <circle class="node" cx="48" cy="67" r="2.7"/>
+  <circle class="soft-node" cx="69" cy="61" r="5"/>
+</svg>
+`
+};
+
+
+/* =========================================================
+   TILE SELECTION
+
+   17種類の中から起動時に9種類だけ選びます。
+
+   ページを開いている間は固定。
+   スライド中に別のタイルへ変化することはありません。
+   ========================================================= */
+
+function chooseTiles() {
+  const ids =
+    Object.keys(TILE_DATA);
+
+  /*
+    Fisher-Yates。
+    ここは起動時に1回しか実行されません。
+  */
+
+  for (
+    let i = ids.length - 1;
+    i > 0;
+    i--
+  ) {
+    const j =
+      Math.floor(
+        Math.random() * (i + 1)
+      );
+
+    [
+      ids[i],
+      ids[j]
+    ] = [
+      ids[j],
+      ids[i]
+    ];
+  }
+
+  return ids.slice(
+    0,
+    CONFIG.tilesPerBoard
+  );
+}
+
+
+const selectedTiles =
+  chooseTiles();
+
+
+let grid = [
+  selectedTiles.slice(0,3),
+  selectedTiles.slice(3,6),
+  selectedTiles.slice(6,9)
+];
+
+
+/* =========================================================
+   DRAG STATE
+   ========================================================= */
+
+const drag = {
+  active: false,
+  settling: false,
+
+  pointerId: null,
+
+  direction: null,
+
+  rowIndex: -1,
+  columnIndex: -1,
+
+  startX: 0,
+  startY: 0,
+
+  lastX: 0,
+  lastY: 0,
+  lastTime: 0,
+
+  velocity: 0,
+
+  tileSize: 0,
+  offset: 0,
+
+  strip: null,
+
+  animationFrame: null,
+
+  settleGeneration: 0,
+  settleTimer: null
+};
+
+
+/* =========================================================
+   HELPERS
+   ========================================================= */
+
+function modulo(value, divisor) {
+  return (
+    (value % divisor) +
+    divisor
+  ) % divisor;
+}
+
+
+function clamp(
+  value,
+  min,
+  max
+) {
+  return Math.max(
+    min,
+    Math.min(max, value)
+  );
+}
+
+
+function tileNumber(id) {
+  return (
+    id.charCodeAt(0) -
+    65
+  );
+}
+
+
+function toneClass(id) {
+  const n =
+    tileNumber(id);
+
+  if (n % 3 === 1) {
+    return "tone-2";
+  }
+
+  if (n % 3 === 2) {
+    return "tone-3";
+  }
+
+  return "";
+}
+
+
+function createTile(
+  id,
+  clone = false
+) {
+  const tile =
+    document.createElement("div");
+
+  tile.className = "tile";
+
+  const tone =
+    toneClass(id);
+
+  if (tone) {
+    tile.classList.add(tone);
+  }
+
+  tile.dataset.tileId = id;
+
+  if (clone) {
+    tile.dataset.clone = "true";
+  }
+
+  tile.innerHTML =
+    TILE_DATA[id];
+
+  return tile;
+}
+
+
+/* =========================================================
+   RENDER
+   ========================================================= */
+
+function renderBoard() {
+  board.innerHTML = "";
+
+  const staticGrid =
+    document.createElement("div");
+
+  staticGrid.className =
+    "static-grid";
+
+  for (
+    let row = 0;
+    row < 3;
+    row++
+  ) {
+    for (
+      let column = 0;
+      column < 3;
+      column++
+    ) {
+      const tile =
+        createTile(
+          grid[row][column]
         );
 
+      tile.dataset.row =
+        String(row);
 
-      /* =======================================================
-         TILE DATA
-         ======================================================= */
+      tile.dataset.column =
+        String(column);
 
-      const TILE_DATA = {
+      staticGrid.appendChild(
+        tile
+      );
+    }
+  }
 
-        A: `
-          <svg viewBox="0 0 100 100" aria-hidden="true">
-            <path class="circuit-main"
-              d="
-                M 50 0
-                C 50 20, 28 24, 28 44
-                C 28 62, 48 66, 50 100
+  const activeLayer =
+    document.createElement("div");
 
-                M 0 50
-                C 18 50, 22 34, 40 34
-                C 62 34, 66 50, 100 50
-              "
-            />
-            <circle class="soft-node" cx="29" cy="44" r="6" />
-            <circle class="node" cx="50" cy="50" r="3.2" />
-          </svg>
-        `,
+  activeLayer.className =
+    "active-layer";
 
-        B: `
-          <svg viewBox="0 0 100 100" aria-hidden="true">
-            <path class="circuit-main"
-              d="
-                M 0 50
-                C 24 50, 28 27, 50 27
-                C 72 27, 76 50, 100 50
+  activeLayer.id =
+    "activeLayer";
 
-                M 50 0
-                C 50 19, 68 25, 68 43
-                C 68 65, 50 70, 50 100
-              "
-            />
-            <circle class="soft-node" cx="68" cy="43" r="6.5" />
-            <circle class="node-ring" cx="50" cy="27" r="5" />
-            <circle class="node" cx="50" cy="27" r="2.5" />
-          </svg>
-        `,
+  board.appendChild(
+    staticGrid
+  );
 
-        C: `
-          <svg viewBox="0 0 100 100" aria-hidden="true">
-            <path class="circuit-main"
-              d="
-                M 50 0
-                C 50 23, 77 25, 77 50
-                C 77 74, 50 76, 50 100
-
-                M 0 50
-                C 18 50, 26 63, 44 63
-                C 63 63, 70 50, 100 50
-              "
-            />
-            <circle class="soft-node" cx="77" cy="50" r="6" />
-            <circle class="node" cx="44" cy="63" r="3.3" />
-          </svg>
-        `,
-
-        D: `
-          <svg viewBox="0 0 100 100" aria-hidden="true">
-            <path class="circuit-main"
-              d="
-                M 0 50
-                C 20 50, 25 26, 47 26
-                C 70 26, 73 50, 100 50
-
-                M 50 0
-                C 50 17, 35 26, 35 43
-                C 35 62, 50 72, 50 100
-              "
-            />
-            <circle class="node-ring" cx="35" cy="43" r="6" />
-            <circle class="node" cx="35" cy="43" r="2.8" />
-          </svg>
-        `,
-
-        E: `
-          <svg viewBox="0 0 100 100" aria-hidden="true">
-            <path class="circuit-main"
-              d="
-                M 50 0
-                C 50 22, 50 31, 50 50
-                C 50 69, 50 79, 50 100
-
-                M 0 50
-                C 22 50, 31 50, 50 50
-                C 69 50, 79 50, 100 50
-              "
-            />
-            <circle class="soft-node" cx="50" cy="50" r="11" />
-            <circle class="node-ring" cx="50" cy="50" r="6" />
-            <circle class="node" cx="50" cy="50" r="3" />
-          </svg>
-        `,
-
-        F: `
-          <svg viewBox="0 0 100 100" aria-hidden="true">
-            <path class="circuit-main"
-              d="
-                M 50 0
-                C 50 19, 31 26, 31 46
-                C 31 69, 50 74, 50 100
-
-                M 0 50
-                C 23 50, 29 67, 50 67
-                C 70 67, 77 50, 100 50
-              "
-            />
-            <circle class="soft-node" cx="31" cy="46" r="6.5" />
-            <circle class="node" cx="50" cy="67" r="3.2" />
-          </svg>
-        `,
-
-        G: `
-          <svg viewBox="0 0 100 100" aria-hidden="true">
-            <path class="circuit-main"
-              d="
-                M 0 50
-                C 17 50, 24 35, 42 35
-                C 65 35, 71 50, 100 50
-
-                M 50 0
-                C 50 24, 72 27, 72 48
-                C 72 70, 50 75, 50 100
-              "
-            />
-            <circle class="node-ring" cx="42" cy="35" r="5.5" />
-            <circle class="node" cx="42" cy="35" r="2.8" />
-            <circle class="soft-node" cx="72" cy="48" r="5" />
-          </svg>
-        `,
-
-        H: `
-          <svg viewBox="0 0 100 100" aria-hidden="true">
-            <path class="circuit-main"
-              d="
-                M 50 0
-                C 50 19, 27 26, 27 48
-                C 27 71, 50 77, 50 100
-
-                M 0 50
-                C 21 50, 27 68, 48 68
-                C 70 68, 77 50, 100 50
-              "
-            />
-            <circle class="soft-node" cx="27" cy="48" r="7" />
-            <circle class="node" cx="48" cy="68" r="3" />
-          </svg>
-        `,
-
-        I: `
-          <svg viewBox="0 0 100 100" aria-hidden="true">
-            <path class="circuit-main"
-              d="
-                M 0 50
-                C 23 50, 28 29, 50 29
-                C 73 29, 77 50, 100 50
-
-                M 50 0
-                C 50 20, 66 28, 66 47
-                C 66 68, 50 75, 50 100
-              "
-            />
-            <circle class="soft-node" cx="66" cy="47" r="6" />
-            <circle class="node-ring" cx="50" cy="29" r="5.5" />
-            <circle class="node" cx="50" cy="29" r="2.6" />
-          </svg>
-        `
-      };
+  board.appendChild(
+    activeLayer
+  );
+}
 
 
-      /* =======================================================
-         GRID STATE
+/* =========================================================
+   VALIDATION
+   ========================================================= */
 
-         これが唯一の正本です。
-         ======================================================= */
+function validateGrid() {
+  const ids =
+    grid.flat();
 
-      let grid = [
-        ["A", "B", "C"],
-        ["D", "E", "F"],
-        ["G", "H", "I"]
-      ];
+  if (ids.length !== 9) {
+    return false;
+  }
 
+  const unique =
+    new Set(ids);
 
-      /* =======================================================
-         DRAG STATE
-         ======================================================= */
+  if (unique.size !== 9) {
+    return false;
+  }
 
-      const drag = {
-        active: false,
-        settling: false,
-
-        pointerId: null,
-
-        direction: null,
-
-        rowIndex: -1,
-        columnIndex: -1,
-
-        startX: 0,
-        startY: 0,
-
-        lastX: 0,
-        lastY: 0,
-        lastTime: 0,
-
-        velocity: 0,
-
-        tileSize: 0,
-        offset: 0,
-
-        strip: null,
-
-        animationFrame: null,
-
-        /*
-          visibilitychange等で古いtransition処理を
-          無効化するための世代番号です。
-        */
-        settleGeneration: 0,
-
-        settleTimer: null
-      };
+  return selectedTiles.every(
+    id => unique.has(id)
+  );
+}
 
 
-      /* =======================================================
-         HELPERS
-         ======================================================= */
+/* =========================================================
+   ROTATION
+   ========================================================= */
 
-      function modulo(value, divisor) {
-        return ((value % divisor) + divisor) % divisor;
-      }
+function rotateRow(
+  rowIndex,
+  steps
+) {
+  const row =
+    grid[rowIndex];
 
+  const amount =
+    modulo(steps, 3);
 
-      function clamp(value, min, max) {
-        return Math.max(
-          min,
-          Math.min(max, value)
-        );
-      }
+  if (!amount) {
+    return;
+  }
 
-
-      function toneClass(tileId) {
-        const index =
-          tileId.charCodeAt(0) - 65;
-
-        if (index % 3 === 1) {
-          return "tone-2";
-        }
-
-        if (index % 3 === 2) {
-          return "tone-3";
-        }
-
-        return "";
-      }
+  grid[rowIndex] = [
+    ...row.slice(-amount),
+    ...row.slice(0,-amount)
+  ];
+}
 
 
-      function createTile(
-        tileId,
-        isClone = false
+function rotateColumn(
+  columnIndex,
+  steps
+) {
+  const column = [
+    grid[0][columnIndex],
+    grid[1][columnIndex],
+    grid[2][columnIndex]
+  ];
+
+  const amount =
+    modulo(steps,3);
+
+  if (!amount) {
+    return;
+  }
+
+  const rotated = [
+    ...column.slice(-amount),
+    ...column.slice(0,-amount)
+  ];
+
+  for (
+    let row = 0;
+    row < 3;
+    row++
+  ) {
+    grid[row][columnIndex] =
+      rotated[row];
+  }
+}
+
+
+/* =========================================================
+   DIRECTION
+   ========================================================= */
+
+function determineDirection(
+  dx,
+  dy
+) {
+  const ax =
+    Math.abs(dx);
+
+  const ay =
+    Math.abs(dy);
+
+  if (
+    Math.max(ax,ay) <
+    CONFIG.directionThreshold
+  ) {
+    return null;
+  }
+
+  if (
+    ax >
+    ay * CONFIG.directionBias
+  ) {
+    return "row";
+  }
+
+  if (
+    ay >
+    ax * CONFIG.directionBias
+  ) {
+    return "column";
+  }
+
+  return null;
+}
+
+
+/* =========================================================
+   ROW DRAG
+   ========================================================= */
+
+function prepareRowDrag() {
+  const layer =
+    document.getElementById(
+      "activeLayer"
+    );
+
+  const tiles =
+    board.querySelectorAll(
+      `.static-grid .tile[data-row="${drag.rowIndex}"]`
+    );
+
+  tiles.forEach(
+    tile =>
+      tile.classList.add(
+        "masked"
+      )
+  );
+
+  const wrapper =
+    document.createElement("div");
+
+  wrapper.className =
+    "drag-row";
+
+  wrapper.style.top =
+    `calc(${drag.rowIndex} * 100% / 3)`;
+
+  const strip =
+    document.createElement("div");
+
+  strip.className =
+    "drag-row-strip";
+
+  const row =
+    grid[drag.rowIndex];
+
+  const ids = [
+    row[2],
+    row[0],
+    row[1],
+    row[2],
+    row[0]
+  ];
+
+  ids.forEach(
+    (id,index) => {
+      strip.appendChild(
+        createTile(
+          id,
+          index === 0 ||
+          index === 4
+        )
+      );
+    }
+  );
+
+  wrapper.appendChild(strip);
+  layer.appendChild(wrapper);
+
+  drag.strip = strip;
+
+  strip.style.transform =
+    `translate3d(${-drag.tileSize}px,0,0)`;
+
+  board.classList.add(
+    "dragging"
+  );
+}
+
+
+/* =========================================================
+   COLUMN DRAG
+   ========================================================= */
+
+function prepareColumnDrag() {
+  const layer =
+    document.getElementById(
+      "activeLayer"
+    );
+
+  const tiles =
+    board.querySelectorAll(
+      `.static-grid .tile[data-column="${drag.columnIndex}"]`
+    );
+
+  tiles.forEach(
+    tile =>
+      tile.classList.add(
+        "masked"
+      )
+  );
+
+  const wrapper =
+    document.createElement("div");
+
+  wrapper.className =
+    "drag-column";
+
+  wrapper.style.left =
+    `calc(${drag.columnIndex} * 100% / 3)`;
+
+  const strip =
+    document.createElement("div");
+
+  strip.className =
+    "drag-column-strip";
+
+  const column = [
+    grid[0][drag.columnIndex],
+    grid[1][drag.columnIndex],
+    grid[2][drag.columnIndex]
+  ];
+
+  const ids = [
+    column[2],
+    column[0],
+    column[1],
+    column[2],
+    column[0]
+  ];
+
+  ids.forEach(
+    (id,index) => {
+      strip.appendChild(
+        createTile(
+          id,
+          index === 0 ||
+          index === 4
+        )
+      );
+    }
+  );
+
+  wrapper.appendChild(strip);
+  layer.appendChild(wrapper);
+
+  drag.strip = strip;
+
+  strip.style.transform =
+    `translate3d(0,${-drag.tileSize}px,0)`;
+
+  board.classList.add(
+    "dragging"
+  );
+}
+
+
+/* =========================================================
+   POINTER DOWN
+   ========================================================= */
+
+function pointerDown(event) {
+  if (
+    drag.active ||
+    drag.settling ||
+    !event.isPrimary
+  ) {
+    return;
+  }
+
+  const rect =
+    board.getBoundingClientRect();
+
+  const localX =
+    event.clientX -
+    rect.left;
+
+  const localY =
+    event.clientY -
+    rect.top;
+
+  drag.active = true;
+
+  drag.pointerId =
+    event.pointerId;
+
+  drag.direction = null;
+
+  drag.rowIndex =
+    clamp(
+      Math.floor(
+        localY /
+        (rect.height / 3)
+      ),
+      0,
+      2
+    );
+
+  drag.columnIndex =
+    clamp(
+      Math.floor(
+        localX /
+        (rect.width / 3)
+      ),
+      0,
+      2
+    );
+
+  drag.startX =
+    event.clientX;
+
+  drag.startY =
+    event.clientY;
+
+  drag.lastX =
+    event.clientX;
+
+  drag.lastY =
+    event.clientY;
+
+  drag.lastTime =
+    performance.now();
+
+  drag.velocity = 0;
+  drag.offset = 0;
+
+  drag.tileSize =
+    rect.width / 3;
+
+  drag.strip = null;
+
+  try {
+    board.setPointerCapture(
+      event.pointerId
+    );
+  } catch (_) {}
+}
+
+
+/* =========================================================
+   POINTER MOVE
+
+   Atmosphere処理はありません。
+   ========================================================= */
+
+function pointerMove(event) {
+  if (
+    !drag.active ||
+    event.pointerId !==
+      drag.pointerId
+  ) {
+    return;
+  }
+
+  event.preventDefault();
+
+  const dx =
+    event.clientX -
+    drag.startX;
+
+  const dy =
+    event.clientY -
+    drag.startY;
+
+  if (!drag.direction) {
+    const direction =
+      determineDirection(
+        dx,
+        dy
+      );
+
+    if (!direction) {
+      return;
+    }
+
+    drag.direction =
+      direction;
+
+    hint.classList.add(
+      "hidden"
+    );
+
+    if (
+      direction === "row"
+    ) {
+      prepareRowDrag();
+    } else {
+      prepareColumnDrag();
+    }
+  }
+
+  const now =
+    performance.now();
+
+  const elapsed =
+    Math.max(
+      1,
+      now - drag.lastTime
+    );
+
+  let movement;
+
+  if (
+    drag.direction === "row"
+  ) {
+    movement =
+      event.clientX -
+      drag.lastX;
+
+    drag.offset = dx;
+
+    drag.lastX =
+      event.clientX;
+
+  } else {
+    movement =
+      event.clientY -
+      drag.lastY;
+
+    drag.offset = dy;
+
+    drag.lastY =
+      event.clientY;
+  }
+
+  const instant =
+    movement / elapsed;
+
+  drag.velocity =
+    drag.velocity * .72 +
+    instant * .28;
+
+  drag.lastTime = now;
+
+  requestFrame();
+}
+
+
+/* =========================================================
+   FRAME
+   ========================================================= */
+
+function requestFrame() {
+  if (
+    drag.animationFrame !== null
+  ) {
+    return;
+  }
+
+  drag.animationFrame =
+    requestAnimationFrame(() => {
+
+      drag.animationFrame =
+        null;
+
+      if (
+        !drag.active ||
+        !drag.strip
       ) {
-        const tile =
-          document.createElement("div");
-
-        tile.className = "tile";
-
-        const tone =
-          toneClass(tileId);
-
-        if (tone) {
-          tile.classList.add(tone);
-        }
-
-        tile.dataset.tileId =
-          tileId;
-
-        if (isClone) {
-          tile.dataset.clone =
-            "true";
-        }
-
-        tile.innerHTML =
-          TILE_DATA[tileId];
-
-        return tile;
+        return;
       }
 
-
-      /* =======================================================
-         BOARD RENDER
-         ======================================================= */
-
-      function renderBoard() {
-        board.innerHTML = "";
-
-        const staticGrid =
-          document.createElement("div");
-
-        staticGrid.className =
-          "static-grid";
-
-        for (
-          let row = 0;
-          row < 3;
-          row++
-        ) {
-          for (
-            let column = 0;
-            column < 3;
-            column++
-          ) {
-            const tile =
-              createTile(
-                grid[row][column]
-              );
-
-            tile.dataset.row =
-              String(row);
-
-            tile.dataset.column =
-              String(column);
-
-            staticGrid.appendChild(
-              tile
-            );
-          }
-        }
-
-        const activeLayer =
-          document.createElement("div");
-
-        activeLayer.className =
-          "active-layer";
-
-        activeLayer.id =
-          "activeLayer";
-
-        board.appendChild(
-          staticGrid
-        );
-
-        board.appendChild(
-          activeLayer
-        );
-      }
-
-
-      /* =======================================================
-         VALIDATION
-         ======================================================= */
-
-      function validateGrid() {
-        const ids =
-          grid.flat();
-
-        if (ids.length !== 9) {
-          return false;
-        }
-
-        const unique =
-          new Set(ids);
-
-        if (unique.size !== 9) {
-          return false;
-        }
-
-        return Object
-          .keys(TILE_DATA)
-          .every(
-            id => unique.has(id)
-          );
-      }
-
-
-      /* =======================================================
-         GRID ROTATION
-         ======================================================= */
-
-      function rotateRow(
-        rowIndex,
-        steps
+      if (
+        drag.direction === "row"
       ) {
-        const row =
-          grid[rowIndex];
-
-        const amount =
-          modulo(steps, 3);
-
-        if (amount === 0) {
-          return;
-        }
-
-        grid[rowIndex] = [
-          ...row.slice(-amount),
-          ...row.slice(0, -amount)
-        ];
-      }
-
-
-      function rotateColumn(
-        columnIndex,
-        steps
-      ) {
-        const column = [
-          grid[0][columnIndex],
-          grid[1][columnIndex],
-          grid[2][columnIndex]
-        ];
-
-        const amount =
-          modulo(steps, 3);
-
-        if (amount === 0) {
-          return;
-        }
-
-        const rotated = [
-          ...column.slice(-amount),
-          ...column.slice(0, -amount)
-        ];
-
-        for (
-          let row = 0;
-          row < 3;
-          row++
-        ) {
-          grid[row][columnIndex] =
-            rotated[row];
-        }
-      }
-
-
-      /* =======================================================
-         DIRECTION
-         ======================================================= */
-
-      function determineDirection(
-        deltaX,
-        deltaY
-      ) {
-        const absX =
-          Math.abs(deltaX);
-
-        const absY =
-          Math.abs(deltaY);
-
-        if (
-          Math.max(absX, absY) <
-          CONFIG.directionThreshold
-        ) {
-          return null;
-        }
-
-        if (
-          absX >
-          absY *
-          CONFIG.directionBias
-        ) {
-          return "row";
-        }
-
-        if (
-          absY >
-          absX *
-          CONFIG.directionBias
-        ) {
-          return "column";
-        }
-
-        return null;
-      }
-
-
-      /* =======================================================
-         ROW DRAG PREPARATION
-         ======================================================= */
-
-      function prepareRowDrag() {
-        const activeLayer =
-          document.getElementById(
-            "activeLayer"
-          );
-
-        if (!activeLayer) {
-          return;
-        }
-
-        const staticTiles =
-          board.querySelectorAll(
-            `.static-grid .tile[data-row="${drag.rowIndex}"]`
-          );
-
-        staticTiles.forEach(
-          tile => {
-            tile.classList.add(
-              "masked"
-            );
-          }
-        );
-
-        const wrapper =
-          document.createElement("div");
-
-        wrapper.className =
-          "drag-row";
-
-        wrapper.style.top =
-          `calc(${drag.rowIndex} * 100% / 3)`;
-
-        const strip =
-          document.createElement("div");
-
-        strip.className =
-          "drag-row-strip";
-
-        const row =
-          grid[drag.rowIndex];
-
-        /*
-          Step 4と同じ軽量な5枚構成。
-        */
-        const visualIds = [
-          row[2],
-          row[0],
-          row[1],
-          row[2],
-          row[0]
-        ];
-
-        visualIds.forEach(
-          (id, index) => {
-            strip.appendChild(
-              createTile(
-                id,
-                index === 0 ||
-                index === 4
-              )
-            );
-          }
-        );
-
-        wrapper.appendChild(strip);
-        activeLayer.appendChild(wrapper);
-
-        drag.strip = strip;
-
-        strip.style.transform =
-          `translate3d(${-drag.tileSize}px, 0, 0)`;
-
-        board.classList.add(
-          "dragging"
-        );
-      }
-
-
-      /* =======================================================
-         COLUMN DRAG PREPARATION
-         ======================================================= */
-
-      function prepareColumnDrag() {
-        const activeLayer =
-          document.getElementById(
-            "activeLayer"
-          );
-
-        if (!activeLayer) {
-          return;
-        }
-
-        const staticTiles =
-          board.querySelectorAll(
-            `.static-grid .tile[data-column="${drag.columnIndex}"]`
-          );
-
-        staticTiles.forEach(
-          tile => {
-            tile.classList.add(
-              "masked"
-            );
-          }
-        );
-
-        const wrapper =
-          document.createElement("div");
-
-        wrapper.className =
-          "drag-column";
-
-        wrapper.style.left =
-          `calc(${drag.columnIndex} * 100% / 3)`;
-
-        const strip =
-          document.createElement("div");
-
-        strip.className =
-          "drag-column-strip";
-
-        const column = [
-          grid[0][drag.columnIndex],
-          grid[1][drag.columnIndex],
-          grid[2][drag.columnIndex]
-        ];
-
-        const visualIds = [
-          column[2],
-          column[0],
-          column[1],
-          column[2],
-          column[0]
-        ];
-
-        visualIds.forEach(
-          (id, index) => {
-            strip.appendChild(
-              createTile(
-                id,
-                index === 0 ||
-                index === 4
-              )
-            );
-          }
-        );
-
-        wrapper.appendChild(strip);
-        activeLayer.appendChild(wrapper);
-
-        drag.strip = strip;
-
-        strip.style.transform =
-          `translate3d(0, ${-drag.tileSize}px, 0)`;
-
-        board.classList.add(
-          "dragging"
-        );
-      }
-
-
-      /* =======================================================
-         POINTER DOWN
-         ======================================================= */
-
-      function handlePointerDown(
-        event
-      ) {
-        if (
-          drag.active ||
-          drag.settling
-        ) {
-          return;
-        }
-
-        if (!event.isPrimary) {
-          return;
-        }
-
-        const rect =
-          board.getBoundingClientRect();
-
-        const localX =
-          event.clientX -
-          rect.left;
-
-        const localY =
-          event.clientY -
-          rect.top;
-
-        drag.active = true;
-
-        drag.pointerId =
-          event.pointerId;
-
-        drag.direction = null;
-
-        drag.rowIndex =
-          clamp(
-            Math.floor(
-              localY /
-              (rect.height / 3)
-            ),
-            0,
-            2
-          );
-
-        drag.columnIndex =
-          clamp(
-            Math.floor(
-              localX /
-              (rect.width / 3)
-            ),
-            0,
-            2
-          );
-
-        drag.startX =
-          event.clientX;
-
-        drag.startY =
-          event.clientY;
-
-        drag.lastX =
-          event.clientX;
-
-        drag.lastY =
-          event.clientY;
-
-        drag.lastTime =
-          performance.now();
-
-        drag.velocity = 0;
-        drag.offset = 0;
-
-        drag.tileSize =
-          rect.width / 3;
-
-        drag.strip = null;
-
-        try {
-          board.setPointerCapture(
-            event.pointerId
-          );
-        } catch (_) {
-          /* Safari safety */
-        }
-      }
-
-
-      /* =======================================================
-         POINTER MOVE
-
-         ここでは可能な限り軽い処理だけ行います。
-         ======================================================= */
-
-      function handlePointerMove(
-        event
-      ) {
-        if (!drag.active) {
-          return;
-        }
-
-        if (
-          event.pointerId !==
-          drag.pointerId
-        ) {
-          return;
-        }
-
-        event.preventDefault();
-
-        const deltaX =
-          event.clientX -
-          drag.startX;
-
-        const deltaY =
-          event.clientY -
-          drag.startY;
-
-        /*
-          一度決定した方向は、
-          指を離すまで変えません。
-        */
-        if (!drag.direction) {
-          const direction =
-            determineDirection(
-              deltaX,
-              deltaY
-            );
-
-          if (!direction) {
-            return;
-          }
-
-          drag.direction =
-            direction;
-
-          hint.classList.add(
-            "hidden"
-          );
-
-          if (
-            direction === "row"
-          ) {
-            prepareRowDrag();
-          } else {
-            prepareColumnDrag();
-          }
-        }
-
-        const now =
-          performance.now();
-
-        const elapsed =
-          Math.max(
-            1,
-            now - drag.lastTime
-          );
-
-        let movement;
-
-        if (
-          drag.direction === "row"
-        ) {
-          movement =
-            event.clientX -
-            drag.lastX;
-
-          drag.offset =
-            deltaX;
-
-          drag.lastX =
-            event.clientX;
-
-        } else {
-          movement =
-            event.clientY -
-            drag.lastY;
-
-          drag.offset =
-            deltaY;
-
-          drag.lastY =
-            event.clientY;
-        }
-
-        const instantVelocity =
-          movement / elapsed;
-
-        drag.velocity =
-          drag.velocity * 0.72 +
-          instantVelocity * 0.28;
-
-        drag.lastTime = now;
-
-        requestDragFrame();
-      }
-
-
-      /* =======================================================
-         FRAME
-
-         ドラッグ中の中心処理。
-         transform以外の視覚処理はしません。
-         ======================================================= */
-
-      function requestDragFrame() {
-        if (
-          drag.animationFrame !== null
-        ) {
-          return;
-        }
-
-        drag.animationFrame =
-          requestAnimationFrame(() => {
-
-            drag.animationFrame =
-              null;
-
-            if (
-              !drag.active ||
-              !drag.strip ||
-              !drag.direction
-            ) {
-              return;
-            }
-
-            if (
-              drag.direction === "row"
-            ) {
-              const x =
-                -drag.tileSize +
-                drag.offset;
-
-              drag.strip.style.transform =
-                `translate3d(${x}px, 0, 0)`;
-
-            } else {
-              const y =
-                -drag.tileSize +
-                drag.offset;
-
-              drag.strip.style.transform =
-                `translate3d(0, ${y}px, 0)`;
-            }
-          });
-      }
-
-
-      /* =======================================================
-         POINTER UP / CANCEL
-         ======================================================= */
-
-      function finishDrag(
-        event,
-        cancelled = false
-      ) {
-        if (!drag.active) {
-          return;
-        }
-
-        if (
-          event &&
-          event.pointerId !== undefined &&
-          event.pointerId !==
-            drag.pointerId
-        ) {
-          return;
-        }
-
-        drag.active = false;
-
-        board.classList.remove(
-          "dragging"
-        );
-
-        if (
-          drag.animationFrame !== null
-        ) {
-          cancelAnimationFrame(
-            drag.animationFrame
-          );
-
-          drag.animationFrame =
-            null;
-        }
-
-        /*
-          方向決定前ならタップ扱い。
-        */
-        if (
-          !drag.direction ||
-          !drag.strip
-        ) {
-          renderBoard();
-          resetDragState();
-          return;
-        }
-
-        let projectedOffset =
+        const x =
+          -drag.tileSize +
           drag.offset;
 
-        if (!cancelled) {
-          const velocityContribution =
-            clamp(
-              drag.velocity * 0.16,
-              -CONFIG.maxVelocityBonus,
-              CONFIG.maxVelocityBonus
-            );
+        drag.strip.style.transform =
+          `translate3d(${x}px,0,0)`;
 
-          projectedOffset +=
-            velocityContribution *
-            drag.tileSize;
-        }
+      } else {
+        const y =
+          -drag.tileSize +
+          drag.offset;
 
-        let steps =
-          Math.round(
-            projectedOffset /
-            drag.tileSize
-          );
-
-        steps =
-          clamp(
-            steps,
-            -CONFIG.maxStepsPerGesture,
-            CONFIG.maxStepsPerGesture
-          );
-
-        /*
-          pointercancelでは速度補正を使わず、
-          現在位置から最寄りへ戻します。
-        */
-        if (cancelled) {
-          steps =
-            clamp(
-              Math.round(
-                drag.offset /
-                drag.tileSize
-              ),
-              -CONFIG.maxStepsPerGesture,
-              CONFIG.maxStepsPerGesture
-            );
-        }
-
-        settle(
-          steps *
-          drag.tileSize,
-          steps
-        );
+        drag.strip.style.transform =
+          `translate3d(0,${y}px,0)`;
       }
+    });
+}
 
 
-      /* =======================================================
-         SNAP
-         ======================================================= */
+/* =========================================================
+   FINISH
+   ========================================================= */
 
-      function settle(
-        targetOffset,
+function finish(
+  event,
+  cancelled = false
+) {
+  if (!drag.active) {
+    return;
+  }
+
+  if (
+    event &&
+    event.pointerId !== undefined &&
+    event.pointerId !==
+      drag.pointerId
+  ) {
+    return;
+  }
+
+  drag.active = false;
+
+  board.classList.remove(
+    "dragging"
+  );
+
+  if (
+    drag.animationFrame !== null
+  ) {
+    cancelAnimationFrame(
+      drag.animationFrame
+    );
+
+    drag.animationFrame = null;
+  }
+
+  if (
+    !drag.direction ||
+    !drag.strip
+  ) {
+    renderBoard();
+    resetDrag();
+    return;
+  }
+
+  let projected =
+    drag.offset;
+
+  if (!cancelled) {
+    projected +=
+      clamp(
+        drag.velocity * .16,
+        -CONFIG.maxVelocityBonus,
+        CONFIG.maxVelocityBonus
+      ) *
+      drag.tileSize;
+  }
+
+  let steps =
+    Math.round(
+      projected /
+      drag.tileSize
+    );
+
+  steps =
+    clamp(
+      steps,
+      -CONFIG.maxStepsPerGesture,
+      CONFIG.maxStepsPerGesture
+    );
+
+  settle(
+    steps *
+    drag.tileSize,
+    steps
+  );
+}
+
+
+/* =========================================================
+   SETTLE
+   ========================================================= */
+
+function settle(
+  targetOffset,
+  steps
+) {
+  if (!drag.strip) {
+    renderBoard();
+    resetDrag();
+    return;
+  }
+
+  drag.settling = true;
+
+  const generation =
+    ++drag.settleGeneration;
+
+  const strip =
+    drag.strip;
+
+  const direction =
+    drag.direction;
+
+  const rowIndex =
+    drag.rowIndex;
+
+  const columnIndex =
+    drag.columnIndex;
+
+  const tileSize =
+    drag.tileSize;
+
+  const duration =
+    prefersReducedMotion.matches
+      ? 65
+      : CONFIG.snapDuration;
+
+  strip.style.transition =
+    `transform ${duration}ms cubic-bezier(.20,.82,.24,1)`;
+
+  if (
+    direction === "row"
+  ) {
+    strip.style.transform =
+      `translate3d(${
+        -tileSize +
+        targetOffset
+      }px,0,0)`;
+
+  } else {
+    strip.style.transform =
+      `translate3d(0,${
+        -tileSize +
+        targetOffset
+      }px,0)`;
+  }
+
+  let finished = false;
+
+
+  const complete = () => {
+    if (
+      finished ||
+      generation !==
+        drag.settleGeneration
+    ) {
+      return;
+    }
+
+    finished = true;
+
+    strip.removeEventListener(
+      "transitionend",
+      transitionEnd
+    );
+
+    if (
+      drag.settleTimer !== null
+    ) {
+      clearTimeout(
+        drag.settleTimer
+      );
+
+      drag.settleTimer = null;
+    }
+
+    if (
+      direction === "row"
+    ) {
+      rotateRow(
+        rowIndex,
         steps
+      );
+
+    } else {
+      rotateColumn(
+        columnIndex,
+        steps
+      );
+    }
+
+    if (!validateGrid()) {
+      grid = [
+        selectedTiles.slice(0,3),
+        selectedTiles.slice(3,6),
+        selectedTiles.slice(6,9)
+      ];
+    }
+
+    drag.settling = false;
+
+    resetDrag();
+
+    renderBoard();
+
+    /*
+      重い視覚処理は
+      ここから先だけです。
+    */
+    updateAtmosphere();
+
+    snapPulse();
+  };
+
+
+  const transitionEnd =
+    event => {
+
+      if (
+        event.target !== strip ||
+        event.propertyName !==
+          "transform"
       ) {
-        if (!drag.strip) {
-          renderBoard();
-          resetDragState();
-          return;
-        }
-
-        drag.settling = true;
-
-        /*
-          古いsettle処理を識別する番号。
-        */
-        const generation =
-          ++drag.settleGeneration;
-
-        const strip =
-          drag.strip;
-
-        const direction =
-          drag.direction;
-
-        const rowIndex =
-          drag.rowIndex;
-
-        const columnIndex =
-          drag.columnIndex;
-
-        const tileSize =
-          drag.tileSize;
-
-        const duration =
-          prefersReducedMotion.matches
-            ? 65
-            : CONFIG.snapDuration;
-
-        strip.style.transition =
-          `transform ${duration}ms cubic-bezier(0.20, 0.82, 0.24, 1)`;
-
-        if (
-          direction === "row"
-        ) {
-          const x =
-            -tileSize +
-            targetOffset;
-
-          strip.style.transform =
-            `translate3d(${x}px, 0, 0)`;
-
-        } else {
-          const y =
-            -tileSize +
-            targetOffset;
-
-          strip.style.transform =
-            `translate3d(0, ${y}px, 0)`;
-        }
-
-        let finished = false;
-
-
-        const complete = () => {
-          if (finished) {
-            return;
-          }
-
-          /*
-            visibilitychange等で無効化された
-            古い処理なら何もしません。
-          */
-          if (
-            generation !==
-            drag.settleGeneration
-          ) {
-            return;
-          }
-
-          finished = true;
-
-          strip.removeEventListener(
-            "transitionend",
-            onTransitionEnd
-          );
-
-          if (
-            drag.settleTimer !== null
-          ) {
-            clearTimeout(
-              drag.settleTimer
-            );
-
-            drag.settleTimer = null;
-          }
-
-          if (
-            direction === "row"
-          ) {
-            rotateRow(
-              rowIndex,
-              steps
-            );
-
-          } else {
-            rotateColumn(
-              columnIndex,
-              steps
-            );
-          }
-
-          /*
-            最優先安全条件：
-            9枚・重複なし。
-          */
-          if (!validateGrid()) {
-            grid = [
-              ["A", "B", "C"],
-              ["D", "E", "F"],
-              ["G", "H", "I"]
-            ];
-          }
-
-          drag.settling = false;
-
-          resetDragState();
-
-          /*
-            確定盤面を描画。
-          */
-          renderBoard();
-
-          /*
-            ここから先はドラッグ終了後の処理です。
-
-            指追従中には一切実行されません。
-          */
-          updateAtmosphere();
-
-          triggerSnapPulse();
-        };
-
-
-        const onTransitionEnd =
-          event => {
-
-            if (
-              event.target !== strip ||
-              event.propertyName !==
-                "transform"
-            ) {
-              return;
-            }
-
-            complete();
-          };
-
-
-        strip.addEventListener(
-          "transitionend",
-          onTransitionEnd
-        );
-
-
-        /*
-          Safariでtransitionendが来ない場合の保険。
-        */
-        drag.settleTimer =
-          setTimeout(
-            complete,
-            duration + 80
-          );
+        return;
       }
 
+      complete();
+    };
 
-      /* =======================================================
-         ATMOSPHERE RESPONSE
-
-         配列が確定した後に1回だけ実行します。
-
-         「良い配置」「悪い配置」は存在しません。
-         単に現在の構成から照明傾向を決めます。
-         ======================================================= */
-
-      function updateAtmosphere() {
-
-        /*
-          各タイルをA=0〜I=8として扱い、
-          現在位置との組み合わせから
-          軽い特徴量を作ります。
-
-          スコアや達成度ではありません。
-        */
-
-        let horizontalCharacter = 0;
-        let verticalCharacter = 0;
-        let centerCharacter = 0;
-
-        for (
-          let row = 0;
-          row < 3;
-          row++
-        ) {
-          for (
-            let column = 0;
-            column < 3;
-            column++
-          ) {
-            const id =
-              grid[row][column];
-
-            const value =
-              id.charCodeAt(0) - 65;
-
-            /*
-              左右方向の構成差。
-            */
-            horizontalCharacter +=
-              (column - 1) *
-              ((value % 3) - 1);
-
-            /*
-              上下方向の構成差。
-            */
-            verticalCharacter +=
-              (row - 1) *
-              (
-                Math.floor(value / 3) - 1
-              );
-
-            /*
-              中央付近のタイル特性。
-            */
-            const distance =
-              Math.abs(row - 1) +
-              Math.abs(column - 1);
-
-            if (distance <= 1) {
-              centerCharacter +=
-                value;
-            }
-          }
-        }
-
-
-        /*
-          -1〜1程度へ圧縮。
-        */
-        const horizontal =
-          clamp(
-            horizontalCharacter / 8,
-            -1,
-            1
-          );
-
-        const vertical =
-          clamp(
-            verticalCharacter / 8,
-            -1,
-            1
-          );
-
-        const center =
-          clamp(
-            (centerCharacter - 20) / 20,
-            -1,
-            1
-          );
-
-
-        /*
-          Night Tealを中心に、
-          ごく狭い範囲だけ色温度を変えます。
-
-          変化を派手にしないことが重要です。
-        */
-
-        const r =
-          Math.round(
-            48 +
-            center * 5
-          );
-
-        const g =
-          Math.round(
-            91 +
-            vertical * 12
-          );
-
-        const b =
-          Math.round(
-            94 +
-            horizontal * 14
-          );
-
-
-        /*
-          線色。
-
-          horizontalが強いと少し青寄り、
-          verticalが強いと少し緑寄り。
-        */
-
-        const lineR =
-          Math.round(
-            101 -
-            horizontal * 5
-          );
-
-        const lineG =
-          Math.round(
-            199 +
-            vertical * 8
-          );
-
-        const lineB =
-          Math.round(
-            187 +
-            horizontal * 13
-          );
-
-
-        const softR =
-          Math.round(
-            137 -
-            horizontal * 4
-          );
-
-        const softG =
-          Math.round(
-            216 +
-            vertical * 6
-          );
-
-        const softB =
-          Math.round(
-            207 +
-            horizontal * 8
-          );
-
-
-        /*
-          発光量も非常に小さくします。
-        */
-
-        const energy =
-          clamp(
-            (
-              Math.abs(horizontal) +
-              Math.abs(vertical) +
-              Math.abs(center)
-            ) / 3,
-            0,
-            1
-          );
-
-        const glow =
-          0.015 +
-          energy * 0.045;
-
-        const boardGlow =
-          0.15 +
-          energy * 0.07;
-
-
-        root.style.setProperty(
-          "--ambient-r",
-          String(r)
-        );
-
-        root.style.setProperty(
-          "--ambient-g",
-          String(g)
-        );
-
-        root.style.setProperty(
-          "--ambient-b",
-          String(b)
-        );
-
-        root.style.setProperty(
-          "--line",
-          `rgb(${lineR}, ${lineG}, ${lineB})`
-        );
-
-        root.style.setProperty(
-          "--line-soft",
-          `rgb(${softR}, ${softG}, ${softB})`
-        );
-
-        root.style.setProperty(
-          "--line-glow-alpha",
-          glow.toFixed(3)
-        );
-
-        root.style.setProperty(
-          "--board-glow-alpha",
-          boardGlow.toFixed(3)
-        );
-      }
-
-
-      /* =======================================================
-         SNAP PULSE
-
-         盤面全体がほんのわずかに呼吸する程度です。
-         ======================================================= */
-
-      function triggerSnapPulse() {
-        if (
-          prefersReducedMotion.matches
-        ) {
-          return;
-        }
-
-        boardShell.classList.remove(
-          "snap-pulse"
-        );
-
-        /*
-          animationを確実に再スタートするため、
-          次フレームで付与します。
-        */
-        requestAnimationFrame(() => {
-          boardShell.classList.add(
-            "snap-pulse"
-          );
-        });
-      }
-
-
-      /* =======================================================
-         RESET
-         ======================================================= */
-
-      function resetDragState() {
-        drag.active = false;
-
-        drag.pointerId = null;
-
-        drag.direction = null;
-
-        drag.rowIndex = -1;
-        drag.columnIndex = -1;
-
-        drag.startX = 0;
-        drag.startY = 0;
-
-        drag.lastX = 0;
-        drag.lastY = 0;
-        drag.lastTime = 0;
-
-        drag.velocity = 0;
-
-        drag.tileSize = 0;
-        drag.offset = 0;
-
-        drag.strip = null;
-
-        drag.animationFrame = null;
-      }
-
-
-      /* =======================================================
-         CANCEL CURRENT INTERACTION
-
-         回転・非表示などの安全処理。
-         未確定操作は捨てます。
-         ======================================================= */
-
-      function cancelCurrentInteraction() {
-
-        /*
-          進行中settleを無効化。
-        */
-        drag.settleGeneration++;
-
-        if (
-          drag.settleTimer !== null
-        ) {
-          clearTimeout(
-            drag.settleTimer
-          );
-
-          drag.settleTimer = null;
-        }
-
-        if (
-          drag.animationFrame !== null
-        ) {
-          cancelAnimationFrame(
-            drag.animationFrame
-          );
-
-          drag.animationFrame = null;
-        }
-
-        drag.active = false;
-        drag.settling = false;
-
-        board.classList.remove(
-          "dragging"
-        );
-
-        resetDragState();
-
-        /*
-          最後に確定済みのgridへ戻します。
-        */
-        renderBoard();
-      }
-
-
-      /* =======================================================
-         EVENTS
-         ======================================================= */
-
-      board.addEventListener(
-        "pointerdown",
-        handlePointerDown
-      );
-
-
-      board.addEventListener(
-        "pointermove",
-        handlePointerMove,
-        {
-          passive: false
-        }
-      );
-
-
-      board.addEventListener(
-        "pointerup",
-        event => {
-          finishDrag(
-            event,
-            false
-          );
-        }
-      );
-
-
-      board.addEventListener(
-        "pointercancel",
-        event => {
-          finishDrag(
-            event,
-            true
-          );
-        }
-      );
-
-
-      board.addEventListener(
-        "contextmenu",
-        event => {
-          event.preventDefault();
-        }
-      );
-
-
-      /* =======================================================
-         RESIZE / ROTATION
-
-         サイズ変更中の古いtileSizeを使わないよう、
-         操作中なら安全にキャンセルします。
-         ======================================================= */
-
-      window.addEventListener(
-        "resize",
-        () => {
-
-          if (
-            drag.active ||
-            drag.settling
-          ) {
-            cancelCurrentInteraction();
-            return;
-          }
-
-          renderBoard();
-        }
-      );
-
-
-      /* =======================================================
-         VISIBILITY
-         ======================================================= */
-
-      document.addEventListener(
-        "visibilitychange",
-        () => {
-
-          if (!document.hidden) {
-            return;
-          }
-
-          cancelCurrentInteraction();
-        }
-      );
-
-
-      /* =======================================================
-         INITIAL
-         ======================================================= */
-
-      renderBoard();
-
-      updateAtmosphere();
-
-    })();
-  </script>
+
+  strip.addEventListener(
+    "transitionend",
+    transitionEnd
+  );
+
+  drag.settleTimer =
+    setTimeout(
+      complete,
+      duration + 80
+    );
+}
+
+
+/* =========================================================
+   ATMOSPHERE PALETTES
+
+   配置によってこの5系統の間を移動します。
+
+   「レア」「当たり」はありません。
+   ========================================================= */
+
+const ATMOSPHERES = [
+
+  /* Deep Teal */
+  {
+    bg: "#0b1719",
+    top: "#102326",
+
+    ambient:
+      "40, 176, 165",
+
+    tile1: "#17292b",
+    tile2: "#193033",
+    tile3: "#142628",
+
+    line: "#58d9c6",
+    soft: "#91efe0",
+    node: "#d7fff8",
+
+    alpha: .27,
+    glow: .18,
+    board: .31
+  },
+
+  /* Electric Aqua */
+  {
+    bg: "#08171d",
+    top: "#0d2630",
+
+    ambient:
+      "40, 207, 225",
+
+    tile1: "#13292f",
+    tile2: "#17323a",
+    tile3: "#10252b",
+
+    line: "#53e3ee",
+    soft: "#99f4f5",
+    node: "#e1ffff",
+
+    alpha: .30,
+    glow: .23,
+    board: .36
+  },
+
+  /* Cobalt Night */
+  {
+    bg: "#0b1020",
+    top: "#111c35",
+
+    ambient:
+      "62, 117, 235",
+
+    tile1: "#18243a",
+    tile2: "#1c2943",
+    tile3: "#151f35",
+
+    line: "#69a8ff",
+    soft: "#9dc6ff",
+    node: "#e0ecff",
+
+    alpha: .31,
+    glow: .22,
+    board: .34
+  },
+
+  /* Emerald */
+  {
+    bg: "#091713",
+    top: "#102820",
+
+    ambient:
+      "44, 199, 132",
+
+    tile1: "#152a24",
+    tile2: "#193229",
+    tile3: "#12261f",
+
+    line: "#5ce0a5",
+    soft: "#9af0c6",
+    node: "#e0fff0",
+
+    alpha: .29,
+    glow: .20,
+    board: .33
+  },
+
+  /* Violet Blue */
+  {
+    bg: "#111020",
+    top: "#201b3a",
+
+    ambient:
+      "124, 91, 235",
+
+    tile1: "#242039",
+    tile2: "#292443",
+    tile3: "#1f1b33",
+
+    line: "#a38aff",
+    soft: "#c3b4ff",
+    node: "#f0ebff",
+
+    alpha: .31,
+    glow: .23,
+    board: .36
+  }
+];
+
+
+/* =========================================================
+   ATMOSPHERE RESPONSE
+
+   盤面確定時だけ実行。
+   ========================================================= */
+
+function updateAtmosphere() {
+
+  /*
+    配置そのものからハッシュを作ります。
+
+    同じ9枚を同じ順序に並べれば、
+    同じAtmosphereになります。
+  */
+
+  let hash = 17;
+
+  const flat =
+    grid.flat();
+
+  for (
+    let i = 0;
+    i < flat.length;
+    i++
+  ) {
+    hash =
+      (
+        hash * 31 +
+        (
+          tileNumber(flat[i]) +
+          1
+        ) *
+        (
+          i + 3
+        )
+      ) >>> 0;
+  }
+
+
+  const index =
+    hash %
+    ATMOSPHERES.length;
+
+  const palette =
+    ATMOSPHERES[index];
+
+
+  root.style.setProperty(
+    "--page-bg",
+    palette.bg
+  );
+
+  root.style.setProperty(
+    "--page-top",
+    palette.top
+  );
+
+  root.style.setProperty(
+    "--ambient",
+    palette.ambient
+  );
+
+  root.style.setProperty(
+    "--ambient-alpha",
+    String(palette.alpha)
+  );
+
+  root.style.setProperty(
+    "--tile-1",
+    palette.tile1
+  );
+
+  root.style.setProperty(
+    "--tile-2",
+    palette.tile2
+  );
+
+  root.style.setProperty(
+    "--tile-3",
+    palette.tile3
+  );
+
+  root.style.setProperty(
+    "--line",
+    palette.line
+  );
+
+  root.style.setProperty(
+    "--line-soft",
+    palette.soft
+  );
+
+  root.style.setProperty(
+    "--node",
+    palette.node
+  );
+
+  root.style.setProperty(
+    "--glow",
+    String(palette.glow)
+  );
+
+  root.style.setProperty(
+    "--board-glow",
+    String(palette.board)
+  );
+}
+
+
+/* =========================================================
+   SNAP RESPONSE
+   ========================================================= */
+
+function snapPulse() {
+  if (
+    prefersReducedMotion.matches
+  ) {
+    return;
+  }
+
+  boardShell.classList.remove(
+    "snap-pulse"
+  );
+
+  requestAnimationFrame(() => {
+    boardShell.classList.add(
+      "snap-pulse"
+    );
+  });
+}
+
+
+/* =========================================================
+   RESET
+   ========================================================= */
+
+function resetDrag() {
+  drag.active = false;
+
+  drag.pointerId = null;
+
+  drag.direction = null;
+
+  drag.rowIndex = -1;
+  drag.columnIndex = -1;
+
+  drag.startX = 0;
+  drag.startY = 0;
+
+  drag.lastX = 0;
+  drag.lastY = 0;
+
+  drag.lastTime = 0;
+
+  drag.velocity = 0;
+
+  drag.tileSize = 0;
+  drag.offset = 0;
+
+  drag.strip = null;
+
+  drag.animationFrame = null;
+}
+
+
+/* =========================================================
+   CANCEL
+   ========================================================= */
+
+function cancelInteraction() {
+  drag.settleGeneration++;
+
+  if (
+    drag.settleTimer !== null
+  ) {
+    clearTimeout(
+      drag.settleTimer
+    );
+
+    drag.settleTimer = null;
+  }
+
+  if (
+    drag.animationFrame !== null
+  ) {
+    cancelAnimationFrame(
+      drag.animationFrame
+    );
+
+    drag.animationFrame = null;
+  }
+
+  drag.active = false;
+  drag.settling = false;
+
+  board.classList.remove(
+    "dragging"
+  );
+
+  resetDrag();
+
+  renderBoard();
+}
+
+
+/* =========================================================
+   EVENTS
+   ========================================================= */
+
+board.addEventListener(
+  "pointerdown",
+  pointerDown
+);
+
+board.addEventListener(
+  "pointermove",
+  pointerMove,
+  {
+    passive: false
+  }
+);
+
+board.addEventListener(
+  "pointerup",
+  event => {
+    finish(
+      event,
+      false
+    );
+  }
+);
+
+board.addEventListener(
+  "pointercancel",
+  event => {
+    finish(
+      event,
+      true
+    );
+  }
+);
+
+board.addEventListener(
+  "contextmenu",
+  event => {
+    event.preventDefault();
+  }
+);
+
+
+window.addEventListener(
+  "resize",
+  () => {
+
+    if (
+      drag.active ||
+      drag.settling
+    ) {
+      cancelInteraction();
+      return;
+    }
+
+    renderBoard();
+  }
+);
+
+
+document.addEventListener(
+  "visibilitychange",
+  () => {
+
+    if (
+      document.hidden
+    ) {
+      cancelInteraction();
+    }
+  }
+);
+
+
+/* =========================================================
+   INITIAL
+   ========================================================= */
+
+renderBoard();
+
+updateAtmosphere();
+
+})();
+</script>
 
 </body>
 </html>
