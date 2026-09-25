@@ -186,7 +186,7 @@
     }
 
     /* =========================================================
-       通常時の3×3表示
+       STATIC GRID
        ========================================================= */
 
     .static-grid {
@@ -197,21 +197,39 @@
 
       grid-template-columns: repeat(3, 1fr);
       grid-template-rows: repeat(3, 1fr);
+
+      z-index: 1;
     }
 
-    /*
-      ドラッグ対象以外は通常盤面をそのまま表示します。
+    /* =========================================================
+       PREPARED DRAG LAYERS
 
-      active-layerは操作中の行または列だけを上に重ねます。
-    */
+       pointerdown時に行用・列用を両方準備します。
 
-    .active-layer {
+       方向判定前はopacity:0で待機。
+       SVGは既にSafari側へ渡されているため、
+       方向決定時には表示切替だけで済みます。
+       ========================================================= */
+
+    .prepared-layer {
       position: absolute;
       inset: 0;
 
       z-index: 20;
 
       pointer-events: none;
+
+      opacity: 0;
+
+      visibility: hidden;
+    }
+
+    .prepared-layer.ready {
+      visibility: visible;
+    }
+
+    .prepared-layer.active {
+      opacity: 1;
     }
 
     /* =========================================================
@@ -227,6 +245,15 @@
       overflow: hidden;
 
       background: var(--tile-bg);
+
+      /*
+        iPhone SafariでSVGを含むタイルの描画を
+        合成レイヤーへ乗せやすくします。
+      */
+      transform: translateZ(0);
+
+      backface-visibility: hidden;
+      -webkit-backface-visibility: hidden;
     }
 
     .tile.tone-2 {
@@ -256,18 +283,12 @@
         inset 0 0 0 0.5px rgba(180, 229, 222, 0.028);
     }
 
-    /* =========================================================
-       操作対象を隠すためのマスク
-
-       static-grid側の対象行/列だけ透明にします。
-       ========================================================= */
-
     .tile.masked {
       visibility: hidden;
     }
 
     /* =========================================================
-       ROW DRAG LAYER
+       ROW
        ========================================================= */
 
     .drag-row {
@@ -293,6 +314,9 @@
       height: 100%;
 
       will-change: transform;
+
+      backface-visibility: hidden;
+      -webkit-backface-visibility: hidden;
     }
 
     .drag-row-strip .tile {
@@ -300,7 +324,7 @@
     }
 
     /* =========================================================
-       COLUMN DRAG LAYER
+       COLUMN
        ========================================================= */
 
     .drag-column {
@@ -327,6 +351,9 @@
       height: calc(500% / 3);
 
       will-change: transform;
+
+      backface-visibility: hidden;
+      -webkit-backface-visibility: hidden;
     }
 
     .drag-column-strip .tile {
@@ -344,6 +371,8 @@
       height: 100%;
 
       overflow: visible;
+
+      transform: translateZ(0);
     }
 
     .circuit-main {
@@ -453,22 +482,14 @@
       "use strict";
 
       /* =======================================================
-         設定
+         CONFIG
          ======================================================= */
 
       const CONFIG = {
         gridSize: 3,
 
-        /*
-          この距離を越えるまでは、
-          横操作か縦操作か決定しません。
-        */
         directionThreshold: 7,
 
-        /*
-          横と縦がかなり近い場合の誤判定を減らします。
-          1.08 = 優勢方向が約8%以上大きければ確定。
-        */
         directionBias: 1.08,
 
         snapDuration: 190,
@@ -666,9 +687,7 @@
 
 
       /* =======================================================
-         内部状態
-
-         常にこの3×3配列を正本として扱います。
+         GRID STATE
          ======================================================= */
 
       let grid = [
@@ -688,11 +707,6 @@
 
         pointerId: null,
 
-        /*
-          null
-          "row"
-          "column"
-        */
         direction: null,
 
         rowIndex: -1,
@@ -709,6 +723,12 @@
 
         tileSize: 0,
         offset: 0,
+
+        rowLayer: null,
+        columnLayer: null,
+
+        rowStrip: null,
+        columnStrip: null,
 
         strip: null,
 
@@ -754,10 +774,12 @@
           tile.classList.add(tone);
         }
 
-        tile.dataset.tileId = tileId;
+        tile.dataset.tileId =
+          tileId;
 
         if (isClone) {
-          tile.dataset.clone = "true";
+          tile.dataset.clone =
+            "true";
         }
 
         tile.innerHTML =
@@ -768,7 +790,10 @@
 
 
       /* =======================================================
-         通常盤面描画
+         BOARD RENDER
+
+         通常盤面は操作完了時にだけ再生成します。
+         pointermove中には一切作り直しません。
          ======================================================= */
 
       function renderBoard() {
@@ -782,18 +807,17 @@
 
         for (
           let row = 0;
-          row < CONFIG.gridSize;
+          row < 3;
           row++
         ) {
           for (
             let column = 0;
-            column < CONFIG.gridSize;
+            column < 3;
             column++
           ) {
             const tile =
               createTile(
-                grid[row][column],
-                false
+                grid[row][column]
               );
 
             tile.dataset.row =
@@ -802,26 +826,20 @@
             tile.dataset.column =
               String(column);
 
-            staticGrid.appendChild(tile);
+            staticGrid.appendChild(
+              tile
+            );
           }
         }
 
-        const activeLayer =
-          document.createElement("div");
-
-        activeLayer.className =
-          "active-layer";
-
-        activeLayer.id =
-          "activeLayer";
-
-        board.appendChild(staticGrid);
-        board.appendChild(activeLayer);
+        board.appendChild(
+          staticGrid
+        );
       }
 
 
       /* =======================================================
-         GRID VALIDATION
+         VALIDATION
          ======================================================= */
 
       function validateGrid() {
@@ -848,18 +866,18 @@
 
 
       /* =======================================================
-         配列の循環
+         GRID ROTATION
          ======================================================= */
 
-      function rotateRow(rowIndex, steps) {
+      function rotateRow(
+        rowIndex,
+        steps
+      ) {
         const row =
           grid[rowIndex];
 
         const amount =
-          modulo(
-            steps,
-            CONFIG.gridSize
-          );
+          modulo(steps, 3);
 
         if (amount === 0) {
           return;
@@ -872,7 +890,10 @@
       }
 
 
-      function rotateColumn(columnIndex, steps) {
+      function rotateColumn(
+        columnIndex,
+        steps
+      ) {
         const column = [
           grid[0][columnIndex],
           grid[1][columnIndex],
@@ -880,10 +901,7 @@
         ];
 
         const amount =
-          modulo(
-            steps,
-            CONFIG.gridSize
-          );
+          modulo(steps, 3);
 
         if (amount === 0) {
           return;
@@ -896,7 +914,7 @@
 
         for (
           let row = 0;
-          row < CONFIG.gridSize;
+          row < 3;
           row++
         ) {
           grid[row][columnIndex] =
@@ -906,12 +924,285 @@
 
 
       /* =======================================================
-         POINTER DOWN
+         PREPARE ROW LAYER
 
-         この時点では方向を決定しません。
+         重要：
+         方向判定後ではなくpointerdown直後に作ります。
          ======================================================= */
 
-      function handlePointerDown(event) {
+      function buildPreparedRowLayer() {
+        const layer =
+          document.createElement("div");
+
+        layer.className =
+          "prepared-layer ready";
+
+        const wrapper =
+          document.createElement("div");
+
+        wrapper.className =
+          "drag-row";
+
+        wrapper.style.top =
+          `calc(${drag.rowIndex} * 100% / 3)`;
+
+        const strip =
+          document.createElement("div");
+
+        strip.className =
+          "drag-row-strip";
+
+        const row =
+          grid[drag.rowIndex];
+
+        const ids = [
+          row[2],
+          row[0],
+          row[1],
+          row[2],
+          row[0]
+        ];
+
+        ids.forEach(
+          (id, index) => {
+            strip.appendChild(
+              createTile(
+                id,
+                index === 0 ||
+                index === 4
+              )
+            );
+          }
+        );
+
+        wrapper.appendChild(strip);
+        layer.appendChild(wrapper);
+        board.appendChild(layer);
+
+        strip.style.transform =
+          `translate3d(${-drag.tileSize}px, 0, 0)`;
+
+        drag.rowLayer = layer;
+        drag.rowStrip = strip;
+      }
+
+
+      /* =======================================================
+         PREPARE COLUMN LAYER
+         ======================================================= */
+
+      function buildPreparedColumnLayer() {
+        const layer =
+          document.createElement("div");
+
+        layer.className =
+          "prepared-layer ready";
+
+        const wrapper =
+          document.createElement("div");
+
+        wrapper.className =
+          "drag-column";
+
+        wrapper.style.left =
+          `calc(${drag.columnIndex} * 100% / 3)`;
+
+        const strip =
+          document.createElement("div");
+
+        strip.className =
+          "drag-column-strip";
+
+        const column = [
+          grid[0][drag.columnIndex],
+          grid[1][drag.columnIndex],
+          grid[2][drag.columnIndex]
+        ];
+
+        const ids = [
+          column[2],
+          column[0],
+          column[1],
+          column[2],
+          column[0]
+        ];
+
+        ids.forEach(
+          (id, index) => {
+            strip.appendChild(
+              createTile(
+                id,
+                index === 0 ||
+                index === 4
+              )
+            );
+          }
+        );
+
+        wrapper.appendChild(strip);
+        layer.appendChild(wrapper);
+        board.appendChild(layer);
+
+        strip.style.transform =
+          `translate3d(0, ${-drag.tileSize}px, 0)`;
+
+        drag.columnLayer = layer;
+        drag.columnStrip = strip;
+      }
+
+
+      /* =======================================================
+         PREPARE BOTH POSSIBLE DIRECTIONS
+
+         SafariにSVGを早めに渡します。
+         ======================================================= */
+
+      function prepareDragLayers() {
+        buildPreparedRowLayer();
+        buildPreparedColumnLayer();
+
+        /*
+          レイアウトを一度確定させます。
+
+          これにより方向判定時に初めて
+          SVGレイアウトを行う可能性を減らします。
+        */
+        void board.offsetWidth;
+      }
+
+
+      /* =======================================================
+         DIRECTION
+         ======================================================= */
+
+      function determineDirection(
+        deltaX,
+        deltaY
+      ) {
+        const absX =
+          Math.abs(deltaX);
+
+        const absY =
+          Math.abs(deltaY);
+
+        if (
+          Math.max(absX, absY) <
+          CONFIG.directionThreshold
+        ) {
+          return null;
+        }
+
+        if (
+          absX >
+          absY *
+          CONFIG.directionBias
+        ) {
+          return "row";
+        }
+
+        if (
+          absY >
+          absX *
+          CONFIG.directionBias
+        ) {
+          return "column";
+        }
+
+        return null;
+      }
+
+
+      /* =======================================================
+         ACTIVATE PREPARED LAYER
+         ======================================================= */
+
+      function activateDirection(
+        direction
+      ) {
+        const staticGrid =
+          board.querySelector(
+            ".static-grid"
+          );
+
+        if (!staticGrid) {
+          return;
+        }
+
+        if (direction === "row") {
+          const tiles =
+            staticGrid.querySelectorAll(
+              `.tile[data-row="${drag.rowIndex}"]`
+            );
+
+          tiles.forEach(
+            tile => {
+              tile.classList.add(
+                "masked"
+              );
+            }
+          );
+
+          /*
+            不要な列レイヤーはここで消します。
+          */
+          if (drag.columnLayer) {
+            drag.columnLayer.remove();
+            drag.columnLayer = null;
+            drag.columnStrip = null;
+          }
+
+          drag.strip =
+            drag.rowStrip;
+
+          if (drag.rowLayer) {
+            drag.rowLayer.classList.add(
+              "active"
+            );
+          }
+
+        } else {
+          const tiles =
+            staticGrid.querySelectorAll(
+              `.tile[data-column="${drag.columnIndex}"]`
+            );
+
+          tiles.forEach(
+            tile => {
+              tile.classList.add(
+                "masked"
+              );
+            }
+          );
+
+          if (drag.rowLayer) {
+            drag.rowLayer.remove();
+            drag.rowLayer = null;
+            drag.rowStrip = null;
+          }
+
+          drag.strip =
+            drag.columnStrip;
+
+          if (drag.columnLayer) {
+            drag.columnLayer.classList.add(
+              "active"
+            );
+          }
+        }
+
+        board.classList.add(
+          "dragging"
+        );
+      }
+
+
+      /* =======================================================
+         POINTER DOWN
+         ======================================================= */
+
+      function handlePointerDown(
+        event
+      ) {
         if (
           drag.active ||
           drag.settling
@@ -927,12 +1218,15 @@
           board.getBoundingClientRect();
 
         const localX =
-          event.clientX - rect.left;
+          event.clientX -
+          rect.left;
 
         const localY =
-          event.clientY - rect.top;
+          event.clientY -
+          rect.top;
 
         drag.active = true;
+
         drag.pointerId =
           event.pointerId;
 
@@ -992,202 +1286,14 @@
         } catch (_) {
           // Safari安全策
         }
-      }
-
-
-      /* =======================================================
-         方向判定
-         ======================================================= */
-
-      function determineDirection(
-        deltaX,
-        deltaY
-      ) {
-        const absX =
-          Math.abs(deltaX);
-
-        const absY =
-          Math.abs(deltaY);
-
-        if (
-          Math.max(absX, absY) <
-          CONFIG.directionThreshold
-        ) {
-          return null;
-        }
-
-        if (
-          absX >
-          absY * CONFIG.directionBias
-        ) {
-          return "row";
-        }
-
-        if (
-          absY >
-          absX * CONFIG.directionBias
-        ) {
-          return "column";
-        }
 
         /*
-          ほぼ45度の場合は、
-          もう少し指が動くまで決定しません。
+          ここがStep 4からの主な変更点です。
+
+          指がまだほとんど動いていない段階で、
+          横・縦両方の表示を準備します。
         */
-        return null;
-      }
-
-
-      /* =======================================================
-         行ドラッグ表示の準備
-         ======================================================= */
-
-      function prepareRowDrag() {
-        const activeLayer =
-          document.getElementById(
-            "activeLayer"
-          );
-
-        const staticTiles =
-          board.querySelectorAll(
-            `.static-grid .tile[data-row="${drag.rowIndex}"]`
-          );
-
-        staticTiles.forEach(
-          tile => {
-            tile.classList.add(
-              "masked"
-            );
-          }
-        );
-
-        const wrapper =
-          document.createElement("div");
-
-        wrapper.className =
-          "drag-row";
-
-        wrapper.style.top =
-          `calc(${drag.rowIndex} * 100% / 3)`;
-
-        const strip =
-          document.createElement("div");
-
-        strip.className =
-          "drag-row-strip";
-
-        const row =
-          grid[drag.rowIndex];
-
-        const visualIds = [
-          row[2],
-          row[0],
-          row[1],
-          row[2],
-          row[0]
-        ];
-
-        visualIds.forEach(
-          (id, index) => {
-            strip.appendChild(
-              createTile(
-                id,
-                index === 0 ||
-                index === 4
-              )
-            );
-          }
-        );
-
-        wrapper.appendChild(strip);
-        activeLayer.appendChild(wrapper);
-
-        drag.strip = strip;
-
-        drag.strip.style.transform =
-          `translate3d(${-drag.tileSize}px, 0, 0)`;
-
-        board.classList.add(
-          "dragging"
-        );
-      }
-
-
-      /* =======================================================
-         列ドラッグ表示の準備
-         ======================================================= */
-
-      function prepareColumnDrag() {
-        const activeLayer =
-          document.getElementById(
-            "activeLayer"
-          );
-
-        const staticTiles =
-          board.querySelectorAll(
-            `.static-grid .tile[data-column="${drag.columnIndex}"]`
-          );
-
-        staticTiles.forEach(
-          tile => {
-            tile.classList.add(
-              "masked"
-            );
-          }
-        );
-
-        const wrapper =
-          document.createElement("div");
-
-        wrapper.className =
-          "drag-column";
-
-        wrapper.style.left =
-          `calc(${drag.columnIndex} * 100% / 3)`;
-
-        const strip =
-          document.createElement("div");
-
-        strip.className =
-          "drag-column-strip";
-
-        const column = [
-          grid[0][drag.columnIndex],
-          grid[1][drag.columnIndex],
-          grid[2][drag.columnIndex]
-        ];
-
-        const visualIds = [
-          column[2],
-          column[0],
-          column[1],
-          column[2],
-          column[0]
-        ];
-
-        visualIds.forEach(
-          (id, index) => {
-            strip.appendChild(
-              createTile(
-                id,
-                index === 0 ||
-                index === 4
-              )
-            );
-          }
-        );
-
-        wrapper.appendChild(strip);
-        activeLayer.appendChild(wrapper);
-
-        drag.strip = strip;
-
-        drag.strip.style.transform =
-          `translate3d(0, ${-drag.tileSize}px, 0)`;
-
-        board.classList.add(
-          "dragging"
-        );
+        prepareDragLayers();
       }
 
 
@@ -1195,7 +1301,9 @@
          POINTER MOVE
          ======================================================= */
 
-      function handlePointerMove(event) {
+      function handlePointerMove(
+        event
+      ) {
         if (!drag.active) {
           return;
         }
@@ -1217,9 +1325,6 @@
           event.clientY -
           drag.startY;
 
-        /*
-          まだ方向が決まっていない場合だけ判定。
-        */
         if (!drag.direction) {
           const direction =
             determineDirection(
@@ -1238,14 +1343,13 @@
             "hidden"
           );
 
-          if (
-            drag.direction ===
-            "row"
-          ) {
-            prepareRowDrag();
-          } else {
-            prepareColumnDrag();
-          }
+          /*
+            SVG生成ではなく、
+            準備済みレイヤーを表示するだけです。
+          */
+          activateDirection(
+            direction
+          );
         }
 
         const now =
@@ -1258,27 +1362,26 @@
           );
 
         let movement;
-        let totalOffset;
 
         if (
-          drag.direction ===
-          "row"
+          drag.direction === "row"
         ) {
           movement =
             event.clientX -
             drag.lastX;
 
-          totalOffset =
+          drag.offset =
             deltaX;
 
           drag.lastX =
             event.clientX;
+
         } else {
           movement =
             event.clientY -
             drag.lastY;
 
-          totalOffset =
+          drag.offset =
             deltaY;
 
           drag.lastY =
@@ -1293,15 +1396,13 @@
           instantVelocity * 0.28;
 
         drag.lastTime = now;
-        drag.offset =
-          totalOffset;
 
         requestDragFrame();
       }
 
 
       /* =======================================================
-         DRAG FRAME
+         REQUEST ANIMATION FRAME
          ======================================================= */
 
       function requestDragFrame() {
@@ -1326,8 +1427,7 @@
             }
 
             if (
-              drag.direction ===
-              "row"
+              drag.direction === "row"
             ) {
               const x =
                 -drag.tileSize +
@@ -1335,6 +1435,7 @@
 
               drag.strip.style.transform =
                 `translate3d(${x}px, 0, 0)`;
+
             } else {
               const y =
                 -drag.tileSize +
@@ -1348,7 +1449,7 @@
 
 
       /* =======================================================
-         POINTER UP / CANCEL
+         FINISH
          ======================================================= */
 
       function finishDrag(
@@ -1386,14 +1487,16 @@
         }
 
         /*
-          方向判定前に指を離した場合は
-          単なるタップとして扱います。
+          タップのみ。
+
+          準備したレイヤーは不要なので
+          現在の盤面へ戻します。
         */
         if (
           !drag.direction ||
           !drag.strip
         ) {
-          renderBoard();
+          cleanupPreparedLayers();
           resetDragState();
           return;
         }
@@ -1451,7 +1554,7 @@
         steps
       ) {
         if (!drag.strip) {
-          renderBoard();
+          cleanupPreparedLayers();
           resetDragState();
           return;
         }
@@ -1490,6 +1593,7 @@
 
           strip.style.transform =
             `translate3d(${x}px, 0, 0)`;
+
         } else {
           const y =
             -tileSize +
@@ -1522,11 +1626,6 @@
             );
           }
 
-          /*
-            アニメーションが吸着位置へ到達してから
-            二次元配列を確定します。
-          */
-
           if (
             direction === "row"
           ) {
@@ -1534,6 +1633,7 @@
               rowIndex,
               steps
             );
+
           } else {
             rotateColumn(
               columnIndex,
@@ -1541,9 +1641,6 @@
             );
           }
 
-          /*
-            9枚のIDが完全に保たれているか確認。
-          */
           if (!validateGrid()) {
             grid = [
               ["A", "B", "C"],
@@ -1552,14 +1649,14 @@
             ];
           }
 
+          /*
+            まず操作状態を解放してから、
+            確定済み盤面を1回だけ再描画します。
+          */
           drag.settling = false;
 
           resetDragState();
 
-          /*
-            確定した二次元配列だけを使って
-            通常盤面を再生成します。
-          */
           renderBoard();
         };
 
@@ -1585,10 +1682,6 @@
         );
 
 
-        /*
-          iPhone Safariでtransitionendが
-          失われた場合の安全策。
-        */
         fallbackTimer =
           setTimeout(
             complete,
@@ -1598,8 +1691,40 @@
 
 
       /* =======================================================
-         RESET DRAG STATE
+         CLEANUP
          ======================================================= */
+
+      function cleanupPreparedLayers() {
+        if (drag.rowLayer) {
+          drag.rowLayer.remove();
+        }
+
+        if (drag.columnLayer) {
+          drag.columnLayer.remove();
+        }
+
+        const maskedTiles =
+          board.querySelectorAll(
+            ".tile.masked"
+          );
+
+        maskedTiles.forEach(
+          tile => {
+            tile.classList.remove(
+              "masked"
+            );
+          }
+        );
+
+        drag.rowLayer = null;
+        drag.columnLayer = null;
+
+        drag.rowStrip = null;
+        drag.columnStrip = null;
+
+        drag.strip = null;
+      }
+
 
       function resetDragState() {
         drag.active = false;
@@ -1623,6 +1748,12 @@
         drag.tileSize = 0;
         drag.offset = 0;
 
+        drag.rowLayer = null;
+        drag.columnLayer = null;
+
+        drag.rowStrip = null;
+        drag.columnStrip = null;
+
         drag.strip = null;
 
         drag.animationFrame = null;
@@ -1638,11 +1769,13 @@
         handlePointerDown
       );
 
+
       board.addEventListener(
         "pointermove",
         handlePointerMove,
         { passive: false }
       );
+
 
       board.addEventListener(
         "pointerup",
@@ -1654,6 +1787,7 @@
         }
       );
 
+
       board.addEventListener(
         "pointercancel",
         event => {
@@ -1663,6 +1797,7 @@
           );
         }
       );
+
 
       board.addEventListener(
         "contextmenu",
@@ -1679,10 +1814,6 @@
       window.addEventListener(
         "resize",
         () => {
-          /*
-            ドラッグ中でなければ、
-            現在の確定済み配列から再描画。
-          */
           if (
             !drag.active &&
             !drag.settling
@@ -1695,9 +1826,6 @@
 
       /* =======================================================
          PAGE HIDDEN
-
-         未確定操作は捨て、
-         最後に確定したgridへ戻します。
          ======================================================= */
 
       document.addEventListener(
@@ -1731,7 +1859,7 @@
 
 
       /* =======================================================
-         INITIAL RENDER
+         INITIAL
          ======================================================= */
 
       renderBoard();
