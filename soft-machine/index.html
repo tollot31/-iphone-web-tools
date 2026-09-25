@@ -16,14 +16,12 @@
 
 /* =========================================================
    SOFT MACHINE
-   STEP 2.5 — MATERIAL POLISH
+   STEP 3.1 — TRIGGER INTERACTION
 
-   今回の目的：
-   ・Step 2.4のレイアウトを維持
-   ・木材に半艶を追加
-   ・金属にサテン光沢を追加
-   ・黒パネルは艶消しのまま
-   ・LEDだけ透明感のある発光
+   ・Step 2.5 のデザインを維持
+   ・TRIGGERのみ操作可能
+   ・Pointer Events対応
+   ・押下 → ホールド → リリース → 柔らかな復帰
    ========================================================= */
 
 :root {
@@ -63,6 +61,7 @@
 html,
 body {
   margin: 0;
+
   width: 100%;
   height: 100%;
 
@@ -86,6 +85,8 @@ body {
   -webkit-user-select: none;
 
   touch-action: none;
+
+  -webkit-touch-callout: none;
 }
 
 
@@ -125,6 +126,7 @@ body {
   position: relative;
 
   flex: 1;
+
   min-width: 0;
   min-height: 0;
 
@@ -136,7 +138,6 @@ body {
 
   background:
 
-    /* subtle long grain */
     repeating-linear-gradient(
       92deg,
       transparent 0px,
@@ -146,7 +147,6 @@ body {
       transparent 22px
     ),
 
-    /* finer grain */
     repeating-linear-gradient(
       86deg,
       rgba(255,224,190,.025) 0px,
@@ -169,20 +169,10 @@ body {
 
   box-shadow:
     0 24px 52px rgba(0,0,0,.68),
-
     inset 0 1px 0 rgba(255,224,190,.30),
     inset 0 -2px 3px rgba(21,7,2,.58),
-
     0 0 0 1px rgba(30,13,6,.45);
 }
-
-
-/*
-   木材の半艶。
-
-   白いベタ塗りではなく、
-   上から柔らかな光が反射している程度にしています。
-*/
 
 .chassis::after {
   content: "";
@@ -197,7 +187,6 @@ body {
   border-radius: inherit;
 
   background:
-
     linear-gradient(
       168deg,
       rgba(255,235,210,.13) 0%,
@@ -215,9 +204,6 @@ body {
 
   mix-blend-mode: screen;
 }
-
-
-/* inner wood bevel */
 
 .chassis::before {
   content: "";
@@ -260,8 +246,6 @@ body {
   flex-direction: column;
 
   background:
-
-    /* extremely restrained panel reflection */
     linear-gradient(
       160deg,
       rgba(255,255,255,.028) 0%,
@@ -352,6 +336,7 @@ body {
 .brand {
   display: flex;
   flex-direction: column;
+
   gap: 4px;
 }
 
@@ -369,13 +354,16 @@ body {
 
 .subtitle {
   font-size: 5.5px;
+
   letter-spacing: .18em;
+
   color: #797a75;
 }
 
 .status {
   display: flex;
   align-items: center;
+
   gap: 7px;
 
   padding-top: 3px;
@@ -383,7 +371,9 @@ body {
 
 .status-text {
   font-size: 5px;
+
   letter-spacing: .17em;
+
   color: #737570;
 }
 
@@ -443,6 +433,7 @@ body {
 
 .mechanism-section {
   flex: 0 0 40%;
+
   min-height: 0;
 
   display: flex;
@@ -453,6 +444,7 @@ body {
   position: relative;
 
   flex: 1;
+
   min-height: 0;
 
   overflow: hidden;
@@ -465,6 +457,7 @@ body {
       rgba(255,255,255,.018),
       transparent 28%
     ),
+
     linear-gradient(
       180deg,
       #0b0d0e,
@@ -488,6 +481,7 @@ body {
 
   left: 11%;
   right: 10%;
+
   top: 49%;
 
   height: 2px;
@@ -504,6 +498,7 @@ body {
   position: absolute;
 
   left: 23%;
+
   top: 49%;
 
   width: 2px;
@@ -519,7 +514,7 @@ body {
 
 
 /* =========================================================
-   GEAR — SATIN METAL
+   GEAR
    ========================================================= */
 
 .gear-unit {
@@ -536,6 +531,7 @@ body {
 
 .gear {
   position: absolute;
+
   inset: 0;
 
   border-radius: 50%;
@@ -613,6 +609,7 @@ body {
 
   left: 37%;
   right: 8%;
+
   top: 30%;
 
   height: 27px;
@@ -638,6 +635,7 @@ body {
 
   left: 10px;
   right: 10px;
+
   top: 50%;
 
   height: 3px;
@@ -788,14 +786,20 @@ body {
     1px 2px 2px rgba(0,0,0,.4);
 }
 
-.spring-stop.left { left: 0; }
-.spring-stop.right { right: 0; }
+.spring-stop.left {
+  left: 0;
+}
+
+.spring-stop.right {
+  right: 0;
+}
 
 .spring-coil {
   position: absolute;
 
   left: 5px;
   right: 5px;
+
   top: 6px;
 
   height: 18px;
@@ -818,7 +822,7 @@ body {
 
 
 /* =========================================================
-   AMBER INDICATOR
+   INDICATOR
    ========================================================= */
 
 .indicator {
@@ -871,6 +875,7 @@ body {
 
 .divider {
   flex: 0 0 12px;
+
   position: relative;
 }
 
@@ -881,6 +886,7 @@ body {
 
   left: 0;
   right: 0;
+
   top: 50%;
 
   height: 1px;
@@ -902,6 +908,7 @@ body {
 
 .control-section {
   flex: 1;
+
   min-height: 0;
 
   display: flex;
@@ -910,11 +917,13 @@ body {
 
 .controls {
   flex: 1;
+
   min-height: 0;
 
   display: grid;
 
-  grid-template-columns: 1fr 1fr;
+  grid-template-columns:
+    1fr 1fr;
 
   grid-template-rows:
     1fr
@@ -948,6 +957,7 @@ body {
 
 .control-number {
   margin-right: 5px;
+
   color: var(--amber);
 }
 
@@ -965,6 +975,8 @@ body {
 }
 
 .trigger-well {
+  position: relative;
+
   width: 65px;
   height: 65px;
 
@@ -987,14 +999,32 @@ body {
     0 1px 0 rgba(255,255,255,.025);
 }
 
+
+/*
+   ボタン本体。
+
+   :activeだけではなく、
+   JavaScriptから .is-pressed / .is-releasing を
+   付け外しして動かします。
+*/
+
 .trigger-button {
   position: relative;
 
   width: 49px;
   height: 49px;
 
+  padding: 0;
+
   border: 0;
   border-radius: 50%;
+
+  appearance: none;
+  -webkit-appearance: none;
+
+  touch-action: none;
+
+  cursor: pointer;
 
   background:
     radial-gradient(
@@ -1009,14 +1039,21 @@ body {
   box-shadow:
     0 4px 0 #252929,
     0 8px 12px rgba(0,0,0,.5),
-
     inset 1px 1px 1px rgba(255,255,255,.3),
     inset -2px -3px 5px rgba(0,0,0,.28);
 
+  transform:
+    translateY(0)
+    scale(1);
+
   transition:
-    transform 80ms ease,
-    box-shadow 80ms ease;
+    transform 90ms cubic-bezier(.2,.8,.3,1),
+    box-shadow 90ms ease,
+    filter 90ms ease;
 }
+
+
+/* metallic top reflection */
 
 .trigger-button::before {
   content: "";
@@ -1025,6 +1062,7 @@ body {
 
   left: 10px;
   right: 10px;
+
   top: 7px;
 
   height: 8px;
@@ -1038,8 +1076,11 @@ body {
       transparent
     );
 
-  filter: blur(.2px);
+  pointer-events: none;
 }
+
+
+/* amber center */
 
 .trigger-button::after {
   content: "";
@@ -1052,7 +1093,9 @@ body {
   left: 50%;
   top: 50%;
 
-  transform: translate(-50%, -50%);
+  transform:
+    translate(-50%, -50%)
+    scale(1);
 
   border-radius: 50%;
 
@@ -1066,16 +1109,115 @@ body {
 
   box-shadow:
     0 0 5px rgba(233,155,66,.35);
+
+  transition:
+    transform 90ms ease,
+    box-shadow 90ms ease,
+    filter 90ms ease;
+
+  pointer-events: none;
 }
 
-.trigger-button:active {
-  transform: translateY(3px);
+
+/* finger is holding the button */
+
+.trigger-button.is-pressed {
+  transform:
+    translateY(3px)
+    scale(.985);
 
   box-shadow:
-    0 1px 0 #252929,
-    0 3px 5px rgba(0,0,0,.45),
+    0 1px 0 #202425,
+    0 3px 5px rgba(0,0,0,.42),
+    inset 1px 2px 5px rgba(0,0,0,.25);
 
-    inset 1px 2px 5px rgba(0,0,0,.2);
+  filter: brightness(.92);
+}
+
+.trigger-button.is-pressed::after {
+  transform:
+    translate(-50%, -50%)
+    scale(.9);
+
+  box-shadow:
+    0 0 3px rgba(233,155,66,.25);
+}
+
+
+/*
+   Release rebound.
+
+   指を離した直後だけ少し上へ戻り、
+   そこから静止位置へ落ち着きます。
+*/
+
+.trigger-button.is-releasing {
+  animation:
+    triggerRelease 300ms cubic-bezier(.18,.85,.28,1);
+}
+
+.trigger-button.is-releasing::after {
+  animation:
+    triggerLightRelease 300ms ease-out;
+}
+
+
+@keyframes triggerRelease {
+
+  0% {
+    transform:
+      translateY(3px)
+      scale(.985);
+  }
+
+  42% {
+    transform:
+      translateY(-1.4px)
+      scale(1.012);
+  }
+
+  70% {
+    transform:
+      translateY(.5px)
+      scale(.997);
+  }
+
+  100% {
+    transform:
+      translateY(0)
+      scale(1);
+  }
+}
+
+
+@keyframes triggerLightRelease {
+
+  0% {
+    transform:
+      translate(-50%, -50%)
+      scale(.9);
+
+    box-shadow:
+      0 0 3px rgba(233,155,66,.25);
+  }
+
+  35% {
+    transform:
+      translate(-50%, -50%)
+      scale(1.25);
+
+    box-shadow:
+      0 0 8px rgba(233,155,66,.55);
+  }
+
+  100% {
+    transform:
+      translate(-50%, -50%)
+      scale(1);
+
+    box-shadow:
+      0 0 5px rgba(233,155,66,.35);
+  }
 }
 
 
@@ -1124,6 +1266,7 @@ body {
 
 .rotary-knob {
   position: relative;
+
   z-index: 2;
 
   width: 56px;
@@ -1145,7 +1288,6 @@ body {
 
   box-shadow:
     0 6px 9px rgba(0,0,0,.48),
-
     inset 1px 1px 1px rgba(255,255,255,.25),
     inset -2px -3px 4px rgba(0,0,0,.25);
 }
@@ -1157,6 +1299,7 @@ body {
 
   left: 10px;
   right: 10px;
+
   top: 7px;
 
   height: 8px;
@@ -1243,6 +1386,7 @@ body {
 
   left: 12px;
   right: 12px;
+
   top: 50%;
 
   height: 3px;
@@ -1269,7 +1413,8 @@ body {
   left: 50%;
   top: 50%;
 
-  transform: translate(-50%, -50%);
+  transform:
+    translate(-50%, -50%);
 
   z-index: 2;
 
@@ -1289,7 +1434,6 @@ body {
 
   box-shadow:
     0 6px 9px rgba(0,0,0,.48),
-
     inset 1px 1px 1px rgba(255,255,255,.28),
     inset -1px -2px 3px rgba(0,0,0,.25);
 }
@@ -1301,6 +1445,7 @@ body {
 
   left: 4px;
   right: 4px;
+
   top: 3px;
 
   height: 1px;
@@ -1320,7 +1465,8 @@ body {
   left: 50%;
   top: 50%;
 
-  transform: translate(-50%, -50%);
+  transform:
+    translate(-50%, -50%);
 
   border-radius: 2px;
 
@@ -1340,6 +1486,7 @@ body {
 
   left: 12px;
   right: 12px;
+
   bottom: 0;
 
   display: flex;
@@ -1421,9 +1568,6 @@ body {
     inset 1px 0 0 rgba(255,255,255,.18);
 }
 
-
-/* polished wooden handle */
-
 .lever-handle {
   position: absolute;
 
@@ -1451,7 +1595,6 @@ body {
 
   box-shadow:
     0 5px 8px rgba(0,0,0,.5),
-
     inset 1px 1px 1px rgba(255,220,180,.25),
     inset -2px -3px 4px rgba(45,15,5,.3);
 }
@@ -1463,6 +1606,7 @@ body {
 
   left: 6px;
   right: 7px;
+
   top: 4px;
 
   height: 6px;
@@ -1531,6 +1675,7 @@ body {
 
   left: 25px;
   right: 35px;
+
   top: 50%;
 
   height: 19px;
@@ -1580,7 +1725,6 @@ body {
 
   box-shadow:
     0 6px 9px rgba(0,0,0,.46),
-
     inset 1px 1px 1px rgba(255,255,255,.24),
     inset -1px -2px 3px rgba(0,0,0,.24);
 }
@@ -1592,6 +1736,7 @@ body {
 
   left: 4px;
   right: 4px;
+
   top: 3px;
 
   height: 1px;
@@ -1611,7 +1756,8 @@ body {
   left: 50%;
   top: 50%;
 
-  transform: translate(-50%, -50%);
+  transform:
+    translate(-50%, -50%);
 
   border-radius: 2px;
 
@@ -1641,6 +1787,7 @@ body {
   padding: 0 3px;
 
   font-size: 5px;
+
   letter-spacing: .16em;
 
   color: #6c6d68;
@@ -1648,6 +1795,7 @@ body {
 
 .footer-lights {
   display: flex;
+
   gap: 5px;
 }
 
@@ -1669,7 +1817,7 @@ body {
 
 
 /* =========================================================
-   SHORT IPHONES
+   SHORTER IPHONES
    ========================================================= */
 
 @media (max-height: 700px) {
@@ -1710,7 +1858,31 @@ body {
 @media (prefers-reduced-motion: reduce) {
 
   .trigger-button {
-    transition-duration: 40ms;
+    transition-duration: 50ms;
+  }
+
+  .trigger-button.is-releasing {
+    animation-name: triggerReleaseReduced;
+    animation-duration: 150ms;
+  }
+
+  .trigger-button.is-releasing::after {
+    animation: none;
+  }
+
+  @keyframes triggerReleaseReduced {
+
+    0% {
+      transform:
+        translateY(2px)
+        scale(.99);
+    }
+
+    100% {
+      transform:
+        translateY(0)
+        scale(1);
+    }
   }
 }
 
@@ -1794,14 +1966,10 @@ body {
           <div class="path-vertical"></div>
 
 
-          <!-- gear -->
-
           <div class="gear-unit">
             <div class="gear"></div>
           </div>
 
-
-          <!-- ball track -->
 
           <div class="track">
 
@@ -1811,8 +1979,6 @@ body {
           </div>
 
 
-          <!-- piston -->
-
           <div class="piston">
 
             <div class="piston-body"></div>
@@ -1820,8 +1986,6 @@ body {
 
           </div>
 
-
-          <!-- spring -->
 
           <div class="display-spring">
 
@@ -1831,8 +1995,6 @@ body {
 
           </div>
 
-
-          <!-- indicator -->
 
           <div class="indicator">
 
@@ -1870,7 +2032,9 @@ body {
         <div class="controls">
 
 
-          <!-- TRIGGER -->
+          <!-- =================================================
+               01 TRIGGER
+               ================================================= -->
 
           <div class="control">
 
@@ -1890,9 +2054,10 @@ body {
               <div class="trigger-well">
 
                 <button
+                  id="triggerButton"
                   class="trigger-button"
                   type="button"
-                  aria-label="Trigger button"
+                  aria-label="Trigger"
                 ></button>
 
               </div>
@@ -1902,7 +2067,9 @@ body {
           </div>
 
 
-          <!-- ROTARY -->
+          <!-- =================================================
+               02 ROTARY
+               ================================================= -->
 
           <div class="control">
 
@@ -1938,7 +2105,9 @@ body {
           </div>
 
 
-          <!-- TRANSFER -->
+          <!-- =================================================
+               03 TRANSFER
+               ================================================= -->
 
           <div class="control transfer">
 
@@ -1989,7 +2158,9 @@ body {
           </div>
 
 
-          <!-- LEVER -->
+          <!-- =================================================
+               04 LEVER
+               ================================================= -->
 
           <div class="control">
 
@@ -2029,7 +2200,9 @@ body {
           </div>
 
 
-          <!-- TENSION -->
+          <!-- =================================================
+               05 TENSION
+               ================================================= -->
 
           <div class="control">
 
@@ -2104,25 +2277,462 @@ body {
 <script>
 
 /* =========================================================
-   SOFT MACHINE — STEP 2.5
-
-   MATERIAL POLISH
-
-   この段階では外観を確認します。
-
-   実装済み：
-   ・Triggerの押下表現
-
-   未実装：
-   ・Rotary操作
-   ・Transfer操作
-   ・Lever操作
-   ・Tension操作
-   ・連鎖反応
-   ・サウンド
-
-   デザイン確定後、Step 3へ進みます。
+   SOFT MACHINE
+   STEP 3.1 — TRIGGER INTERACTION
    ========================================================= */
+
+
+/* =========================================================
+   SETTINGS
+
+   この数字を変更すると、
+   後から操作感を簡単に調整できます。
+   ========================================================= */
+
+const SETTINGS = {
+
+  trigger: {
+
+    /*
+       リリースアニメーションが終了するまでの時間。
+       CSSの300msと合わせています。
+    */
+    releaseDuration: 300
+  }
+};
+
+
+/* =========================================================
+   ELEMENTS
+   ========================================================= */
+
+const triggerButton =
+  document.getElementById("triggerButton");
+
+
+/* =========================================================
+   TRIGGER STATE
+   ========================================================= */
+
+const triggerState = {
+
+  pressed: false,
+
+  pointerId: null,
+
+  releaseTimer: null
+};
+
+
+/* =========================================================
+   TRIGGER
+   POINTER DOWN
+   ========================================================= */
+
+function pressTrigger(event) {
+
+  /*
+     主ポインター以外は無視します。
+     通常の1本指操作では event.isPrimary は true です。
+  */
+
+  if (!event.isPrimary) {
+    return;
+  }
+
+
+  /*
+     前回の復帰処理が残っていた場合は止めます。
+     これにより連打してもタイマーが増殖しません。
+  */
+
+  clearTriggerRelease();
+
+
+  triggerState.pressed = true;
+  triggerState.pointerId = event.pointerId;
+
+
+  /*
+     Pointer Capture。
+
+     指がボタンから少し外れても、
+     pointerup をこのボタンが受け取れるようにします。
+  */
+
+  try {
+
+    triggerButton.setPointerCapture(
+      event.pointerId
+    );
+
+  } catch (error) {
+
+    /*
+       Safariの状態によって取得できなくても、
+       ボタン全体が停止しないようにします。
+    */
+
+  }
+
+
+  triggerButton.classList.remove(
+    "is-releasing"
+  );
+
+  triggerButton.classList.add(
+    "is-pressed"
+  );
+}
+
+
+/* =========================================================
+   TRIGGER
+   POINTER UP
+   ========================================================= */
+
+function releaseTrigger(event) {
+
+  if (!triggerState.pressed) {
+    return;
+  }
+
+
+  if (
+    triggerState.pointerId !== null &&
+    event.pointerId !== triggerState.pointerId
+  ) {
+    return;
+  }
+
+
+  triggerState.pressed = false;
+
+
+  triggerButton.classList.remove(
+    "is-pressed"
+  );
+
+
+  /*
+     animationを確実に再スタートさせるため、
+     一度クラスを外します。
+  */
+
+  triggerButton.classList.remove(
+    "is-releasing"
+  );
+
+
+  /*
+     Safariに前の状態を確定させます。
+     これにより高速連打でもanimationを再実行できます。
+  */
+
+  void triggerButton.offsetWidth;
+
+
+  triggerButton.classList.add(
+    "is-releasing"
+  );
+
+
+  triggerState.releaseTimer =
+    window.setTimeout(
+      finishTriggerRelease,
+      SETTINGS.trigger.releaseDuration
+    );
+
+
+  releasePointerCapture(event);
+
+  triggerState.pointerId = null;
+}
+
+
+/* =========================================================
+   TRIGGER
+   POINTER CANCEL
+   ========================================================= */
+
+function cancelTrigger(event) {
+
+  if (!triggerState.pressed) {
+    return;
+  }
+
+
+  if (
+    triggerState.pointerId !== null &&
+    event.pointerId !== triggerState.pointerId
+  ) {
+    return;
+  }
+
+
+  triggerState.pressed = false;
+
+
+  triggerButton.classList.remove(
+    "is-pressed"
+  );
+
+
+  triggerButton.classList.remove(
+    "is-releasing"
+  );
+
+
+  releasePointerCapture(event);
+
+  triggerState.pointerId = null;
+}
+
+
+/* =========================================================
+   RELEASE ANIMATION END
+   ========================================================= */
+
+function finishTriggerRelease() {
+
+  triggerButton.classList.remove(
+    "is-releasing"
+  );
+
+  triggerState.releaseTimer = null;
+}
+
+
+/* =========================================================
+   CLEAR PREVIOUS RELEASE
+   ========================================================= */
+
+function clearTriggerRelease() {
+
+  if (triggerState.releaseTimer !== null) {
+
+    window.clearTimeout(
+      triggerState.releaseTimer
+    );
+
+    triggerState.releaseTimer = null;
+  }
+
+
+  triggerButton.classList.remove(
+    "is-releasing"
+  );
+}
+
+
+/* =========================================================
+   RELEASE POINTER CAPTURE
+   ========================================================= */
+
+function releasePointerCapture(event) {
+
+  try {
+
+    if (
+      triggerButton.hasPointerCapture(
+        event.pointerId
+      )
+    ) {
+
+      triggerButton.releasePointerCapture(
+        event.pointerId
+      );
+    }
+
+  } catch (error) {
+
+    /*
+       Pointer Captureがすでに解除済みでも
+       何もしません。
+    */
+
+  }
+}
+
+
+/* =========================================================
+   KEYBOARD FALLBACK
+
+   iPhoneでは通常使いませんが、
+   PC確認とアクセシビリティのために残します。
+   ========================================================= */
+
+function handleTriggerKeyDown(event) {
+
+  if (
+    event.key !== "Enter" &&
+    event.key !== " "
+  ) {
+    return;
+  }
+
+
+  if (event.repeat) {
+    return;
+  }
+
+
+  event.preventDefault();
+
+  clearTriggerRelease();
+
+  triggerState.pressed = true;
+
+  triggerButton.classList.add(
+    "is-pressed"
+  );
+}
+
+
+function handleTriggerKeyUp(event) {
+
+  if (
+    event.key !== "Enter" &&
+    event.key !== " "
+  ) {
+    return;
+  }
+
+
+  event.preventDefault();
+
+
+  if (!triggerState.pressed) {
+    return;
+  }
+
+
+  triggerState.pressed = false;
+
+
+  triggerButton.classList.remove(
+    "is-pressed"
+  );
+
+
+  triggerButton.classList.remove(
+    "is-releasing"
+  );
+
+
+  void triggerButton.offsetWidth;
+
+
+  triggerButton.classList.add(
+    "is-releasing"
+  );
+
+
+  triggerState.releaseTimer =
+    window.setTimeout(
+      finishTriggerRelease,
+      SETTINGS.trigger.releaseDuration
+    );
+}
+
+
+/* =========================================================
+   PAGE VISIBILITY
+
+   Safariを閉じたり別タブへ移動した場合に
+   ボタンが押されたまま残らないようにします。
+   ========================================================= */
+
+function handleVisibilityChange() {
+
+  if (!document.hidden) {
+    return;
+  }
+
+
+  clearTriggerRelease();
+
+
+  triggerState.pressed = false;
+  triggerState.pointerId = null;
+
+
+  triggerButton.classList.remove(
+    "is-pressed"
+  );
+
+  triggerButton.classList.remove(
+    "is-releasing"
+  );
+}
+
+
+/* =========================================================
+   EVENT LISTENERS
+   ========================================================= */
+
+triggerButton.addEventListener(
+  "pointerdown",
+  pressTrigger
+);
+
+
+triggerButton.addEventListener(
+  "pointerup",
+  releaseTrigger
+);
+
+
+triggerButton.addEventListener(
+  "pointercancel",
+  cancelTrigger
+);
+
+
+triggerButton.addEventListener(
+  "lostpointercapture",
+  () => {
+
+    /*
+       pointerupによる正常なリリース後は
+       pressedがfalseなので何もしません。
+
+       Safari側で予期せずCaptureを失った場合だけ
+       安全に初期状態へ戻します。
+    */
+
+    if (!triggerState.pressed) {
+      return;
+    }
+
+
+    triggerState.pressed = false;
+    triggerState.pointerId = null;
+
+
+    triggerButton.classList.remove(
+      "is-pressed"
+    );
+  }
+);
+
+
+triggerButton.addEventListener(
+  "keydown",
+  handleTriggerKeyDown
+);
+
+
+triggerButton.addEventListener(
+  "keyup",
+  handleTriggerKeyUp
+);
+
+
+document.addEventListener(
+  "visibilitychange",
+  handleVisibilityChange
+);
 
 </script>
 
