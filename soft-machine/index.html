@@ -16,8 +16,14 @@
 
 /* =========================================================
    SOFT MACHINE
-   STEP 3.4
-   TRIGGER + ROTARY + TRANSFER + LEVER
+   STEP 3.5
+
+   ACTIVE:
+   01 TRIGGER
+   02 ROTARY
+   03 TRANSFER
+   04 LEVER
+   05 TENSION
    ========================================================= */
 
 :root {
@@ -457,7 +463,7 @@ body {
 }
 
 
-/* paths */
+/* path */
 
 .path-horizontal {
   position: absolute;
@@ -507,7 +513,8 @@ body {
   width: 68px;
   height: 68px;
 
-  transform: translateY(-50%);
+  transform:
+    translateY(-50%);
 }
 
 .gear {
@@ -547,11 +554,8 @@ body {
       #4c5253 100%
     );
 
-  border: 5px solid #111314;
-
-  box-shadow:
-    inset 1px 1px 1px rgba(255,255,255,.13),
-    inset -1px -1px 2px rgba(0,0,0,.6);
+  border:
+    5px solid #111314;
 }
 
 .gear::after {
@@ -571,11 +575,7 @@ body {
   border-radius: 50%;
 
   background:
-    radial-gradient(
-      circle at 40% 35%,
-      #242829,
-      #050607 70%
-    );
+    #090a0b;
 }
 
 
@@ -600,7 +600,8 @@ body {
       #090a0b
     );
 
-  border: 1px solid #3b3e3f;
+  border:
+    1px solid #3b3e3f;
 
   box-shadow:
     inset 0 3px 6px rgba(0,0,0,.8);
@@ -616,7 +617,8 @@ body {
 
   height: 3px;
 
-  transform: translateY(-50%);
+  transform:
+    translateY(-50%);
 
   border-radius: 2px;
 
@@ -638,7 +640,8 @@ body {
   left: 13px;
   top: 50%;
 
-  transform: translateY(-50%);
+  transform:
+    translateY(-50%);
 
   border-radius: 50%;
 
@@ -688,11 +691,8 @@ body {
       #292e2f 100%
     );
 
-  border: 1px solid #767b7a;
-
-  box-shadow:
-    inset 0 1px 0 rgba(255,255,255,.17),
-    0 3px 5px rgba(0,0,0,.42);
+  border:
+    1px solid #767b7a;
 }
 
 .piston-rod {
@@ -715,13 +715,10 @@ body {
       #606665 78%,
       #8b908e 100%
     );
-
-  box-shadow:
-    0 2px 3px rgba(0,0,0,.45);
 }
 
 
-/* spring */
+/* mechanism spring */
 
 .display-spring {
   position: absolute;
@@ -768,8 +765,11 @@ body {
 
   height: 18px;
 
-  border-top: 2px solid #afb3b0;
-  border-bottom: 2px solid #686e6d;
+  border-top:
+    2px solid #afb3b0;
+
+  border-bottom:
+    2px solid #686e6d;
 
   background:
     repeating-linear-gradient(
@@ -819,7 +819,8 @@ body {
   width: 27px;
   height: 2px;
 
-  background: #555b5b;
+  background:
+    #555b5b;
 }
 
 
@@ -917,7 +918,7 @@ body {
 
 
 /* =========================================================
-   TRIGGER
+   01 TRIGGER
    ========================================================= */
 
 .trigger-body {
@@ -944,7 +945,8 @@ body {
       #050607
     );
 
-  border: 1px solid #444849;
+  border:
+    1px solid #444849;
 
   box-shadow:
     inset 0 5px 8px rgba(0,0,0,.82);
@@ -999,6 +1001,7 @@ body {
 
   left: 10px;
   right: 10px;
+
   top: 7px;
 
   height: 8px;
@@ -1051,12 +1054,14 @@ body {
     0 3px 5px rgba(0,0,0,.42),
     inset 1px 2px 5px rgba(0,0,0,.25);
 
-  filter: brightness(.92);
+  filter:
+    brightness(.92);
 }
 
 .trigger-button.is-releasing {
   animation:
-    triggerRelease 300ms
+    triggerRelease
+    300ms
     cubic-bezier(.18,.85,.28,1);
 }
 
@@ -1089,7 +1094,7 @@ body {
 
 
 /* =========================================================
-   ROTARY
+   02 ROTARY
    ========================================================= */
 
 .rotary-body {
@@ -1128,7 +1133,8 @@ body {
 
   border-radius: 50%;
 
-  background: #151719;
+  background:
+    #151719;
 }
 
 .rotary-knob {
@@ -1158,7 +1164,8 @@ body {
       #292e2f 100%
     );
 
-  border: 1px solid #7f8582;
+  border:
+    1px solid #7f8582;
 
   box-shadow:
     0 6px 9px rgba(0,0,0,.48),
@@ -1173,6 +1180,7 @@ body {
 
   left: 10px;
   right: 10px;
+
   top: 7px;
 
   height: 8px;
@@ -1215,7 +1223,8 @@ body {
 }
 
 .rotary-knob.is-grabbed {
-  filter: brightness(.95);
+  filter:
+    brightness(.95);
 }
 
 .rotary-knob.is-stepping {
@@ -1226,25 +1235,29 @@ body {
 @keyframes rotaryStep {
 
   0% {
-    filter: brightness(.93);
+    filter:
+      brightness(.93);
   }
 
   45% {
-    filter: brightness(1.08);
+    filter:
+      brightness(1.08);
   }
 
   100% {
-    filter: brightness(.96);
+    filter:
+      brightness(.96);
   }
 }
 
 
 /* =========================================================
-   TRANSFER
+   03 TRANSFER
    ========================================================= */
 
 .transfer {
-  grid-column: 1 / 3;
+  grid-column:
+    1 / 3;
 }
 
 .transfer-body {
@@ -1273,7 +1286,8 @@ body {
       #090a0b
     );
 
-  border: 1px solid #414445;
+  border:
+    1px solid #414445;
 
   box-shadow:
     inset 0 4px 6px rgba(0,0,0,.78);
@@ -1336,7 +1350,8 @@ body {
       #4e5454 100%
     );
 
-  border: 1px solid #909592;
+  border:
+    1px solid #909592;
 
   box-shadow:
     0 6px 9px rgba(0,0,0,.48),
@@ -1346,22 +1361,6 @@ body {
   transition:
     filter 80ms ease,
     box-shadow 80ms ease;
-}
-
-.slider-knob::before {
-  content: "";
-
-  position: absolute;
-
-  left: 4px;
-  right: 4px;
-
-  top: 3px;
-
-  height: 1px;
-
-  background:
-    rgba(255,255,255,.25);
 }
 
 .slider-knob::after {
@@ -1392,14 +1391,14 @@ body {
 }
 
 .slider-knob.is-grabbed {
-  filter: brightness(.94);
+  filter:
+    brightness(.94);
 }
 
 .slider-knob.is-snapping {
   transition:
     transform 160ms cubic-bezier(.2,.82,.28,1),
-    filter 80ms ease,
-    box-shadow 80ms ease;
+    filter 80ms ease;
 }
 
 .slider-scale {
@@ -1418,12 +1417,14 @@ body {
   width: 1px;
   height: 4px;
 
-  background: #6d706b;
+  background:
+    #6d706b;
 }
 
 
 /* =========================================================
-   LEVER
+   04 LEVER
+   Enlarged in Step 3.5
    ========================================================= */
 
 .lever-body {
@@ -1436,19 +1437,11 @@ body {
   justify-content: center;
 }
 
-
-/*
-   レバーの指操作領域。
-
-   見た目より少し広く取って、
-   iPhoneで掴みやすくしています。
-*/
-
 .lever-touch-area {
   position: relative;
 
-  width: 112px;
-  height: 92px;
+  width: 126px;
+  height: 104px;
 
   display: flex;
   align-items: flex-end;
@@ -1457,19 +1450,19 @@ body {
   touch-action: none;
 }
 
-
 .lever-slot {
   position: absolute;
 
   left: 50%;
-  bottom: 5px;
+  bottom: 4px;
 
-  width: 78px;
-  height: 52px;
+  width: 91px;
+  height: 57px;
 
-  transform: translateX(-50%);
+  transform:
+    translateX(-50%);
 
-  border-radius: 5px;
+  border-radius: 6px;
 
   background:
     radial-gradient(
@@ -1478,18 +1471,12 @@ body {
       #050607 74%
     );
 
-  border: 1px solid #444849;
+  border:
+    1px solid #444849;
 
   box-shadow:
     inset 0 5px 9px rgba(0,0,0,.82);
 }
-
-
-/*
-   レバー本体。
-
-   --lever-angle をJavaScriptから変更します。
-*/
 
 .lever-arm {
   --lever-angle: 0deg;
@@ -1498,11 +1485,11 @@ body {
 
   z-index: 3;
 
-  width: 10px;
-  height: 50px;
+  width: 11px;
+  height: 60px;
 
   left: 50%;
-  bottom: 28px;
+  bottom: 31px;
 
   transform:
     translateX(-50%)
@@ -1511,7 +1498,7 @@ body {
   transform-origin:
     50% 100%;
 
-  border-radius: 2px;
+  border-radius: 3px;
 
   background:
     linear-gradient(
@@ -1531,11 +1518,11 @@ body {
 .lever-handle {
   position: absolute;
 
-  width: 29px;
-  height: 29px;
+  width: 36px;
+  height: 36px;
 
   left: 50%;
-  top: -9px;
+  top: -12px;
 
   transform:
     translateX(-50%);
@@ -1545,19 +1532,20 @@ body {
   background:
     radial-gradient(
       circle at 29% 20%,
-      #d09a68 0%,
-      #ad7045 20%,
+      #d8a16c 0%,
+      #b57447 20%,
       #7c492d 49%,
       #4c2a1b 76%,
       #321b12 100%
     );
 
-  border: 1px solid #925c39;
+  border:
+    1px solid #9b623d;
 
   box-shadow:
-    0 5px 8px rgba(0,0,0,.5),
-    inset 1px 1px 1px rgba(255,220,180,.25),
-    inset -2px -3px 4px rgba(45,15,5,.3);
+    0 6px 9px rgba(0,0,0,.55),
+    inset 1px 1px 1px rgba(255,220,180,.28),
+    inset -2px -3px 4px rgba(45,15,5,.32);
 }
 
 .lever-handle::after {
@@ -1565,44 +1553,35 @@ body {
 
   position: absolute;
 
-  left: 6px;
-  right: 7px;
+  left: 7px;
+  right: 8px;
 
-  top: 4px;
+  top: 5px;
 
-  height: 6px;
+  height: 7px;
 
   border-radius: 50%;
 
   background:
     linear-gradient(
       180deg,
-      rgba(255,230,200,.18),
+      rgba(255,230,200,.20),
       transparent
     );
 }
 
-
-/*
-   指で掴んでいるとき。
-*/
-
 .lever-touch-area.is-grabbed
 .lever-handle {
-  filter: brightness(.94);
+  filter:
+    brightness(.94);
 }
-
-
-/*
-   閾値を越えたときの「カコン」。
-
-   JavaScriptで一瞬だけ付けます。
-*/
 
 .lever-touch-area.is-latched
 .lever-handle {
   animation:
-    leverLatch 110ms ease-out;
+    leverLatch
+    110ms
+    ease-out;
 }
 
 @keyframes leverLatch {
@@ -1626,20 +1605,16 @@ body {
   }
 }
 
-
-/*
-   指を離した後の中央復帰。
-*/
-
 .lever-arm.is-returning {
   transition:
-    transform 380ms
+    transform
+    380ms
     cubic-bezier(.16,.86,.28,1.08);
 }
 
 
 /* =========================================================
-   TENSION
+   05 TENSION
    ========================================================= */
 
 .tension-body {
@@ -1650,15 +1625,60 @@ body {
   justify-content: center;
 }
 
-.tension-unit {
+
+/*
+   見た目より広い操作領域。
+*/
+
+.tension-touch-area {
   position: relative;
 
-  width: 116px;
-  height: 47px;
+  width: 145px;
+  height: 70px;
+
+  display: flex;
+  align-items: center;
+
+  touch-action: none;
 }
+
+
+/*
+   黒い機構ベース
+*/
+
+.tension-unit {
+  position: absolute;
+
+  left: 3px;
+  right: 3px;
+
+  top: 50%;
+
+  height: 50px;
+
+  transform:
+    translateY(-50%);
+
+  border-radius: 5px;
+
+  background:
+    linear-gradient(
+      180deg,
+      rgba(255,255,255,.015),
+      rgba(0,0,0,.08)
+    );
+}
+
+
+/*
+   左側固定部
+*/
 
 .tension-anchor {
   position: absolute;
+
+  z-index: 3;
 
   left: 0;
   top: 50%;
@@ -1680,16 +1700,34 @@ body {
       #4a5050 100%
     );
 
-  border: 1px solid #7c817e;
+  border:
+    1px solid #7c817e;
+
+  box-shadow:
+    inset 1px 1px 1px rgba(255,255,255,.18),
+    0 4px 6px rgba(0,0,0,.35);
 }
 
+
+/*
+   バネ。
+
+   --tension-length で横幅を変化させます。
+*/
+
 .tension-spring {
+  --tension-length: 55px;
+
   position: absolute;
 
-  left: 25px;
-  right: 35px;
+  z-index: 1;
+
+  left: 24px;
 
   top: 50%;
+
+  width:
+    var(--tension-length);
 
   height: 19px;
 
@@ -1710,19 +1748,42 @@ body {
       #686e6c 8px 10px,
       transparent 10px 15px
     );
+
+  filter:
+    drop-shadow(
+      0 2px 1px
+      rgba(0,0,0,.42)
+    );
+
+  transform-origin:
+    left center;
 }
 
+
+/*
+   引っ張る金属ハンドル。
+
+   --tension-x が右方向への移動量。
+*/
+
 .tension-handle {
+  --tension-x: 0px;
+
   position: absolute;
 
-  right: 0;
+  z-index: 4;
+
+  left: 74px;
   top: 50%;
 
   width: 41px;
   height: 47px;
 
   transform:
-    translateY(-50%);
+    translate(
+      var(--tension-x),
+      -50%
+    );
 
   border-radius: 4px;
 
@@ -1736,11 +1797,29 @@ body {
       #4a5050 100%
     );
 
-  border: 1px solid #8c918e;
+  border:
+    1px solid #8c918e;
 
   box-shadow:
     0 6px 9px rgba(0,0,0,.46),
-    inset 1px 1px 1px rgba(255,255,255,.24);
+    inset 1px 1px 1px rgba(255,255,255,.24),
+    inset -1px -2px 3px rgba(0,0,0,.24);
+}
+
+.tension-handle::before {
+  content: "";
+
+  position: absolute;
+
+  left: 4px;
+  right: 4px;
+
+  top: 3px;
+
+  height: 1px;
+
+  background:
+    rgba(255,255,255,.22);
 }
 
 .tension-handle::after {
@@ -1771,6 +1850,40 @@ body {
 }
 
 
+/*
+   引っ張っている間、
+   ハンドルをほんの少し暗くする。
+*/
+
+.tension-touch-area.is-grabbed
+.tension-handle {
+  filter:
+    brightness(.94);
+}
+
+
+/*
+   指を離した直後の戻り。
+
+   実際の振動はWeb Animations APIで
+   JavaScript側から生成します。
+*/
+
+.tension-handle.is-returning {
+  transition:
+    transform
+    120ms
+    cubic-bezier(.12,.9,.2,1.1);
+}
+
+.tension-spring.is-returning {
+  transition:
+    width
+    120ms
+    cubic-bezier(.12,.9,.2,1.1);
+}
+
+
 /* =========================================================
    FOOTER
    ========================================================= */
@@ -1782,13 +1895,17 @@ body {
   align-items: flex-end;
   justify-content: space-between;
 
-  padding: 0 3px;
+  padding:
+    0 3px;
 
-  font-size: 5px;
+  font-size:
+    5px;
 
-  letter-spacing: .16em;
+  letter-spacing:
+    .16em;
 
-  color: #6c6d68;
+  color:
+    #6c6d68;
 }
 
 .footer-lights {
@@ -1803,14 +1920,17 @@ body {
 
   border-radius: 50%;
 
-  background: #555754;
+  background:
+    #555754;
 }
 
 .footer-lights span:first-child {
-  background: var(--cyan);
+  background:
+    var(--cyan);
 
   box-shadow:
-    0 0 4px rgba(89,216,210,.45);
+    0 0 4px
+    rgba(89,216,210,.45);
 }
 
 
@@ -1844,7 +1964,8 @@ body {
   .rotary-body,
   .lever-body,
   .tension-body {
-    transform: scale(.9);
+    transform:
+      scale(.9);
   }
 }
 
@@ -1856,7 +1977,8 @@ body {
 @media (prefers-reduced-motion: reduce) {
 
   .trigger-button.is-releasing {
-    animation-duration: 140ms;
+    animation-duration:
+      140ms;
   }
 
   .rotary-knob.is-stepping {
@@ -1864,16 +1986,24 @@ body {
   }
 
   .slider-knob.is-snapping {
-    transition-duration: 80ms;
+    transition-duration:
+      80ms;
   }
 
   .lever-arm.is-returning {
-    transition-duration: 160ms;
+    transition-duration:
+      160ms;
   }
 
   .lever-touch-area.is-latched
   .lever-handle {
     animation: none;
+  }
+
+  .tension-handle.is-returning,
+  .tension-spring.is-returning {
+    transition-duration:
+      80ms;
   }
 }
 
@@ -1899,9 +2029,7 @@ body {
 <div class="screw s4"></div>
 
 
-<!-- =====================================================
-     HEADER
-     ===================================================== -->
+<!-- HEADER -->
 
 <header class="header">
 
@@ -2019,7 +2147,7 @@ body {
   <div class="controls">
 
 
-    <!-- TRIGGER -->
+    <!-- 01 TRIGGER -->
 
     <div class="control">
 
@@ -2052,7 +2180,7 @@ body {
     </div>
 
 
-    <!-- ROTARY -->
+    <!-- 02 ROTARY -->
 
     <div class="control">
 
@@ -2089,7 +2217,7 @@ body {
     </div>
 
 
-    <!-- TRANSFER -->
+    <!-- 03 TRANSFER -->
 
     <div class="control transfer">
 
@@ -2144,7 +2272,7 @@ body {
     </div>
 
 
-    <!-- LEVER -->
+    <!-- 04 LEVER -->
 
     <div class="control">
 
@@ -2191,7 +2319,7 @@ body {
     </div>
 
 
-    <!-- TENSION -->
+    <!-- 05 TENSION -->
 
     <div class="control">
 
@@ -2208,13 +2336,32 @@ body {
 
       <div class="tension-body">
 
-        <div class="tension-unit">
+        <div
+          id="tensionTouchArea"
+          class="tension-touch-area"
+          role="slider"
+          tabindex="0"
+          aria-label="Pull spring"
+          aria-valuemin="0"
+          aria-valuemax="100"
+          aria-valuenow="0"
+        >
 
-          <div class="tension-anchor"></div>
+          <div class="tension-unit">
 
-          <div class="tension-spring"></div>
+            <div class="tension-anchor"></div>
 
-          <div class="tension-handle"></div>
+            <div
+              id="tensionSpring"
+              class="tension-spring"
+            ></div>
+
+            <div
+              id="tensionHandle"
+              class="tension-handle"
+            ></div>
+
+          </div>
 
         </div>
 
@@ -2227,8 +2374,6 @@ body {
 
 </section>
 
-
-<!-- FOOTER -->
 
 <footer class="footer">
 
@@ -2276,30 +2421,32 @@ const SETTINGS = {
   },
 
   lever: {
-
-    /*
-       レバー最大角度
-    */
-
     maxAngle: 31,
-
-    /*
-       ここを越えると端まで「カコン」と入る
-    */
-
     latchThreshold: 19,
-
-    /*
-       指を離してから戻り始めるまで
-    */
-
     returnDelay: 230,
+    returnDuration: 380
+  },
+
+  tension: {
 
     /*
-       中央復帰時間
+       最大引き量
     */
 
-    returnDuration: 380
+    maxPull: 30,
+
+    /*
+       バネの基本長
+    */
+
+    baseSpringLength: 55,
+
+    /*
+       引いた距離に対して
+       バネをどれだけ伸ばすか
+    */
+
+    springRatio: .92
   }
 };
 
@@ -2309,32 +2456,59 @@ const SETTINGS = {
    ========================================================= */
 
 const triggerButton =
-  document.getElementById("triggerButton");
+  document.getElementById(
+    "triggerButton"
+  );
 
 const rotaryKnob =
-  document.getElementById("rotaryKnob");
+  document.getElementById(
+    "rotaryKnob"
+  );
 
 const sliderTrack =
-  document.getElementById("sliderTrack");
+  document.getElementById(
+    "sliderTrack"
+  );
 
 const sliderKnob =
-  document.getElementById("sliderKnob");
+  document.getElementById(
+    "sliderKnob"
+  );
 
 const leverTouchArea =
-  document.getElementById("leverTouchArea");
+  document.getElementById(
+    "leverTouchArea"
+  );
 
 const leverArm =
-  document.getElementById("leverArm");
+  document.getElementById(
+    "leverArm"
+  );
+
+const tensionTouchArea =
+  document.getElementById(
+    "tensionTouchArea"
+  );
+
+const tensionHandle =
+  document.getElementById(
+    "tensionHandle"
+  );
+
+const tensionSpring =
+  document.getElementById(
+    "tensionSpring"
+  );
 
 
 /* =========================================================
-   STATE
+   STATES
    ========================================================= */
 
 const triggerState = {
   pressed: false,
   pointerId: null,
-  releaseTimer: null
+  timer: null
 };
 
 
@@ -2344,7 +2518,7 @@ const rotaryState = {
   angle: 0,
   previousPointerAngle: 0,
   step: 0,
-  stepTimer: null
+  timer: null
 };
 
 
@@ -2352,9 +2526,9 @@ const transferState = {
   dragging: false,
   pointerId: null,
   step: 4,
-  steps: SETTINGS.transfer.steps,
+  steps: 9,
   x: 0,
-  snapTimer: null
+  timer: null
 };
 
 
@@ -2368,19 +2542,28 @@ const leverState = {
 };
 
 
+const tensionState = {
+  dragging: false,
+  pointerId: null,
+  startX: 0,
+  pull: 0,
+  animation: null
+};
+
+
 /* =========================================================
    TRIGGER
    ========================================================= */
 
-function clearTriggerRelease() {
+function clearTrigger() {
 
-  if (triggerState.releaseTimer !== null) {
+  if (triggerState.timer) {
 
     clearTimeout(
-      triggerState.releaseTimer
+      triggerState.timer
     );
 
-    triggerState.releaseTimer = null;
+    triggerState.timer = null;
   }
 
   triggerButton.classList.remove(
@@ -2389,19 +2572,17 @@ function clearTriggerRelease() {
 }
 
 
-function pressTrigger(event) {
+function triggerDown(event) {
 
   if (!event.isPrimary) {
     return;
   }
 
-
-  clearTriggerRelease();
-
+  clearTrigger();
 
   triggerState.pressed = true;
-  triggerState.pointerId = event.pointerId;
-
+  triggerState.pointerId =
+    event.pointerId;
 
   try {
     triggerButton.setPointerCapture(
@@ -2409,30 +2590,24 @@ function pressTrigger(event) {
     );
   } catch (error) {}
 
-
   triggerButton.classList.add(
     "is-pressed"
   );
 }
 
 
-function releaseTrigger(event) {
-
-  if (!triggerState.pressed) {
-    return;
-  }
-
+function triggerUp(event) {
 
   if (
+    !triggerState.pressed ||
     event.pointerId !==
     triggerState.pointerId
   ) {
     return;
   }
 
-
   triggerState.pressed = false;
-
+  triggerState.pointerId = null;
 
   triggerButton.classList.remove(
     "is-pressed"
@@ -2442,16 +2617,13 @@ function releaseTrigger(event) {
     "is-releasing"
   );
 
-
   void triggerButton.offsetWidth;
-
 
   triggerButton.classList.add(
     "is-releasing"
   );
 
-
-  triggerState.releaseTimer =
+  triggerState.timer =
     setTimeout(
       () => {
 
@@ -2459,23 +2631,20 @@ function releaseTrigger(event) {
           "is-releasing"
         );
 
-        triggerState.releaseTimer = null;
+        triggerState.timer = null;
 
       },
       SETTINGS.trigger.releaseDuration
     );
-
-
-  triggerState.pointerId = null;
 }
 
 
-function cancelTrigger() {
+function triggerCancel() {
 
   triggerState.pressed = false;
   triggerState.pointerId = null;
 
-  clearTriggerRelease();
+  clearTrigger();
 
   triggerButton.classList.remove(
     "is-pressed"
@@ -2487,35 +2656,34 @@ function cancelTrigger() {
    ROTARY
    ========================================================= */
 
-function getPointerAngle(event) {
+function rotaryPointerAngle(event) {
 
   const rect =
     rotaryKnob.getBoundingClientRect();
 
+  const x =
+    event.clientX -
+    (
+      rect.left +
+      rect.width / 2
+    );
 
-  const centerX =
-    rect.left + rect.width / 2;
-
-  const centerY =
-    rect.top + rect.height / 2;
-
-
-  const dx =
-    event.clientX - centerX;
-
-  const dy =
-    event.clientY - centerY;
-
+  const y =
+    event.clientY -
+    (
+      rect.top +
+      rect.height / 2
+    );
 
   return (
-    Math.atan2(dy, dx) *
+    Math.atan2(y, x) *
     180 /
     Math.PI
   ) + 90;
 }
 
 
-function normalizeAngleDelta(delta) {
+function normalizeDelta(delta) {
 
   while (delta > 180) {
     delta -= 360;
@@ -2531,31 +2699,28 @@ function normalizeAngleDelta(delta) {
 
 function updateRotary() {
 
-  const stepSize =
+  const step =
     SETTINGS.rotary.stepDegrees;
 
-
-  const snappedAngle =
+  const snapped =
     Math.round(
-      rotaryState.angle /
-      stepSize
-    ) * stepSize;
-
+      rotaryState.angle / step
+    ) * step;
 
   const newStep =
     Math.round(
-      rotaryState.angle /
-      stepSize
+      rotaryState.angle / step
     );
-
 
   rotaryKnob.style.setProperty(
     "--rotary-angle",
-    snappedAngle + "deg"
+    snapped + "deg"
   );
 
-
-  if (newStep !== rotaryState.step) {
+  if (
+    newStep !==
+    rotaryState.step
+  ) {
 
     rotaryState.step = newStep;
 
@@ -2569,16 +2734,13 @@ function updateRotary() {
       "is-stepping"
     );
 
-
-    if (rotaryState.stepTimer) {
-
+    if (rotaryState.timer) {
       clearTimeout(
-        rotaryState.stepTimer
+        rotaryState.timer
       );
     }
 
-
-    rotaryState.stepTimer =
+    rotaryState.timer =
       setTimeout(
         () => {
 
@@ -2591,40 +2753,32 @@ function updateRotary() {
       );
   }
 
-
-  const totalSteps =
-    Math.round(
-      360 / stepSize
-    );
-
-
-  const normalizedStep =
+  const normalized =
     (
-      (newStep % totalSteps) +
-      totalSteps
-    ) % totalSteps;
-
+      (newStep % 30) +
+      30
+    ) % 30;
 
   rotaryKnob.setAttribute(
     "aria-valuenow",
-    String(normalizedStep)
+    String(normalized)
   );
 }
 
 
-function startRotary(event) {
+function rotaryDown(event) {
 
   if (!event.isPrimary) {
     return;
   }
 
-
   rotaryState.dragging = true;
-  rotaryState.pointerId = event.pointerId;
+
+  rotaryState.pointerId =
+    event.pointerId;
 
   rotaryState.previousPointerAngle =
-    getPointerAngle(event);
-
+    rotaryPointerAngle(event);
 
   try {
     rotaryKnob.setPointerCapture(
@@ -2632,41 +2786,32 @@ function startRotary(event) {
     );
   } catch (error) {}
 
-
   rotaryKnob.classList.add(
     "is-grabbed"
   );
-
 
   event.preventDefault();
 }
 
 
-function moveRotary(event) {
-
-  if (!rotaryState.dragging) {
-    return;
-  }
-
+function rotaryMove(event) {
 
   if (
+    !rotaryState.dragging ||
     event.pointerId !==
     rotaryState.pointerId
   ) {
     return;
   }
 
-
-  const currentAngle =
-    getPointerAngle(event);
-
+  const current =
+    rotaryPointerAngle(event);
 
   let delta =
-    normalizeAngleDelta(
-      currentAngle -
+    normalizeDelta(
+      current -
       rotaryState.previousPointerAngle
     );
-
 
   delta =
     Math.max(
@@ -2677,12 +2822,10 @@ function moveRotary(event) {
       )
     );
 
-
   rotaryState.angle += delta;
 
   rotaryState.previousPointerAngle =
-    currentAngle;
-
+    current;
 
   updateRotary();
 
@@ -2690,7 +2833,7 @@ function moveRotary(event) {
 }
 
 
-function endRotary(event) {
+function rotaryUp(event) {
 
   if (
     event.pointerId !==
@@ -2698,7 +2841,6 @@ function endRotary(event) {
   ) {
     return;
   }
-
 
   rotaryState.dragging = false;
   rotaryState.pointerId = null;
@@ -2713,62 +2855,56 @@ function endRotary(event) {
    TRANSFER
    ========================================================= */
 
-function getTransferGeometry() {
+function transferGeometry() {
 
-  const trackRect =
+  const track =
     sliderTrack.getBoundingClientRect();
 
-
-  const knobWidth =
-    sliderKnob.offsetWidth;
-
-
-  const maxTravel =
+  const max =
     Math.max(
       0,
       (
-        trackRect.width -
-        knobWidth -
+        track.width -
+        sliderKnob.offsetWidth -
         4
       ) / 2
     );
 
-
   return {
-    trackRect,
-    maxTravel
+    track,
+    max
   };
 }
 
 
-function getTransferStepPosition(step) {
+function transferStepPosition(step) {
 
   const geometry =
-    getTransferGeometry();
-
+    transferGeometry();
 
   const interval =
     (
-      geometry.maxTravel * 2
+      geometry.max * 2
     ) /
     (
       transferState.steps - 1
     );
 
-
   return (
-    -geometry.maxTravel +
+    -geometry.max +
     interval * step
   );
 }
 
 
-function updateTransferPosition(
+function setTransfer(
   x,
-  animate = false
+  animated = false
 ) {
 
-  if (animate) {
+  transferState.x = x;
+
+  if (animated) {
 
     sliderKnob.classList.add(
       "is-snapping"
@@ -2781,10 +2917,6 @@ function updateTransferPosition(
     );
   }
 
-
-  transferState.x = x;
-
-
   sliderKnob.style.setProperty(
     "--slider-x",
     x + "px"
@@ -2792,26 +2924,25 @@ function updateTransferPosition(
 }
 
 
-function startTransfer(event) {
+function transferDown(event) {
 
   if (!event.isPrimary) {
     return;
   }
 
-
-  if (transferState.snapTimer) {
+  if (transferState.timer) {
 
     clearTimeout(
-      transferState.snapTimer
+      transferState.timer
     );
 
-    transferState.snapTimer = null;
+    transferState.timer = null;
   }
 
-
   transferState.dragging = true;
-  transferState.pointerId = event.pointerId;
 
+  transferState.pointerId =
+    event.pointerId;
 
   sliderKnob.classList.remove(
     "is-snapping"
@@ -2821,63 +2952,51 @@ function startTransfer(event) {
     "is-grabbed"
   );
 
-
   try {
     sliderTrack.setPointerCapture(
       event.pointerId
     );
   } catch (error) {}
 
-
-  moveTransfer(event);
+  transferMove(event);
 
   event.preventDefault();
 }
 
 
-function moveTransfer(event) {
-
-  if (!transferState.dragging) {
-    return;
-  }
-
+function transferMove(event) {
 
   if (
+    !transferState.dragging ||
     event.pointerId !==
     transferState.pointerId
   ) {
     return;
   }
 
-
   const geometry =
-    getTransferGeometry();
-
+    transferGeometry();
 
   const center =
-    geometry.trackRect.left +
-    geometry.trackRect.width / 2;
-
+    geometry.track.left +
+    geometry.track.width / 2;
 
   let x =
     event.clientX - center;
 
-
   x =
     Math.max(
-      -geometry.maxTravel,
+      -geometry.max,
       Math.min(
-        geometry.maxTravel,
+        geometry.max,
         x
       )
     );
 
-
-  updateTransferPosition(
+  setTransfer(
     x,
     false
   );
-
 
   event.preventDefault();
 }
@@ -2886,27 +3005,24 @@ function moveTransfer(event) {
 function snapTransfer() {
 
   const geometry =
-    getTransferGeometry();
-
+    transferGeometry();
 
   const interval =
     (
-      geometry.maxTravel * 2
+      geometry.max * 2
     ) /
     (
       transferState.steps - 1
     );
 
-
   let step =
     Math.round(
       (
         transferState.x +
-        geometry.maxTravel
+        geometry.max
       ) /
       interval
     );
-
 
   step =
     Math.max(
@@ -2917,23 +3033,19 @@ function snapTransfer() {
       )
     );
 
-
   transferState.step = step;
 
-
-  updateTransferPosition(
-    getTransferStepPosition(step),
+  setTransfer(
+    transferStepPosition(step),
     true
   );
-
 
   sliderTrack.setAttribute(
     "aria-valuenow",
     String(step)
   );
 
-
-  transferState.snapTimer =
+  transferState.timer =
     setTimeout(
       () => {
 
@@ -2941,7 +3053,7 @@ function snapTransfer() {
           "is-snapping"
         );
 
-        transferState.snapTimer = null;
+        transferState.timer = null;
 
       },
       180
@@ -2949,7 +3061,7 @@ function snapTransfer() {
 }
 
 
-function endTransfer(event) {
+function transferUp(event) {
 
   if (
     event.pointerId !==
@@ -2958,15 +3070,12 @@ function endTransfer(event) {
     return;
   }
 
-
   transferState.dragging = false;
   transferState.pointerId = null;
-
 
   sliderKnob.classList.remove(
     "is-grabbed"
   );
-
 
   snapTransfer();
 }
@@ -2976,13 +3085,12 @@ function endTransfer(event) {
    LEVER
    ========================================================= */
 
-function setLeverAngle(
+function setLever(
   angle,
   returning = false
 ) {
 
   leverState.angle = angle;
-
 
   if (returning) {
 
@@ -2997,7 +3105,6 @@ function setLeverAngle(
     );
   }
 
-
   leverArm.style.setProperty(
     "--lever-angle",
     angle + "deg"
@@ -3005,53 +3112,35 @@ function setLeverAngle(
 }
 
 
-/*
-   レバーの基点から、
-   指の横位置を角度へ変換します。
-*/
-
-function getLeverAngle(event) {
+function leverPointerAngle(event) {
 
   const rect =
     leverTouchArea.getBoundingClientRect();
 
-
-  const centerX =
-    rect.left + rect.width / 2;
-
+  const center =
+    rect.left +
+    rect.width / 2;
 
   const dx =
-    event.clientX - centerX;
-
-
-  /*
-     タッチ領域の半分程度を使って
-     -31°〜+31°へ変換。
-  */
+    event.clientX -
+    center;
 
   const normalized =
-    dx / (rect.width * .38);
-
-
-  const angle =
-    normalized *
-    SETTINGS.lever.maxAngle;
-
+    dx /
+    (
+      rect.width * .38
+    );
 
   return Math.max(
     -SETTINGS.lever.maxAngle,
     Math.min(
       SETTINGS.lever.maxAngle,
-      angle
+      normalized *
+      SETTINGS.lever.maxAngle
     )
   );
 }
 
-
-/*
-   閾値を越えた瞬間の
-   「カコン」処理。
-*/
 
 function latchLever(side) {
 
@@ -3061,34 +3150,27 @@ function latchLever(side) {
     return;
   }
 
-
   leverState.latchedSide = side;
-
 
   leverTouchArea.classList.remove(
     "is-latched"
   );
 
-
   void leverTouchArea.offsetWidth;
-
 
   leverTouchArea.classList.add(
     "is-latched"
   );
 
-
-  setLeverAngle(
-    SETTINGS.lever.maxAngle * side,
-    false
+  setLever(
+    SETTINGS.lever.maxAngle *
+    side
   );
-
 
   leverTouchArea.setAttribute(
     "aria-valuenow",
     String(side)
   );
-
 
   if (leverState.latchTimer) {
 
@@ -3096,7 +3178,6 @@ function latchLever(side) {
       leverState.latchTimer
     );
   }
-
 
   leverState.latchTimer =
     setTimeout(
@@ -3114,16 +3195,11 @@ function latchLever(side) {
 }
 
 
-/* =========================================================
-   LEVER START
-   ========================================================= */
-
-function startLever(event) {
+function leverDown(event) {
 
   if (!event.isPrimary) {
     return;
   }
-
 
   if (leverState.returnTimer) {
 
@@ -3134,14 +3210,12 @@ function startLever(event) {
     leverState.returnTimer = null;
   }
 
-
   leverState.dragging = true;
 
   leverState.pointerId =
     event.pointerId;
 
   leverState.latchedSide = 0;
-
 
   leverArm.classList.remove(
     "is-returning"
@@ -3151,79 +3225,51 @@ function startLever(event) {
     "is-grabbed"
   );
 
-
   try {
-
     leverTouchArea.setPointerCapture(
       event.pointerId
     );
-
   } catch (error) {}
 
-
-  moveLever(event);
+  leverMove(event);
 
   event.preventDefault();
 }
 
 
-/* =========================================================
-   LEVER MOVE
-   ========================================================= */
-
-function moveLever(event) {
-
-  if (!leverState.dragging) {
-    return;
-  }
-
+function leverMove(event) {
 
   if (
+    !leverState.dragging ||
     event.pointerId !==
     leverState.pointerId
   ) {
     return;
   }
 
-
   const angle =
-    getLeverAngle(event);
+    leverPointerAngle(event);
 
-
-  /*
-     一度ラッチした側では、
-     指を大きく中央へ戻すまで
-     端位置を保持します。
-  */
-
-  if (leverState.latchedSide !== 0) {
-
-    const releaseThreshold =
-      SETTINGS.lever.latchThreshold * .55;
-
+  if (
+    leverState.latchedSide !== 0
+  ) {
 
     if (
       Math.abs(angle) >
-      releaseThreshold
+      SETTINGS.lever.latchThreshold *
+      .55
     ) {
 
-      setLeverAngle(
+      setLever(
         SETTINGS.lever.maxAngle *
-        leverState.latchedSide,
-        false
+        leverState.latchedSide
       );
 
       return;
     }
 
-
     leverState.latchedSide = 0;
   }
-
-
-  /*
-     閾値を越えたら端まで入る。
-  */
 
   if (
     Math.abs(angle) >=
@@ -3231,34 +3277,26 @@ function moveLever(event) {
   ) {
 
     latchLever(
-      angle < 0 ? -1 : 1
+      angle < 0
+        ? -1
+        : 1
     );
 
     return;
   }
 
-
-  setLeverAngle(
-    angle,
-    false
-  );
-
+  setLever(angle);
 
   leverTouchArea.setAttribute(
     "aria-valuenow",
     "0"
   );
 
-
   event.preventDefault();
 }
 
 
-/* =========================================================
-   LEVER RETURN
-   ========================================================= */
-
-function scheduleLeverReturn() {
+function leverReturn() {
 
   if (leverState.returnTimer) {
 
@@ -3267,25 +3305,21 @@ function scheduleLeverReturn() {
     );
   }
 
-
   leverState.returnTimer =
     setTimeout(
       () => {
 
         leverState.latchedSide = 0;
 
-
-        setLeverAngle(
+        setLever(
           0,
           true
         );
-
 
         leverTouchArea.setAttribute(
           "aria-valuenow",
           "0"
         );
-
 
         leverState.returnTimer =
           setTimeout(
@@ -3295,7 +3329,8 @@ function scheduleLeverReturn() {
                 "is-returning"
               );
 
-              leverState.returnTimer = null;
+              leverState.returnTimer =
+                null;
 
             },
             SETTINGS.lever.returnDuration
@@ -3307,11 +3342,7 @@ function scheduleLeverReturn() {
 }
 
 
-/* =========================================================
-   LEVER END
-   ========================================================= */
-
-function endLever(event) {
+function leverUp(event) {
 
   if (
     event.pointerId !==
@@ -3320,44 +3351,457 @@ function endLever(event) {
     return;
   }
 
-
   leverState.dragging = false;
   leverState.pointerId = null;
-
 
   leverTouchArea.classList.remove(
     "is-grabbed"
   );
 
-
-  scheduleLeverReturn();
+  leverReturn();
 }
 
 
 /* =========================================================
-   LEVER CANCEL
+   TENSION
    ========================================================= */
 
-function cancelLever() {
+function setTension(pull) {
 
-  leverState.dragging = false;
-  leverState.pointerId = null;
+  pull =
+    Math.max(
+      0,
+      Math.min(
+        SETTINGS.tension.maxPull,
+        pull
+      )
+    );
+
+  tensionState.pull = pull;
 
 
-  leverTouchArea.classList.remove(
+  tensionHandle.style.setProperty(
+    "--tension-x",
+    pull + "px"
+  );
+
+
+  const springLength =
+    SETTINGS.tension.baseSpringLength +
+    (
+      pull *
+      SETTINGS.tension.springRatio
+    );
+
+
+  tensionSpring.style.setProperty(
+    "--tension-length",
+    springLength + "px"
+  );
+
+
+  const percentage =
+    Math.round(
+      (
+        pull /
+        SETTINGS.tension.maxPull
+      ) * 100
+    );
+
+
+  tensionTouchArea.setAttribute(
+    "aria-valuenow",
+    String(percentage)
+  );
+}
+
+
+/* =========================================================
+   TENSION DOWN
+   ========================================================= */
+
+function tensionDown(event) {
+
+  if (!event.isPrimary) {
+    return;
+  }
+
+
+  /*
+     前回の振動が残っていたら止めます。
+  */
+
+  if (tensionState.animation) {
+
+    tensionState.animation.cancel();
+
+    tensionState.animation = null;
+  }
+
+
+  tensionHandle.getAnimations()
+    .forEach(
+      animation =>
+        animation.cancel()
+    );
+
+
+  tensionSpring.getAnimations()
+    .forEach(
+      animation =>
+        animation.cancel()
+    );
+
+
+  tensionHandle.classList.remove(
+    "is-returning"
+  );
+
+  tensionSpring.classList.remove(
+    "is-returning"
+  );
+
+
+  tensionState.dragging = true;
+
+  tensionState.pointerId =
+    event.pointerId;
+
+
+  /*
+     現在位置を考慮して、
+     途中から掴んでも飛ばないようにする。
+  */
+
+  tensionState.startX =
+    event.clientX -
+    tensionState.pull;
+
+
+  tensionTouchArea.classList.add(
     "is-grabbed"
   );
 
 
-  scheduleLeverReturn();
+  try {
+
+    tensionTouchArea.setPointerCapture(
+      event.pointerId
+    );
+
+  } catch (error) {}
+
+
+  event.preventDefault();
 }
 
 
 /* =========================================================
-   KEYBOARD
+   TENSION MOVE
    ========================================================= */
 
-function handleRotaryKey(event) {
+function tensionMove(event) {
+
+  if (
+    !tensionState.dragging ||
+    event.pointerId !==
+    tensionState.pointerId
+  ) {
+    return;
+  }
+
+
+  const pull =
+    event.clientX -
+    tensionState.startX;
+
+
+  setTension(pull);
+
+
+  event.preventDefault();
+}
+
+
+/* =========================================================
+   TENSION RELEASE
+   ========================================================= */
+
+function releaseTension() {
+
+  const releasedPull =
+    tensionState.pull;
+
+
+  /*
+     ほとんど引いていない場合は
+     静かに初期位置へ戻すだけ。
+  */
+
+  if (releasedPull < 2) {
+
+    setTension(0);
+
+    return;
+  }
+
+
+  /*
+     引き量を0〜1へ変換。
+  */
+
+  const strength =
+    Math.min(
+      1,
+      releasedPull /
+      SETTINGS.tension.maxPull
+    );
+
+
+  /*
+     引き量に応じて振動幅を変える。
+     最大でも控えめ。
+  */
+
+  const bounce1 =
+    -(
+      2.5 +
+      strength * 3.5
+    );
+
+  const bounce2 =
+    1.2 +
+    strength * 2;
+
+
+  /*
+     stateは先に0へ戻す。
+  */
+
+  tensionState.pull = 0;
+
+
+  tensionTouchArea.setAttribute(
+    "aria-valuenow",
+    "0"
+  );
+
+
+  /*
+     ハンドル:
+     現在位置 → 0 → 少し左 → 少し右 → 0
+  */
+
+  tensionState.animation =
+    tensionHandle.animate(
+      [
+
+        {
+          transform:
+            `translate(${releasedPull}px, -50%)`
+        },
+
+        {
+          transform:
+            "translate(0px, -50%)",
+          offset: .42
+        },
+
+        {
+          transform:
+            `translate(${bounce1}px, -50%)`,
+          offset: .62
+        },
+
+        {
+          transform:
+            `translate(${bounce2}px, -50%)`,
+          offset: .79
+        },
+
+        {
+          transform:
+            "translate(-1px, -50%)",
+          offset: .91
+        },
+
+        {
+          transform:
+            "translate(0px, -50%)"
+        }
+
+      ],
+      {
+
+        duration:
+          430 +
+          strength * 120,
+
+        easing:
+          "cubic-bezier(.16,.8,.25,1)",
+
+        fill:
+          "none"
+      }
+    );
+
+
+  /*
+     バネも同時に縮める。
+  */
+
+  const stretchedLength =
+    SETTINGS.tension.baseSpringLength +
+    (
+      releasedPull *
+      SETTINGS.tension.springRatio
+    );
+
+
+  const springBounce =
+    SETTINGS.tension.baseSpringLength -
+    (
+      2 +
+      strength * 3
+    );
+
+
+  tensionSpring.animate(
+    [
+
+      {
+        width:
+          stretchedLength + "px"
+      },
+
+      {
+        width:
+          SETTINGS.tension.baseSpringLength +
+          "px",
+        offset: .42
+      },
+
+      {
+        width:
+          springBounce + "px",
+        offset: .62
+      },
+
+      {
+        width:
+          (
+            SETTINGS.tension.baseSpringLength +
+            2
+          ) + "px",
+        offset: .80
+      },
+
+      {
+        width:
+          SETTINGS.tension.baseSpringLength +
+          "px"
+      }
+
+    ],
+    {
+
+      duration:
+        430 +
+        strength * 120,
+
+      easing:
+        "cubic-bezier(.16,.8,.25,1)",
+
+      fill:
+        "none"
+    }
+  );
+
+
+  /*
+     CSS変数そのものも初期値へ戻しておく。
+  */
+
+  tensionHandle.style.setProperty(
+    "--tension-x",
+    "0px"
+  );
+
+
+  tensionSpring.style.setProperty(
+    "--tension-length",
+    SETTINGS.tension.baseSpringLength +
+    "px"
+  );
+
+
+  tensionState.animation.onfinish =
+    () => {
+
+      tensionState.animation = null;
+
+    };
+}
+
+
+/* =========================================================
+   TENSION UP
+   ========================================================= */
+
+function tensionUp(event) {
+
+  if (
+    event.pointerId !==
+    tensionState.pointerId
+  ) {
+    return;
+  }
+
+
+  tensionState.dragging = false;
+
+  tensionState.pointerId = null;
+
+
+  tensionTouchArea.classList.remove(
+    "is-grabbed"
+  );
+
+
+  releaseTension();
+}
+
+
+/* =========================================================
+   TENSION CANCEL
+   ========================================================= */
+
+function tensionCancel() {
+
+  if (!tensionState.dragging) {
+    return;
+  }
+
+
+  tensionState.dragging = false;
+
+  tensionState.pointerId = null;
+
+
+  tensionTouchArea.classList.remove(
+    "is-grabbed"
+  );
+
+
+  releaseTension();
+}
+
+
+/* =========================================================
+   KEYBOARD FALLBACK
+   ========================================================= */
+
+function rotaryKey(event) {
 
   let direction = 0;
 
@@ -3395,23 +3839,17 @@ function handleRotaryKey(event) {
 }
 
 
-function handleTransferKey(event) {
+function transferKey(event) {
 
   let direction = 0;
 
 
-  if (
-    event.key === "ArrowRight" ||
-    event.key === "ArrowUp"
-  ) {
+  if (event.key === "ArrowRight") {
     direction = 1;
   }
 
 
-  if (
-    event.key === "ArrowLeft" ||
-    event.key === "ArrowDown"
-  ) {
+  if (event.key === "ArrowLeft") {
     direction = -1;
   }
 
@@ -3429,27 +3867,22 @@ function handleTransferKey(event) {
       0,
       Math.min(
         transferState.steps - 1,
-        transferState.step + direction
+        transferState.step +
+        direction
       )
     );
 
 
-  updateTransferPosition(
-    getTransferStepPosition(
+  setTransfer(
+    transferStepPosition(
       transferState.step
     ),
     true
   );
-
-
-  sliderTrack.setAttribute(
-    "aria-valuenow",
-    String(transferState.step)
-  );
 }
 
 
-function handleLeverKey(event) {
+function leverKey(event) {
 
   let side = 0;
 
@@ -3474,17 +3907,40 @@ function handleLeverKey(event) {
 
   latchLever(side);
 
-  scheduleLeverReturn();
+  leverReturn();
+}
+
+
+function tensionKey(event) {
+
+  if (event.key !== "ArrowRight") {
+    return;
+  }
+
+
+  event.preventDefault();
+
+
+  setTension(
+    SETTINGS.tension.maxPull *
+    .75
+  );
+
+
+  setTimeout(
+    releaseTension,
+    100
+  );
 }
 
 
 /* =========================================================
-   VISIBILITY SAFETY
+   PAGE HIDDEN SAFETY
    ========================================================= */
 
-function resetInteractions() {
+function resetAllInteractions() {
 
-  cancelTrigger();
+  triggerCancel();
 
 
   rotaryState.dragging = false;
@@ -3512,10 +3968,29 @@ function resetInteractions() {
     "is-grabbed"
   );
 
-  setLeverAngle(
+  setLever(
     0,
     false
   );
+
+
+  tensionState.dragging = false;
+  tensionState.pointerId = null;
+
+  tensionTouchArea.classList.remove(
+    "is-grabbed"
+  );
+
+
+  if (tensionState.animation) {
+
+    tensionState.animation.cancel();
+
+    tensionState.animation = null;
+  }
+
+
+  setTension(0);
 }
 
 
@@ -3524,7 +3999,7 @@ document.addEventListener(
   () => {
 
     if (document.hidden) {
-      resetInteractions();
+      resetAllInteractions();
     }
 
   }
@@ -3532,112 +4007,137 @@ document.addEventListener(
 
 
 /* =========================================================
-   EVENTS — TRIGGER
+   EVENTS
    ========================================================= */
+
+
+/* TRIGGER */
 
 triggerButton.addEventListener(
   "pointerdown",
-  pressTrigger
+  triggerDown
 );
 
 triggerButton.addEventListener(
   "pointerup",
-  releaseTrigger
+  triggerUp
 );
 
 triggerButton.addEventListener(
   "pointercancel",
-  cancelTrigger
+  triggerCancel
 );
 
 
-/* =========================================================
-   EVENTS — ROTARY
-   ========================================================= */
+/* ROTARY */
 
 rotaryKnob.addEventListener(
   "pointerdown",
-  startRotary
+  rotaryDown
 );
 
 rotaryKnob.addEventListener(
   "pointermove",
-  moveRotary
+  rotaryMove
 );
 
 rotaryKnob.addEventListener(
   "pointerup",
-  endRotary
+  rotaryUp
 );
 
 rotaryKnob.addEventListener(
   "pointercancel",
-  endRotary
+  rotaryUp
 );
 
 rotaryKnob.addEventListener(
   "keydown",
-  handleRotaryKey
+  rotaryKey
 );
 
 
-/* =========================================================
-   EVENTS — TRANSFER
-   ========================================================= */
+/* TRANSFER */
 
 sliderTrack.addEventListener(
   "pointerdown",
-  startTransfer
+  transferDown
 );
 
 sliderTrack.addEventListener(
   "pointermove",
-  moveTransfer
+  transferMove
 );
 
 sliderTrack.addEventListener(
   "pointerup",
-  endTransfer
+  transferUp
 );
 
 sliderTrack.addEventListener(
   "pointercancel",
-  endTransfer
+  transferUp
 );
 
 sliderTrack.addEventListener(
   "keydown",
-  handleTransferKey
+  transferKey
 );
 
 
-/* =========================================================
-   EVENTS — LEVER
-   ========================================================= */
+/* LEVER */
 
 leverTouchArea.addEventListener(
   "pointerdown",
-  startLever
+  leverDown
 );
 
 leverTouchArea.addEventListener(
   "pointermove",
-  moveLever
+  leverMove
 );
 
 leverTouchArea.addEventListener(
   "pointerup",
-  endLever
+  leverUp
 );
 
 leverTouchArea.addEventListener(
   "pointercancel",
-  cancelLever
+  leverUp
 );
 
 leverTouchArea.addEventListener(
   "keydown",
-  handleLeverKey
+  leverKey
+);
+
+
+/* TENSION */
+
+tensionTouchArea.addEventListener(
+  "pointerdown",
+  tensionDown
+);
+
+tensionTouchArea.addEventListener(
+  "pointermove",
+  tensionMove
+);
+
+tensionTouchArea.addEventListener(
+  "pointerup",
+  tensionUp
+);
+
+tensionTouchArea.addEventListener(
+  "pointercancel",
+  tensionCancel
+);
+
+tensionTouchArea.addEventListener(
+  "keydown",
+  tensionKey
 );
 
 
@@ -3648,16 +4148,20 @@ leverTouchArea.addEventListener(
 updateRotary();
 
 
-updateTransferPosition(
-  getTransferStepPosition(
+setTransfer(
+  transferStepPosition(
     transferState.step
   )
 );
 
 
-setLeverAngle(
-  0,
-  false
+setLever(
+  0
+);
+
+
+setTension(
+  0
 );
 
 </script>
