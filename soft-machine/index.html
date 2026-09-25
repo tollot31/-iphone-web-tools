@@ -2,36 +2,48 @@
 <html lang="ja">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport"
-      content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-<meta name="theme-color" content="#111719">
+<meta
+  name="viewport"
+  content="width=device-width, initial-scale=1.0, viewport-fit=cover"
+>
+<meta name="theme-color" content="#080c0f">
 
 <title>Soft Machine</title>
 
 <style>
 /* =========================================================
-   Soft Machine
-   Step 2 : Static Prototype
+   SOFT MACHINE
+   Step 2.1 — COLD PRECISION
    ========================================================= */
 
 :root {
-  --bg: #0d1214;
-  --panel: #171e20;
-  --panel-light: #20292b;
-  --part: #657174;
-  --part-light: #879396;
-  --part-dark: #394447;
+  --bg: #070b0e;
+  --surface: #11171b;
+  --surface-2: #171e23;
+  --surface-3: #20282d;
 
-  --cyan: #6fd7cc;
-  --amber: #e3ad63;
+  --metal-dark: #252d32;
+  --metal-mid: #566168;
+  --metal-light: #89949a;
+  --metal-bright: #b5bec2;
 
-  --text: #c8d0d1;
-  --muted: #697477;
+  --cyan: #71e6e2;
+  --cyan-dim: #397d7d;
+
+  --text: #aab4b9;
+  --line: rgba(176, 197, 205, 0.12);
+
+  --panel-border:
+    rgba(180, 201, 208, 0.13);
 
   --shadow:
-    0 10px 24px rgba(0, 0, 0, 0.28),
-    inset 0 1px 0 rgba(255, 255, 255, 0.05);
+    0 16px 30px rgba(0, 0, 0, 0.38);
 }
+
+
+/* =========================================================
+   RESET
+   ========================================================= */
 
 * {
   box-sizing: border-box;
@@ -40,231 +52,410 @@
 
 html,
 body {
-  margin: 0;
   width: 100%;
-  min-height: 100%;
-  background: var(--bg);
+  height: 100%;
+  margin: 0;
+
   overflow: hidden;
   overscroll-behavior: none;
+
+  background: var(--bg);
 }
 
 body {
   font-family:
     -apple-system,
     BlinkMacSystemFont,
-    "SF Pro Display",
     "Helvetica Neue",
     Arial,
     sans-serif;
 
   color: var(--text);
+
   user-select: none;
   -webkit-user-select: none;
+
   touch-action: none;
 }
 
+
 /* =========================================================
-   APP
+   MACHINE BODY
    ========================================================= */
 
 .machine {
-  position: relative;
-
   width: min(100vw, 460px);
   height: 100dvh;
   min-height: 560px;
+
   margin: 0 auto;
 
   padding:
-    max(18px, env(safe-area-inset-top))
-    16px
-    max(18px, env(safe-area-inset-bottom));
+    max(14px, env(safe-area-inset-top))
+    14px
+    max(14px, env(safe-area-inset-bottom));
 
   display: flex;
   flex-direction: column;
 
   background:
     radial-gradient(
-      circle at 50% 30%,
-      rgba(100, 180, 175, 0.035),
-      transparent 40%
+      circle at 50% 24%,
+      rgba(70, 155, 160, 0.035),
+      transparent 35%
     ),
     linear-gradient(
       180deg,
-      #111719 0%,
-      #0c1113 100%
+      #0b1013 0%,
+      #060a0c 100%
     );
 }
+
 
 /* =========================================================
    HEADER
    ========================================================= */
 
 .header {
-  height: 42px;
+  flex: 0 0 38px;
 
   display: flex;
   align-items: center;
   justify-content: space-between;
 
-  flex: 0 0 auto;
+  padding: 0 4px;
 }
 
 .brand {
-  font-size: 12px;
-  letter-spacing: 0.22em;
+  font-size: 11px;
   font-weight: 600;
-  color: #8d999b;
+
+  letter-spacing: 0.26em;
+
+  color: #89949a;
 }
 
 .sound-placeholder {
-  width: 34px;
-  height: 34px;
-
-  border-radius: 50%;
-
-  display: grid;
-  place-items: center;
-
-  color: #687477;
-
-  border: 1px solid rgba(255,255,255,0.06);
-  background: rgba(255,255,255,0.025);
-
-  font-size: 13px;
-}
-
-/* =========================================================
-   DISPLAY / CHAIN AREA
-   ========================================================= */
-
-.chain-panel {
   position: relative;
 
-  flex: 0 0 36%;
+  width: 30px;
+  height: 30px;
 
-  margin-top: 6px;
+  border: 1px solid rgba(180, 200, 208, 0.14);
 
-  border-radius: 28px;
+  border-radius: 50%;
 
   background:
     linear-gradient(
       145deg,
-      rgba(255,255,255,0.035),
-      rgba(255,255,255,0.012)
+      #171e22,
+      #0c1114
+    );
+
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,0.04),
+    0 4px 8px rgba(0,0,0,0.3);
+}
+
+.sound-placeholder::after {
+  content: "";
+
+  position: absolute;
+
+  width: 4px;
+  height: 4px;
+
+  left: 50%;
+  top: 50%;
+
+  transform: translate(-50%, -50%);
+
+  border-radius: 50%;
+
+  background: #475359;
+}
+
+
+/* =========================================================
+   COMMON PANEL
+   ========================================================= */
+
+.panel {
+  position: relative;
+
+  background:
+    linear-gradient(
+      145deg,
+      rgba(255,255,255,0.025),
+      rgba(0,0,0,0.05)
     ),
-    var(--panel);
+    var(--surface);
 
-  box-shadow: var(--shadow);
+  border: 1px solid var(--panel-border);
 
-  border: 1px solid rgba(255,255,255,0.045);
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,0.025),
+    inset 0 -1px 0 rgba(0,0,0,0.5),
+    var(--shadow);
 
   overflow: hidden;
 }
 
-/* subtle internal machine lines */
-
-.machine-line {
-  position: absolute;
-  height: 3px;
-
-  background: #313b3d;
-
-  border-radius: 3px;
-
-  opacity: 0.7;
-}
-
-.line-a {
-  left: 24%;
-  top: 39%;
-  width: 30%;
-}
-
-.line-b {
-  right: 17%;
-  top: 63%;
-  width: 24%;
-}
-
-.line-c {
-  left: 31%;
-  top: 41%;
-  width: 3px;
-  height: 31%;
-}
 
 /* =========================================================
-   LAMP
+   UPPER MECHANISM
    ========================================================= */
 
-.lamp {
+.mechanism {
+  flex: 0 0 42%;
+
+  margin-top: 5px;
+
+  border-radius: 18px;
+}
+
+
+/* subtle machined inset */
+
+.mechanism::before {
+  content: "";
+
   position: absolute;
 
-  top: 13%;
-  left: 50%;
+  inset: 7px;
 
-  transform: translateX(-50%);
+  border:
+    1px solid rgba(160, 185, 194, 0.035);
 
-  width: 44px;
-  height: 44px;
+  border-radius: 13px;
+
+  pointer-events: none;
+}
+
+
+/* =========================================================
+   SCREWS
+   ========================================================= */
+
+.screw {
+  position: absolute;
+
+  width: 8px;
+  height: 8px;
 
   border-radius: 50%;
 
   background:
     radial-gradient(
       circle at 40% 35%,
-      #a6d8d3,
-      #5c8581 45%,
-      #344746 70%
+      #68737a,
+      #31393e 55%,
+      #171c1f 75%
     );
 
   box-shadow:
-    inset 0 2px 5px rgba(255,255,255,0.12),
-    inset 0 -5px 8px rgba(0,0,0,0.25),
-    0 0 0 7px #252e30;
-
-  opacity: 0.72;
+    inset 0 1px 1px rgba(255,255,255,0.08);
 }
+
+.screw::after {
+  content: "";
+
+  position: absolute;
+
+  width: 4px;
+  height: 1px;
+
+  background: #151a1d;
+
+  left: 2px;
+  top: 3.5px;
+
+  transform: rotate(-22deg);
+}
+
+.s1 {
+  left: 14px;
+  top: 14px;
+}
+
+.s2 {
+  right: 14px;
+  top: 14px;
+}
+
+.s3 {
+  left: 14px;
+  bottom: 14px;
+}
+
+.s4 {
+  right: 14px;
+  bottom: 14px;
+}
+
+
+/* =========================================================
+   STATUS LAMP
+   ========================================================= */
+
+.lamp-housing {
+  position: absolute;
+
+  width: 62px;
+  height: 62px;
+
+  top: 11%;
+  left: 50%;
+
+  transform: translateX(-50%);
+
+  border-radius: 50%;
+
+  background:
+    linear-gradient(
+      145deg,
+      #293237,
+      #11171a
+    );
+
+  border:
+    1px solid rgba(160, 185, 194, 0.1);
+
+  box-shadow:
+    inset 0 3px 8px rgba(0,0,0,0.65),
+    0 5px 12px rgba(0,0,0,0.28);
+}
+
+.lamp {
+  position: absolute;
+
+  inset: 13px;
+
+  border-radius: 50%;
+
+  background:
+    radial-gradient(
+      circle at 38% 32%,
+      #8ca5a7,
+      #4b6265 42%,
+      #253336 73%
+    );
+
+  border:
+    1px solid rgba(190,220,220,0.08);
+
+  box-shadow:
+    inset 0 2px 4px rgba(255,255,255,0.09),
+    inset 0 -5px 7px rgba(0,0,0,0.35);
+}
+
+
+/* =========================================================
+   CONNECTION CHANNELS
+   ========================================================= */
+
+.channel {
+  position: absolute;
+
+  height: 4px;
+
+  border-radius: 1px;
+
+  background:
+    linear-gradient(
+      180deg,
+      #263137,
+      #182025
+    );
+
+  box-shadow:
+    inset 0 1px 1px rgba(255,255,255,0.025);
+}
+
+.channel-a {
+  left: 25%;
+  top: 42%;
+
+  width: 30%;
+}
+
+.channel-b {
+  right: 17%;
+  top: 70%;
+
+  width: 23%;
+}
+
+.channel-c {
+  left: 30%;
+  top: 43%;
+
+  width: 4px;
+  height: 31%;
+}
+
 
 /* =========================================================
    GEAR
    ========================================================= */
 
+.gear-housing {
+  position: absolute;
+
+  left: 12%;
+  top: 38%;
+
+  width: 76px;
+  height: 76px;
+
+  border-radius: 50%;
+
+  background: #0c1114;
+
+  box-shadow:
+    inset 0 5px 10px rgba(0,0,0,0.8),
+    0 0 0 1px rgba(170,190,198,0.08);
+}
+
 .gear {
   position: absolute;
 
-  left: 15%;
-  top: 36%;
-
-  width: 66px;
-  height: 66px;
+  inset: 7px;
 
   border-radius: 50%;
 
   background:
     repeating-conic-gradient(
-      from 0deg,
-      #647174 0deg 13deg,
-      #303a3c 13deg 26deg
+      #889399 0deg 8deg,
+      #465159 8deg 15deg,
+      #252d32 15deg 24deg
     );
 
   box-shadow:
-    0 5px 10px rgba(0,0,0,0.3),
-    inset 0 2px 2px rgba(255,255,255,0.08);
+    0 4px 9px rgba(0,0,0,0.5),
+    inset 0 1px 1px rgba(255,255,255,0.12);
 }
 
 .gear::before {
   content: "";
 
   position: absolute;
-  inset: 11px;
+
+  inset: 13px;
 
   border-radius: 50%;
 
-  background: #4d595c;
+  background:
+    linear-gradient(
+      145deg,
+      #69757b,
+      #343e43
+    );
 
-  border: 6px solid #20282a;
+  border: 6px solid #171d21;
+
+  box-shadow:
+    inset 0 2px 3px rgba(255,255,255,0.08);
 }
 
 .gear::after {
@@ -277,63 +468,77 @@ body {
 
   border-radius: 50%;
 
-  background: #151c1e;
-
-  top: 50%;
   left: 50%;
+  top: 50%;
 
   transform: translate(-50%, -50%);
+
+  background: #090d0f;
+
+  border:
+    1px solid rgba(180,200,205,0.1);
 }
 
+
 /* =========================================================
-   RAIL
+   BALL RAIL
    ========================================================= */
 
 .rail {
   position: absolute;
 
-  right: 10%;
-  top: 42%;
+  right: 9%;
+  top: 45%;
 
-  width: 42%;
+  width: 43%;
   height: 28px;
 
-  border-radius: 14px;
+  border-radius: 7px;
 
-  background: #252e30;
+  background:
+    linear-gradient(
+      180deg,
+      #1b2327,
+      #0d1215
+    );
+
+  border:
+    1px solid rgba(170,190,198,0.08);
 
   box-shadow:
-    inset 0 3px 5px rgba(0,0,0,0.35),
-    inset 0 -1px 1px rgba(255,255,255,0.05);
+    inset 0 4px 7px rgba(0,0,0,0.65);
 }
 
-.rail::after {
-  content: "";
-
+.rail-line {
   position: absolute;
 
   left: 10px;
   right: 10px;
-
   top: 50%;
 
   height: 3px;
 
   transform: translateY(-50%);
 
-  border-radius: 2px;
+  background:
+    linear-gradient(
+      90deg,
+      #566269,
+      #7d898e,
+      #566269
+    );
 
-  background: #465255;
+  border-radius: 2px;
 }
 
 .ball {
   position: absolute;
 
-  left: 14px;
-  top: 50%;
+  width: 17px;
+  height: 17px;
 
-  width: 18px;
-  height: 18px;
+  left: 13px;
+  top: 50%;
 
   transform: translateY(-50%);
 
@@ -341,15 +546,18 @@ body {
 
   background:
     radial-gradient(
-      circle at 35% 30%,
-      #a9b3b4,
-      #647174 45%,
-      #384244 75%
+      circle at 34% 28%,
+      #c0c8cb,
+      #7d898e 37%,
+      #343e43 75%
     );
 
   box-shadow:
-    0 3px 5px rgba(0,0,0,0.35);
+    0 3px 6px rgba(0,0,0,0.5);
+
+  z-index: 2;
 }
+
 
 /* =========================================================
    PISTON
@@ -358,97 +566,139 @@ body {
 .piston {
   position: absolute;
 
-  left: 23%;
-  bottom: 14%;
+  left: 22%;
+  bottom: 12%;
 
-  width: 92px;
+  width: 104px;
   height: 34px;
 }
 
-.piston-body {
+.piston-cylinder {
   position: absolute;
 
+  width: 50px;
+  height: 32px;
+
   left: 0;
-  top: 3px;
+  top: 1px;
 
-  width: 48px;
-  height: 28px;
+  border-radius: 6px;
 
-  border-radius: 8px;
+  background:
+    linear-gradient(
+      180deg,
+      #536067,
+      #293238
+    );
 
-  background: #3c484a;
+  border:
+    1px solid rgba(180,200,208,0.08);
 
   box-shadow:
-    inset 0 2px 2px rgba(255,255,255,0.05);
+    inset 0 2px 2px rgba(255,255,255,0.05),
+    0 4px 7px rgba(0,0,0,0.3);
 }
 
 .piston-arm {
   position: absolute;
 
-  left: 42px;
+  left: 43px;
   top: 11px;
 
-  width: 42px;
-  height: 12px;
+  width: 53px;
+  height: 11px;
 
-  border-radius: 6px;
+  border-radius: 3px;
 
-  background: #707d80;
+  background:
+    linear-gradient(
+      180deg,
+      #9aa5aa,
+      #667279
+    );
+
+  box-shadow:
+    inset 0 1px 1px rgba(255,255,255,0.1);
 }
 
+
 /* =========================================================
-   DECORATIVE SPRING
+   SMALL SPRING
    ========================================================= */
 
 .chain-spring {
   position: absolute;
 
   right: 14%;
-  bottom: 13%;
+  bottom: 12%;
 
-  width: 64px;
+  width: 68px;
   height: 34px;
+}
 
-  display: flex;
-  align-items: center;
-  justify-content: center;
+.chain-spring::before,
+.chain-spring::after {
+  content: "";
+
+  position: absolute;
+
+  top: 6px;
+
+  width: 5px;
+  height: 22px;
+
+  background: #727e84;
+}
+
+.chain-spring::before {
+  left: 0;
+}
+
+.chain-spring::after {
+  right: 0;
 }
 
 .spring-coil {
-  width: 52px;
-  height: 20px;
+  position: absolute;
+
+  left: 4px;
+  right: 4px;
+  top: 8px;
+
+  height: 18px;
+
+  border-top: 2px solid #737f85;
+  border-bottom: 2px solid #737f85;
 
   background:
     repeating-linear-gradient(
       90deg,
-      transparent 0 5px,
-      #647174 5px 8px,
-      transparent 8px 13px
+      transparent 0 7px,
+      #737f85 7px 9px,
+      transparent 9px 14px
     );
-
-  border-top: 3px solid #647174;
-  border-bottom: 3px solid #647174;
-
-  border-radius: 6px;
 }
 
+
 /* =========================================================
-   CONTROL PANEL
+   CONTROL GRID
    ========================================================= */
 
 .controls {
   flex: 1;
-
   min-height: 0;
 
-  padding-top: 15px;
+  padding-top: 11px;
 
   display: grid;
 
   grid-template-columns: 1fr 1fr;
-  grid-template-rows: 1fr 0.72fr 1fr;
+  grid-template-rows:
+    1fr
+    0.66fr
+    1fr;
 
-  gap: 12px;
+  gap: 9px;
 }
 
 .control {
@@ -457,90 +707,172 @@ body {
   min-width: 0;
   min-height: 0;
 
-  border-radius: 23px;
-
-  background:
-    linear-gradient(
-      145deg,
-      rgba(255,255,255,0.025),
-      rgba(0,0,0,0.025)
-    ),
-    #151c1e;
-
-  border: 1px solid rgba(255,255,255,0.04);
-
-  box-shadow:
-    inset 0 1px 0 rgba(255,255,255,0.025);
-
   display: flex;
   align-items: center;
   justify-content: center;
 
+  border-radius: 14px;
+
+  background:
+    linear-gradient(
+      145deg,
+      rgba(255,255,255,0.018),
+      rgba(0,0,0,0.045)
+    ),
+    #101619;
+
+  border:
+    1px solid rgba(165,185,193,0.1);
+
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,0.025),
+    0 8px 15px rgba(0,0,0,0.22);
+
   touch-action: none;
 }
 
+
+/* small machine designation mark */
+
+.control::after {
+  content: "";
+
+  position: absolute;
+
+  bottom: 8px;
+
+  width: 13px;
+  height: 2px;
+
+  background: #3b464b;
+
+  border-radius: 1px;
+}
+
+
 /* =========================================================
-   BUTTON
+   PUSH BUTTON
    ========================================================= */
 
+.button-well {
+  position: relative;
+
+  width: 72px;
+  height: 72px;
+
+  display: grid;
+  place-items: center;
+
+  border-radius: 50%;
+
+  background:
+    linear-gradient(
+      145deg,
+      #080c0e,
+      #20282c
+    );
+
+  box-shadow:
+    inset 0 5px 10px rgba(0,0,0,0.7),
+    0 0 0 1px rgba(180,200,208,0.08);
+}
+
 .push-button {
-  width: 74px;
-  height: 74px;
+  width: 57px;
+  height: 57px;
 
   border: 0;
   border-radius: 50%;
 
   background:
-    radial-gradient(
-      circle at 40% 32%,
-      #86a4a0,
-      #58726f 50%,
-      #3b514f 75%
+    linear-gradient(
+      145deg,
+      #9ca7ac 0%,
+      #657178 38%,
+      #3d484e 72%,
+      #59656b 100%
     );
 
   box-shadow:
-    0 9px 0 #263735,
-    0 12px 18px rgba(0,0,0,0.32),
-    inset 0 2px 3px rgba(255,255,255,0.14);
+    0 5px 0 #252d31,
+    0 8px 12px rgba(0,0,0,0.45),
+    inset 1px 2px 2px rgba(255,255,255,0.14),
+    inset -2px -3px 4px rgba(0,0,0,0.2);
 
   cursor: pointer;
 
   transition:
-    transform 100ms ease,
-    box-shadow 100ms ease;
+    transform 90ms ease,
+    box-shadow 90ms ease;
+}
+
+.push-button::after {
+  content: "";
+
+  display: block;
+
+  width: 6px;
+  height: 6px;
+
+  margin: auto;
+
+  border-radius: 50%;
+
+  background: var(--cyan);
+
+  opacity: 0.65;
+
+  box-shadow:
+    0 0 5px rgba(113,230,226,0.25);
 }
 
 .push-button:active {
-  transform: translateY(6px);
+  transform: translateY(4px);
 
   box-shadow:
-    0 3px 0 #263735,
-    0 6px 9px rgba(0,0,0,0.25),
-    inset 0 2px 5px rgba(0,0,0,0.12);
+    0 1px 0 #252d31,
+    0 3px 6px rgba(0,0,0,0.4),
+    inset 2px 3px 5px rgba(0,0,0,0.22);
 }
+
 
 /* =========================================================
    DIAL
    ========================================================= */
 
+.dial-well {
+  width: 80px;
+  height: 80px;
+
+  padding: 6px;
+
+  border-radius: 50%;
+
+  background:
+    #080c0e;
+
+  box-shadow:
+    inset 0 5px 10px rgba(0,0,0,0.7),
+    0 0 0 1px rgba(180,200,208,0.08);
+}
+
 .dial {
   position: relative;
 
-  width: 86px;
-  height: 86px;
+  width: 68px;
+  height: 68px;
 
   border-radius: 50%;
 
   background:
     repeating-conic-gradient(
-      from -4deg,
-      #677477 0deg 4deg,
-      #536063 4deg 24deg
+      #8b969b 0deg 3deg,
+      #4d585e 3deg 11deg
     );
 
   box-shadow:
-    0 8px 14px rgba(0,0,0,0.28),
-    inset 0 2px 2px rgba(255,255,255,0.08);
+    0 6px 10px rgba(0,0,0,0.42),
+    inset 0 1px 1px rgba(255,255,255,0.12);
 
   cursor: grab;
 }
@@ -550,17 +882,19 @@ body {
 
   position: absolute;
 
-  inset: 9px;
+  inset: 8px;
 
   border-radius: 50%;
 
   background:
-    radial-gradient(
-      circle at 40% 32%,
-      #718083,
-      #4c595c 65%,
-      #394447
+    linear-gradient(
+      145deg,
+      #707c82,
+      #343e43
     );
+
+  box-shadow:
+    inset 1px 2px 2px rgba(255,255,255,0.08);
 }
 
 .dial::after {
@@ -568,21 +902,22 @@ body {
 
   position: absolute;
 
-  width: 5px;
-  height: 22px;
+  width: 3px;
+  height: 17px;
 
-  border-radius: 3px;
-
-  background: var(--cyan);
-
-  top: 11px;
   left: 50%;
+  top: 9px;
 
   transform: translateX(-50%);
 
+  border-radius: 2px;
+
+  background: var(--cyan);
+
   box-shadow:
-    0 0 6px rgba(111,215,204,0.25);
+    0 0 6px rgba(113,230,226,0.28);
 }
+
 
 /* =========================================================
    SLIDER
@@ -595,143 +930,155 @@ body {
 .slider-track {
   position: relative;
 
-  width: 78%;
-  height: 26px;
+  width: 76%;
+  height: 22px;
 
-  border-radius: 13px;
+  border-radius: 6px;
 
-  background: #252e30;
+  background:
+    linear-gradient(
+      180deg,
+      #090d0f,
+      #20282c
+    );
+
+  border:
+    1px solid rgba(170,190,198,0.07);
 
   box-shadow:
-    inset 0 4px 7px rgba(0,0,0,0.3),
-    inset 0 -1px 1px rgba(255,255,255,0.04);
+    inset 0 4px 6px rgba(0,0,0,0.65);
 }
 
-.slider-track::after {
+.slider-track::before {
   content: "";
 
   position: absolute;
 
-  left: 8%;
-  right: 8%;
+  left: 8px;
+  right: 8px;
   top: 50%;
 
-  height: 3px;
+  height: 2px;
 
   transform: translateY(-50%);
 
-  background: #4d595c;
-
-  border-radius: 3px;
+  background: #657178;
 }
 
 .slider-knob {
   position: absolute;
 
-  width: 58px;
-  height: 48px;
+  width: 49px;
+  height: 42px;
 
   left: 50%;
   top: 50%;
 
   transform: translate(-50%, -50%);
 
-  border-radius: 17px;
+  border-radius: 8px;
 
   background:
     linear-gradient(
       145deg,
-      #738083,
-      #4d595c
+      #8d989d,
+      #4a555b 65%,
+      #343d42
     );
 
+  border:
+    1px solid rgba(210,225,230,0.1);
+
   box-shadow:
-    0 6px 10px rgba(0,0,0,0.3),
-    inset 0 2px 2px rgba(255,255,255,0.08);
-
-  z-index: 2;
+    0 6px 10px rgba(0,0,0,0.42),
+    inset 1px 2px 2px rgba(255,255,255,0.08);
 }
-
-/* little grip */
 
 .slider-knob::after {
   content: "";
 
   position: absolute;
 
+  width: 16px;
+  height: 2px;
+
   left: 50%;
   top: 50%;
 
-  width: 16px;
-  height: 3px;
-
   transform: translate(-50%, -50%);
 
-  border-radius: 2px;
-
-  background: #283234;
+  background: #1d2529;
 
   box-shadow:
-    0 -6px #283234,
-    0 6px #283234;
+    0 -5px #1d2529,
+    0 5px #1d2529;
 }
+
 
 /* =========================================================
    LEVER
    ========================================================= */
 
-.lever-base {
+.lever-well {
   position: relative;
 
-  width: 88px;
-  height: 60px;
+  width: 82px;
+  height: 55px;
 
-  border-radius: 30px;
+  border-radius: 12px;
 
-  background: #252e30;
+  background:
+    radial-gradient(
+      ellipse at center,
+      #1c2529,
+      #080c0e 72%
+    );
+
+  border:
+    1px solid rgba(170,190,198,0.07);
 
   box-shadow:
-    inset 0 4px 8px rgba(0,0,0,0.3),
-    0 2px 2px rgba(255,255,255,0.025);
+    inset 0 5px 10px rgba(0,0,0,0.65);
 }
 
 .lever-arm {
   position: absolute;
 
-  width: 16px;
-  height: 65px;
+  width: 12px;
+  height: 54px;
 
   left: 50%;
-  bottom: 27px;
+  bottom: 25px;
 
   transform:
     translateX(-50%)
     rotate(-12deg);
 
-  transform-origin: 50% 100%;
+  transform-origin:
+    50% 100%;
 
-  border-radius: 8px;
+  border-radius: 3px;
 
   background:
     linear-gradient(
       90deg,
-      #4a5659,
-      #7b888a,
-      #4a5659
+      #39444a,
+      #a4aeb2 47%,
+      #505b61
     );
 
   box-shadow:
-    3px 3px 7px rgba(0,0,0,0.25);
+    3px 4px 7px rgba(0,0,0,0.4);
 }
 
 .lever-handle {
   position: absolute;
 
-  width: 42px;
-  height: 42px;
+  width: 34px;
+  height: 34px;
 
   left: 50%;
-  top: -14px;
+  top: -11px;
 
   transform: translateX(-50%);
 
@@ -739,16 +1086,20 @@ body {
 
   background:
     radial-gradient(
-      circle at 38% 30%,
-      #d0a875,
-      #9a744b 58%,
-      #6f5134
+      circle at 34% 28%,
+      #b2bcc0,
+      #69757b 45%,
+      #303a3f 78%
     );
 
+  border:
+    1px solid rgba(220,230,235,0.1);
+
   box-shadow:
-    0 5px 9px rgba(0,0,0,0.3),
-    inset 0 2px 2px rgba(255,255,255,0.12);
+    0 5px 8px rgba(0,0,0,0.42),
+    inset 1px 2px 2px rgba(255,255,255,0.11);
 }
+
 
 /* =========================================================
    PULL SPRING
@@ -757,52 +1108,56 @@ body {
 .pull-spring {
   position: relative;
 
-  width: 105px;
-  height: 80px;
+  width: 94px;
+  height: 60px;
 }
 
 .pull-anchor {
   position: absolute;
+
+  width: 25px;
+  height: 42px;
 
   left: 0;
   top: 50%;
 
   transform: translateY(-50%);
 
-  width: 25px;
-  height: 48px;
+  border-radius: 6px;
 
-  border-radius: 10px;
+  background:
+    linear-gradient(
+      145deg,
+      #58646a,
+      #2d373c
+    );
 
-  background: #394447;
-
-  box-shadow:
-    inset 0 2px 2px rgba(255,255,255,0.05);
+  border:
+    1px solid rgba(180,200,208,0.07);
 }
 
 .pull-coil {
   position: absolute;
 
-  left: 21px;
-  right: 27px;
+  left: 22px;
+  right: 29px;
+
   top: 50%;
 
-  height: 24px;
+  height: 18px;
 
   transform: translateY(-50%);
+
+  border-top: 2px solid #78848a;
+  border-bottom: 2px solid #78848a;
 
   background:
     repeating-linear-gradient(
       90deg,
-      transparent 0 5px,
-      #667477 5px 8px,
+      transparent 0 6px,
+      #78848a 6px 8px,
       transparent 8px 13px
     );
-
-  border-top: 3px solid #667477;
-  border-bottom: 3px solid #667477;
-
-  border-radius: 5px;
 }
 
 .pull-handle {
@@ -811,23 +1166,27 @@ body {
   right: 0;
   top: 50%;
 
-  width: 44px;
-  height: 58px;
+  width: 39px;
+  height: 49px;
 
   transform: translateY(-50%);
 
-  border-radius: 16px;
+  border-radius: 8px;
 
   background:
     linear-gradient(
       145deg,
-      #718083,
-      #4b575a
+      #89949a,
+      #4c585e 65%,
+      #343e43
     );
 
+  border:
+    1px solid rgba(210,225,230,0.09);
+
   box-shadow:
-    0 6px 10px rgba(0,0,0,0.28),
-    inset 0 2px 2px rgba(255,255,255,0.08);
+    0 6px 10px rgba(0,0,0,0.4),
+    inset 1px 2px 2px rgba(255,255,255,0.08);
 }
 
 .pull-handle::after {
@@ -835,89 +1194,69 @@ body {
 
   position: absolute;
 
-  width: 4px;
-  height: 20px;
-
-  border-radius: 2px;
-
-  background: var(--amber);
+  width: 3px;
+  height: 17px;
 
   left: 50%;
   top: 50%;
 
   transform: translate(-50%, -50%);
 
-  opacity: 0.8;
-}
+  border-radius: 2px;
 
-/* =========================================================
-   SMALL CONTROL INDICATORS
-   No text labels are required for operation.
-   ========================================================= */
-
-.control::after {
-  content: "";
-
-  position: absolute;
-
-  bottom: 10px;
-
-  width: 4px;
-  height: 4px;
-
-  border-radius: 50%;
-
-  background: #465154;
-}
-
-.button-control::after {
   background: var(--cyan);
-  opacity: 0.45;
+
+  opacity: 0.72;
+
+  box-shadow:
+    0 0 5px rgba(113,230,226,0.2);
 }
 
-.spring-control::after {
-  background: var(--amber);
-  opacity: 0.45;
-}
 
 /* =========================================================
-   VERY SHORT SCREENS
+   SHORTER IPHONE SCREENS
    ========================================================= */
 
-@media (max-height: 650px) {
+@media (max-height: 700px) {
 
   .machine {
-    padding-top: max(10px, env(safe-area-inset-top));
-    padding-bottom: max(10px, env(safe-area-inset-bottom));
+    padding-top:
+      max(8px, env(safe-area-inset-top));
+
+    padding-bottom:
+      max(8px, env(safe-area-inset-bottom));
   }
 
   .header {
-    height: 34px;
+    flex-basis: 31px;
   }
 
-  .chain-panel {
-    flex-basis: 32%;
+  .mechanism {
+    flex-basis: 40%;
   }
 
   .controls {
-    gap: 8px;
-    padding-top: 9px;
+    padding-top: 7px;
+    gap: 6px;
   }
 
-  .push-button {
-    width: 62px;
-    height: 62px;
+  .button-well {
+    transform: scale(0.9);
   }
 
-  .dial {
-    width: 72px;
-    height: 72px;
+  .dial-well {
+    transform: scale(0.9);
   }
 
-  .lever-arm {
-    height: 53px;
+  .lever-well {
+    transform: scale(0.9);
+  }
+
+  .pull-spring {
+    transform: scale(0.9);
   }
 }
+
 
 /* =========================================================
    REDUCED MOTION
@@ -933,13 +1272,12 @@ body {
 </style>
 </head>
 
+
 <body>
 
 <main class="machine">
 
-  <!-- =====================================================
-       HEADER
-       ===================================================== -->
+  <!-- HEADER -->
 
   <header class="header">
 
@@ -947,86 +1285,126 @@ body {
       SOFT MACHINE
     </div>
 
-    <!--
-      Step 2では音声機能はまだありません。
-      後の工程で音声ON/OFFボタンになります。
-    -->
     <div
       class="sound-placeholder"
       aria-hidden="true"
-    >
-      ◌
-    </div>
+    ></div>
 
   </header>
 
 
   <!-- =====================================================
-       MACHINE / CHAIN DISPLAY
-       後の工程で部品間の連鎖がここを通ります。
+       UPPER MECHANICAL SECTION
        ===================================================== -->
 
   <section
-    class="chain-panel"
-    aria-label="Mechanical chain display"
+    class="mechanism panel"
+    aria-label="Mechanical assembly"
   >
 
-    <div class="machine-line line-a"></div>
-    <div class="machine-line line-b"></div>
-    <div class="machine-line line-c"></div>
+    <!-- mounting screws -->
 
-    <div class="lamp"></div>
+    <div class="screw s1"></div>
+    <div class="screw s2"></div>
+    <div class="screw s3"></div>
+    <div class="screw s4"></div>
 
-    <div class="gear"></div>
+
+    <!-- connection channels -->
+
+    <div class="channel channel-a"></div>
+    <div class="channel channel-b"></div>
+    <div class="channel channel-c"></div>
+
+
+    <!-- indicator lamp -->
+
+    <div class="lamp-housing">
+      <div class="lamp"></div>
+    </div>
+
+
+    <!-- gear -->
+
+    <div class="gear-housing">
+      <div class="gear"></div>
+    </div>
+
+
+    <!-- ball rail -->
 
     <div class="rail">
+
+      <div class="rail-line"></div>
+
       <div class="ball"></div>
+
     </div>
+
+
+    <!-- piston -->
 
     <div class="piston">
-      <div class="piston-body"></div>
+
+      <div class="piston-cylinder"></div>
+
       <div class="piston-arm"></div>
+
     </div>
 
+
+    <!-- spring -->
+
     <div class="chain-spring">
+
       <div class="spring-coil"></div>
+
     </div>
 
   </section>
 
 
   <!-- =====================================================
-       DIRECT CONTROLS
+       CONTROL SECTION
        ===================================================== -->
 
   <section class="controls">
 
+
     <!-- PUSH BUTTON -->
 
-    <div class="control button-control">
+    <div class="control">
 
-      <button
-        class="push-button"
-        type="button"
-        aria-label="Push button"
-      ></button>
+      <div class="button-well">
+
+        <button
+          class="push-button"
+          type="button"
+          aria-label="Push button"
+        ></button>
+
+      </div>
 
     </div>
 
 
-    <!-- DIAL -->
+    <!-- ROTARY DIAL -->
 
     <div class="control">
 
-      <div
-        class="dial"
-        role="slider"
-        tabindex="0"
-        aria-label="Rotary dial"
-        aria-valuemin="0"
-        aria-valuemax="100"
-        aria-valuenow="50"
-      ></div>
+      <div class="dial-well">
+
+        <div
+          class="dial"
+          role="slider"
+          tabindex="0"
+          aria-label="Rotary dial"
+          aria-valuemin="0"
+          aria-valuemax="100"
+          aria-valuenow="50"
+        ></div>
+
+      </div>
 
     </div>
 
@@ -1057,7 +1435,7 @@ body {
     <div class="control">
 
       <div
-        class="lever-base"
+        class="lever-well"
         role="slider"
         tabindex="0"
         aria-label="Lever"
@@ -1079,7 +1457,7 @@ body {
 
     <!-- PULL SPRING -->
 
-    <div class="control spring-control">
+    <div class="control">
 
       <div
         class="pull-spring"
@@ -1108,19 +1486,21 @@ body {
 
 <script>
 /* =========================================================
-   Soft Machine — Step 2
-   =========================================================
+   SOFT MACHINE — STEP 2.1
 
-   この段階では意図的にJavaScriptによる操作処理を
-   実装していません。
+   現在はデザイン確認段階です。
 
-   Step 3で以下を追加します。
+   本格的な操作はStep 3で実装します。
 
-   - Push Button
-   - Lever drag
-   - Dial rotation
-   - Slider drag
-   - Pull Spring
+   現在動作するもの：
+   ・押しボタンの押下表現
+
+   Step 3で追加予定：
+   ・押しボタン
+   ・レバー
+   ・ダイヤル
+   ・スライダー
+   ・引きバネ
 
    ========================================================= */
 </script>
