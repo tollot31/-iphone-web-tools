@@ -21,6 +21,14 @@
   --tray-mid: #5a402d;
   --tray-light: #76563d;
 
+  /*
+    今回の主役となる3種類の木材。
+    タイル・象嵌とも、この3色だけを使います。
+  */
+  --wood-light: #d7b27e;
+  --wood-medium: #a87549;
+  --wood-dark: #513323;
+
   --board-size: min(86vw, 410px);
   --board-radius: 22px;
 
@@ -110,6 +118,7 @@ body {
   color: rgba(236, 221, 203, .61);
 }
 
+
 /* =========================================================
    WOODEN TRAY
    ========================================================= */
@@ -167,6 +176,7 @@ body {
   }
 }
 
+
 /* =========================================================
    BOARD
    ========================================================= */
@@ -181,7 +191,7 @@ body {
 
   border-radius: var(--board-radius);
 
-  background: #6b5039;
+  background: var(--wood-medium);
 
   touch-action: none;
   isolation: isolate;
@@ -214,6 +224,7 @@ body {
     inset 0 8px 15px rgba(0,0,0,.08);
 }
 
+
 /* =========================================================
    GRID
    ========================================================= */
@@ -242,8 +253,11 @@ body {
   pointer-events: none;
 }
 
+
 /* =========================================================
    WOOD TILE
+
+   ベース材も Light / Medium / Dark の3種類のみ。
    ========================================================= */
 
 .tile {
@@ -254,62 +268,55 @@ body {
 
   overflow: hidden;
 
+  box-shadow:
+    inset 0 0 0 .5px rgba(55,34,22,.30),
+    inset 1px 1px 1px rgba(255,255,255,.13),
+    inset -1px -1px 2px rgba(45,28,18,.13);
+}
+
+
+/* ---------- LIGHT ---------- */
+
+.tile.wood-light {
   background:
     repeating-linear-gradient(
       5deg,
-      rgba(80,48,27,.045) 0,
-      rgba(80,48,27,.045) 1px,
-      rgba(255,255,255,.018) 2px,
-      rgba(255,255,255,.018) 5px
+      rgba(81,51,35,.040) 0,
+      rgba(81,51,35,.040) 1px,
+      transparent 2px,
+      transparent 7px
     ),
-    linear-gradient(
-      135deg,
-      #c59a67,
-      #b98a59 54%,
-      #a9784b
-    );
-
-  box-shadow:
-    inset 0 0 0 .5px
-    rgba(72,44,25,.30),
-    inset 1px 1px 1px
-    rgba(255,255,255,.14),
-    inset -1px -1px 2px
-    rgba(60,35,20,.13);
+    var(--wood-light);
 }
 
-.tile.wood-2 {
+
+/* ---------- MEDIUM ---------- */
+
+.tile.wood-medium {
   background:
     repeating-linear-gradient(
-      -7deg,
-      rgba(80,45,24,.045) 0,
-      rgba(80,45,24,.045) 1px,
-      rgba(255,255,255,.018) 2px,
-      rgba(255,255,255,.018) 6px
+      -6deg,
+      rgba(67,40,26,.045) 0,
+      rgba(67,40,26,.045) 1px,
+      transparent 2px,
+      transparent 7px
     ),
-    linear-gradient(
-      140deg,
-      #cda574,
-      #b98757 56%,
-      #aa7749
-    );
+    var(--wood-medium);
 }
 
-.tile.wood-3 {
+
+/* ---------- DARK ---------- */
+
+.tile.wood-dark {
   background:
     repeating-linear-gradient(
       4deg,
-      rgba(62,36,20,.055) 0,
-      rgba(62,36,20,.055) 1px,
-      rgba(255,255,255,.014) 2px,
-      rgba(255,255,255,.014) 5px
+      rgba(20,12,8,.08) 0,
+      rgba(20,12,8,.08) 1px,
+      transparent 2px,
+      transparent 7px
     ),
-    linear-gradient(
-      130deg,
-      #b98c5e,
-      #a87549 54%,
-      #94623d
-    );
+    var(--wood-dark);
 }
 
 .tile.masked {
@@ -325,44 +332,37 @@ body {
   pointer-events: none;
 }
 
-/* =========================================================
-   WOOD INLAY
 
-   3種類の木材だけで構成します。
+/* =========================================================
+   THREE-WOOD INLAY SYSTEM
+
+   新しい色は一切追加しません。
    ========================================================= */
 
-.inlay-dark {
-  fill: #4b2d20;
+.wood-fill-light {
+  fill: var(--wood-light);
 }
 
-.inlay-mid {
-  fill: #805438;
+.wood-fill-medium {
+  fill: var(--wood-medium);
 }
 
-.inlay-light {
-  fill: #e0bd89;
+.wood-fill-dark {
+  fill: var(--wood-dark);
 }
 
-.inlay-line {
+.wood-line {
   fill: none;
 
-  stroke: #513321;
-  stroke-width: 3;
+  stroke: var(--wood-dark);
+  stroke-width: 2.2;
 
   stroke-linecap: round;
   stroke-linejoin: round;
 
-  opacity: .82;
+  opacity: .72;
 }
 
-.inlay-fine {
-  fill: none;
-
-  stroke: rgba(73,43,25,.56);
-  stroke-width: 1.5;
-
-  stroke-linecap: round;
-}
 
 /* =========================================================
    DRAG ROW
@@ -395,6 +395,7 @@ body {
 .drag-row-strip .tile {
   flex: 0 0 auto;
 }
+
 
 /* =========================================================
    DRAG COLUMN
@@ -429,6 +430,7 @@ body {
   flex: 0 0 auto;
 }
 
+
 /* =========================================================
    HINT
    ========================================================= */
@@ -455,6 +457,7 @@ body {
   transform: translateY(4px);
 }
 
+
 @media (max-height: 620px) {
   :root {
     --board-size:
@@ -469,6 +472,7 @@ body {
     margin-top: 16px;
   }
 }
+
 
 @media (prefers-reduced-motion: reduce) {
   .board-shell.snap-pulse {
@@ -517,6 +521,7 @@ body {
 (() => {
 "use strict";
 
+
 /* =========================================================
    CONFIG
    ========================================================= */
@@ -528,19 +533,12 @@ const CONFIG = {
   directionThreshold: 7,
   directionBias: 1.08,
 
-  /*
-    ほぼ45°のまま長く動いた場合だけ、
-    大きい方の軸へ決定します。
-  */
   diagonalFallbackDistance: 22,
 
   snapDuration: 185,
 
   maxVelocityBonus: 0.25,
 
-  /*
-    一度の操作は最大2マス。
-  */
   maxStepsPerGesture: 2
 };
 
@@ -561,21 +559,24 @@ const prefersReducedMotion =
 
 
 /* =========================================================
-   36 TILE DEFINITIONS
+   36 UNIQUE WOODEN TILES
 
-   6種類の基本ファミリー × 6変形。
+   6つの幾何学ファミリー × 6変形。
 
-   pattern:
-   0 triangle
-   1 diagonal split
-   2 diamond
-   3 quarter-circle-like geometry
-   4 chevron
-   5 trapezoid
+   wood:
+   0 = light
+   1 = medium
+   2 = dark
 
-   variant:
-   0〜5
+   使う木色はこの3種類だけです。
    ========================================================= */
+
+const WOOD_NAMES = [
+  "light",
+  "medium",
+  "dark"
+];
+
 
 const TILE_DEFS =
   Array.from(
@@ -608,15 +609,49 @@ const TILE_MAP =
 
 
 /* =========================================================
+   THREE-WOOD PALETTE LOGIC
+
+   ベース材に対して、
+   残り2種類の木を象嵌として使用します。
+
+   つまりどのタイルを見ても、
+   色体系は必ず同じ3種類です。
+   ========================================================= */
+
+function getWoodClasses(tile) {
+
+  if (tile.wood === 0) {
+    return {
+      primary: "wood-fill-dark",
+      secondary: "wood-fill-medium",
+      accent: "wood-fill-light"
+    };
+  }
+
+  if (tile.wood === 1) {
+    return {
+      primary: "wood-fill-dark",
+      secondary: "wood-fill-light",
+      accent: "wood-fill-medium"
+    };
+  }
+
+  return {
+    primary: "wood-fill-light",
+    secondary: "wood-fill-medium",
+    accent: "wood-fill-dark"
+  };
+}
+
+
+/* =========================================================
    SVG GEOMETRY
-
-   36枚のHTMLを個別に手書きせず、
-   6つの幾何学文法から生成します。
-
-   SVG filterは使用しません。
    ========================================================= */
 
 function tileSVG(tile) {
+
+  const wood =
+    getWoodClasses(tile);
 
   const rotation =
     (tile.variant % 4) * 90;
@@ -633,191 +668,167 @@ function tileSVG(tile) {
 
   const patterns = [
 
-    /* ---------------------------------------------
-       0 : LARGE TRIANGLE
-       --------------------------------------------- */
+    /* 0 — LARGE TRIANGLE */
     `
     <g transform="${transform}">
+
       <polygon
-        class="inlay-dark"
+        class="${wood.primary}"
         points="0,100 100,0 100,100"
       />
 
       <polygon
-        class="inlay-light"
+        class="${wood.secondary}"
         points="0,0 100,0 0,100"
       />
 
       <path
-        class="inlay-line"
+        class="wood-line"
         d="M0 100 L100 0"
       />
+
     </g>
     `,
 
-    /* ---------------------------------------------
-       1 : DOUBLE DIAGONAL
-       --------------------------------------------- */
+
+    /* 1 — DOUBLE TRIANGLE */
     `
     <g transform="${transform}">
+
       <polygon
-        class="inlay-dark"
+        class="${wood.primary}"
         points="0,0 50,0 100,50 100,100"
       />
 
       <polygon
-        class="inlay-light"
+        class="${wood.secondary}"
         points="0,0 0,100 50,100 100,50"
       />
 
       <polygon
-        class="inlay-mid"
+        class="${wood.accent}"
         points="0,0 100,50 50,100"
-        opacity=".72"
+        opacity=".82"
       />
 
-      <path
-        class="inlay-line"
-        d="M0 0 L100 50 L50 100"
-      />
     </g>
     `,
 
-    /* ---------------------------------------------
-       2 : DIAMOND
-       --------------------------------------------- */
+
+    /* 2 — DIAMOND */
     `
     <g transform="${transform}">
+
       <polygon
-        class="inlay-dark"
-        points="50,0 100,50 50,100 0,50"
+        class="${wood.primary}"
+        points="
+          50,0
+          100,50
+          50,100
+          0,50
+        "
       />
 
       <polygon
-        class="inlay-light"
-        points="50,18 82,50 50,82 18,50"
+        class="${wood.secondary}"
+        points="
+          50,22
+          78,50
+          50,78
+          22,50
+        "
       />
 
-      <polygon
-        class="inlay-mid"
-        points="50,32 68,50 50,68 32,50"
-      />
     </g>
     `,
 
-    /* ---------------------------------------------
-       3 : CURVED / QUARTER FORM
 
-       曲線ですが、タングラム的な面として扱います。
-       --------------------------------------------- */
+    /* 3 — QUARTER FORM */
     `
     <g transform="${transform}">
+
       <path
-        class="inlay-dark"
+        class="${wood.primary}"
         d="
-        M0 100
-        L0 0
-        L100 0
-        C45 8 8 45 0 100
-        Z
+          M0 100
+          L0 0
+          L100 0
+          C45 8 8 45 0 100
+          Z
         "
       />
 
       <path
-        class="inlay-light"
+        class="${wood.secondary}"
         d="
-        M100 100
-        L0 100
-        C8 45 45 8 100 0
-        Z
+          M100 100
+          L0 100
+          C8 45 45 8 100 0
+          Z
         "
       />
 
-      <path
-        class="inlay-line"
-        d="
-        M0 100
-        C8 45 45 8 100 0
-        "
-      />
     </g>
     `,
 
-    /* ---------------------------------------------
-       4 : CHEVRON
-       --------------------------------------------- */
+
+    /* 4 — CHEVRON */
     `
     <g transform="${transform}">
+
       <polygon
-        class="inlay-dark"
+        class="${wood.primary}"
         points="
-        0,0
-        50,50
-        100,0
-        100,38
-        50,88
-        0,38
+          0,0
+          50,50
+          100,0
+          100,38
+          50,88
+          0,38
         "
       />
 
       <polygon
-        class="inlay-light"
+        class="${wood.secondary}"
         points="
-        0,62
-        50,100
-        100,62
-        100,100
-        0,100
+          0,62
+          50,100
+          100,62
+          100,100
+          0,100
         "
       />
 
-      <path
-        class="inlay-line"
-        d="
-        M0 0
-        L50 50
-        L100 0
-        "
-      />
     </g>
     `,
 
-    /* ---------------------------------------------
-       5 : TRAPEZOID
-       --------------------------------------------- */
+
+    /* 5 — TRAPEZOID */
     `
     <g transform="${transform}">
+
       <polygon
-        class="inlay-dark"
+        class="${wood.primary}"
         points="
-        0,0
-        70,0
-        100,50
-        70,100
-        0,100
-        30,50
+          0,0
+          70,0
+          100,50
+          70,100
+          0,100
+          30,50
         "
       />
 
       <polygon
-        class="inlay-light"
+        class="${wood.secondary}"
         points="
-        30,50
-        70,18
-        88,50
-        70,82
+          30,50
+          70,18
+          88,50
+          70,82
         "
       />
 
-      <path
-        class="inlay-fine"
-        d="
-        M30 50
-        L70 18
-        M30 50
-        L70 82
-        "
-      />
     </g>
     `
   ];
@@ -837,45 +848,49 @@ function tileSVG(tile) {
 
 /* =========================================================
    6 × 6 WORLD
-
-   T01〜T36は常にここに1枚ずつ存在します。
    ========================================================= */
 
 let world = [];
 
-for (
-  let row = 0;
-  row < CONFIG.worldSize;
-  row++
-) {
-  const line = [];
+
+function resetWorld() {
+
+  world = [];
 
   for (
-    let column = 0;
-    column < CONFIG.worldSize;
-    column++
+    let row = 0;
+    row < CONFIG.worldSize;
+    row++
   ) {
-    const index =
-      row *
-      CONFIG.worldSize +
-      column;
 
-    line.push(
-      TILE_DEFS[index].id
-    );
+    const line = [];
+
+    for (
+      let column = 0;
+      column < CONFIG.worldSize;
+      column++
+    ) {
+
+      const index =
+        row *
+        CONFIG.worldSize +
+        column;
+
+      line.push(
+        TILE_DEFS[index].id
+      );
+    }
+
+    world.push(line);
   }
-
-  world.push(line);
 }
 
 
+resetWorld();
+
+
 /* =========================================================
-   VISIBLE WINDOW
-
-   内部6×6の中央寄り3×3を表示します。
-
-   行・列を回転させるため、
-   窓そのものは固定です。
+   VISIBLE 3 × 3 WINDOW
    ========================================================= */
 
 const WINDOW = {
@@ -928,11 +943,7 @@ const drag = {
    HELPERS
    ========================================================= */
 
-function clamp(
-  value,
-  min,
-  max
-) {
+function clamp(value, min, max) {
   return Math.max(
     min,
     Math.min(max, value)
@@ -940,10 +951,7 @@ function clamp(
 }
 
 
-function modulo(
-  value,
-  divisor
-) {
+function modulo(value, divisor) {
   return (
     (value % divisor) +
     divisor
@@ -956,9 +964,8 @@ function getTile(id) {
 }
 
 
-function createTileElement(
-  id
-) {
+function createTileElement(id) {
+
   const data =
     getTile(id);
 
@@ -966,7 +973,7 @@ function createTileElement(
     document.createElement("div");
 
   element.className =
-    `tile wood-${data.wood + 1}`;
+    `tile wood-${WOOD_NAMES[data.wood]}`;
 
   element.dataset.tileId =
     id;
@@ -980,1185 +987,12 @@ function createTileElement(
 
 /* =========================================================
    WORLD VALIDATION
-
-   最重要：
-   T01〜T36が1枚ずつ存在すること。
    ========================================================= */
 
 function validateWorld() {
+
   const flat =
     world.flat();
 
   if (
-    flat.length !==
-    36
-  ) {
-    return false;
-  }
-
-  const unique =
-    new Set(flat);
-
-  if (
-    unique.size !==
-    36
-  ) {
-    return false;
-  }
-
-  return TILE_DEFS.every(
-    tile =>
-      unique.has(tile.id)
-  );
-}
-
-
-/* =========================================================
-   VISIBLE GRID
-   ========================================================= */
-
-function getVisibleGrid() {
-  const result = [];
-
-  for (
-    let row = 0;
-    row < 3;
-    row++
-  ) {
-    const line = [];
-
-    for (
-      let column = 0;
-      column < 3;
-      column++
-    ) {
-      line.push(
-        world[
-          WINDOW.rowStart +
-          row
-        ][
-          WINDOW.columnStart +
-          column
-        ]
-      );
-    }
-
-    result.push(line);
-  }
-
-  return result;
-}
-
-
-/* =========================================================
-   RENDER
-   ========================================================= */
-
-function renderBoard() {
-  board.innerHTML = "";
-
-  const visible =
-    getVisibleGrid();
-
-  const staticGrid =
-    document.createElement("div");
-
-  staticGrid.className =
-    "static-grid";
-
-  for (
-    let row = 0;
-    row < 3;
-    row++
-  ) {
-    for (
-      let column = 0;
-      column < 3;
-      column++
-    ) {
-      const tile =
-        createTileElement(
-          visible[row][column]
-        );
-
-      tile.dataset.row =
-        String(row);
-
-      tile.dataset.column =
-        String(column);
-
-      staticGrid.appendChild(
-        tile
-      );
-    }
-  }
-
-  const activeLayer =
-    document.createElement("div");
-
-  activeLayer.className =
-    "active-layer";
-
-  activeLayer.id =
-    "activeLayer";
-
-  board.appendChild(
-    staticGrid
-  );
-
-  board.appendChild(
-    activeLayer
-  );
-}
-
-
-/* =========================================================
-   WORLD ROTATION
-
-   横：
-   6枚のworld rowを循環。
-
-   縦：
-   6枚のworld columnを循環。
-
-   どちらも可逆な置換です。
-   ========================================================= */
-
-function rotateWorldRow(
-  rowIndex,
-  steps
-) {
-  const row =
-    world[rowIndex];
-
-  const amount =
-    modulo(
-      steps,
-      CONFIG.worldSize
-    );
-
-  if (!amount) {
-    return;
-  }
-
-  world[rowIndex] = [
-    ...row.slice(-amount),
-    ...row.slice(0,-amount)
-  ];
-}
-
-
-function rotateWorldColumn(
-  columnIndex,
-  steps
-) {
-  const column =
-    world.map(
-      row =>
-        row[columnIndex]
-    );
-
-  const amount =
-    modulo(
-      steps,
-      CONFIG.worldSize
-    );
-
-  if (!amount) {
-    return;
-  }
-
-  const rotated = [
-    ...column.slice(-amount),
-    ...column.slice(0,-amount)
-  ];
-
-  for (
-    let row = 0;
-    row < CONFIG.worldSize;
-    row++
-  ) {
-    world[row][columnIndex] =
-      rotated[row];
-  }
-}
-
-
-/* =========================================================
-   DIRECTION LOCK
-   ========================================================= */
-
-function determineDirection(
-  dx,
-  dy
-) {
-  const ax =
-    Math.abs(dx);
-
-  const ay =
-    Math.abs(dy);
-
-  const distance =
-    Math.max(ax, ay);
-
-  if (
-    distance <
-    CONFIG.directionThreshold
-  ) {
-    return null;
-  }
-
-  if (
-    ax >
-    ay *
-    CONFIG.directionBias
-  ) {
-    return "row";
-  }
-
-  if (
-    ay >
-    ax *
-    CONFIG.directionBias
-  ) {
-    return "column";
-  }
-
-  /*
-    ほぼ45°で長く動かした場合だけ、
-    大きい方へ固定します。
-  */
-  if (
-    distance >=
-    CONFIG.diagonalFallbackDistance
-  ) {
-    return (
-      ax >= ay
-        ? "row"
-        : "column"
-    );
-  }
-
-  return null;
-}
-
-
-/* =========================================================
-   ROW STRIP
-
-   表示窓の左右にあるworld tileも描画します。
-
-   6枚すべてをstripとして使うため、
-   盤外から本当に別の木片が入ってきます。
-   ========================================================= */
-
-function prepareRowDrag() {
-  const layer =
-    document.getElementById(
-      "activeLayer"
-    );
-
-  const staticTiles =
-    board.querySelectorAll(
-      `.static-grid .tile[data-row="${drag.visibleRow}"]`
-    );
-
-  staticTiles.forEach(
-    tile =>
-      tile.classList.add(
-        "masked"
-      )
-  );
-
-  const wrapper =
-    document.createElement("div");
-
-  wrapper.className =
-    "drag-row";
-
-  wrapper.style.top =
-    `calc(${drag.visibleRow} * 100% / 3)`;
-
-  const strip =
-    document.createElement("div");
-
-  strip.className =
-    "drag-row-strip";
-
-  /*
-    6枚 + 両端補助。
-
-    これにより最大±2マスでも
-    空白が出にくい構造にします。
-  */
-
-  const source =
-    world[drag.worldRow];
-
-  const ids = [
-    source[5],
-    ...source,
-    source[0]
-  ];
-
-  strip.style.width =
-    `${ids.length * drag.tileSize}px`;
-
-  ids.forEach(id => {
-    const tile =
-      createTileElement(id);
-
-    tile.style.width =
-      `${drag.tileSize}px`;
-
-    tile.style.height =
-      `${drag.tileSize}px`;
-
-    strip.appendChild(tile);
-  });
-
-  wrapper.appendChild(strip);
-  layer.appendChild(wrapper);
-
-  drag.strip = strip;
-
-  /*
-    WINDOW.columnStart = 1
-
-    ids[0] は左補助。
-    visible先頭はsource[1]なので
-    strip上ではindex 2。
-  */
-
-  const baseline =
-    -(
-      WINDOW.columnStart +
-      1
-    ) *
-    drag.tileSize;
-
-  strip.dataset.baseline =
-    String(baseline);
-
-  strip.style.transform =
-    `translate3d(${baseline}px,0,0)`;
-
-  board.classList.add(
-    "dragging"
-  );
-}
-
-
-/* =========================================================
-   COLUMN STRIP
-   ========================================================= */
-
-function prepareColumnDrag() {
-  const layer =
-    document.getElementById(
-      "activeLayer"
-    );
-
-  const staticTiles =
-    board.querySelectorAll(
-      `.static-grid .tile[data-column="${drag.visibleColumn}"]`
-    );
-
-  staticTiles.forEach(
-    tile =>
-      tile.classList.add(
-        "masked"
-      )
-  );
-
-  const wrapper =
-    document.createElement("div");
-
-  wrapper.className =
-    "drag-column";
-
-  wrapper.style.left =
-    `calc(${drag.visibleColumn} * 100% / 3)`;
-
-  const strip =
-    document.createElement("div");
-
-  strip.className =
-    "drag-column-strip";
-
-  const source =
-    world.map(
-      row =>
-        row[drag.worldColumn]
-    );
-
-  const ids = [
-    source[5],
-    ...source,
-    source[0]
-  ];
-
-  strip.style.height =
-    `${ids.length * drag.tileSize}px`;
-
-  ids.forEach(id => {
-    const tile =
-      createTileElement(id);
-
-    tile.style.width =
-      `${drag.tileSize}px`;
-
-    tile.style.height =
-      `${drag.tileSize}px`;
-
-    strip.appendChild(tile);
-  });
-
-  wrapper.appendChild(strip);
-  layer.appendChild(wrapper);
-
-  drag.strip = strip;
-
-  const baseline =
-    -(
-      WINDOW.rowStart +
-      1
-    ) *
-    drag.tileSize;
-
-  strip.dataset.baseline =
-    String(baseline);
-
-  strip.style.transform =
-    `translate3d(0,${baseline}px,0)`;
-
-  board.classList.add(
-    "dragging"
-  );
-}
-
-
-/* =========================================================
-   POINTER DOWN
-   ========================================================= */
-
-function pointerDown(event) {
-  if (
-    drag.active ||
-    drag.settling ||
-    !event.isPrimary
-  ) {
-    return;
-  }
-
-  const rect =
-    board.getBoundingClientRect();
-
-  const localX =
-    event.clientX -
-    rect.left;
-
-  const localY =
-    event.clientY -
-    rect.top;
-
-  drag.active = true;
-
-  drag.pointerId =
-    event.pointerId;
-
-  drag.direction = null;
-
-  drag.visibleRow =
-    clamp(
-      Math.floor(
-        localY /
-        (rect.height / 3)
-      ),
-      0,
-      2
-    );
-
-  drag.visibleColumn =
-    clamp(
-      Math.floor(
-        localX /
-        (rect.width / 3)
-      ),
-      0,
-      2
-    );
-
-  drag.worldRow =
-    WINDOW.rowStart +
-    drag.visibleRow;
-
-  drag.worldColumn =
-    WINDOW.columnStart +
-    drag.visibleColumn;
-
-  drag.startX =
-    event.clientX;
-
-  drag.startY =
-    event.clientY;
-
-  drag.lastX =
-    event.clientX;
-
-  drag.lastY =
-    event.clientY;
-
-  drag.lastTime =
-    performance.now();
-
-  drag.velocity = 0;
-  drag.offset = 0;
-
-  drag.tileSize =
-    rect.width / 3;
-
-  drag.strip = null;
-
-  try {
-    board.setPointerCapture(
-      event.pointerId
-    );
-  } catch (_) {}
-}
-
-
-/* =========================================================
-   POINTER MOVE
-
-   ドラッグ中はほぼtransformだけです。
-   ========================================================= */
-
-function pointerMove(event) {
-  if (
-    !drag.active ||
-    event.pointerId !==
-      drag.pointerId
-  ) {
-    return;
-  }
-
-  event.preventDefault();
-
-  const dx =
-    event.clientX -
-    drag.startX;
-
-  const dy =
-    event.clientY -
-    drag.startY;
-
-  if (!drag.direction) {
-    const direction =
-      determineDirection(
-        dx,
-        dy
-      );
-
-    if (!direction) {
-      return;
-    }
-
-    drag.direction =
-      direction;
-
-    hint.classList.add(
-      "hidden"
-    );
-
-    if (
-      direction === "row"
-    ) {
-      prepareRowDrag();
-    } else {
-      prepareColumnDrag();
-    }
-  }
-
-  const now =
-    performance.now();
-
-  const elapsed =
-    Math.max(
-      1,
-      now -
-      drag.lastTime
-    );
-
-  let movement;
-
-  if (
-    drag.direction === "row"
-  ) {
-    movement =
-      event.clientX -
-      drag.lastX;
-
-    drag.offset = dx;
-
-    drag.lastX =
-      event.clientX;
-
-  } else {
-    movement =
-      event.clientY -
-      drag.lastY;
-
-    drag.offset = dy;
-
-    drag.lastY =
-      event.clientY;
-  }
-
-  const instantVelocity =
-    movement /
-    elapsed;
-
-  drag.velocity =
-    drag.velocity * .72 +
-    instantVelocity * .28;
-
-  drag.lastTime = now;
-
-  requestDragFrame();
-}
-
-
-/* =========================================================
-   FRAME
-   ========================================================= */
-
-function requestDragFrame() {
-  if (
-    drag.animationFrame !== null
-  ) {
-    return;
-  }
-
-  drag.animationFrame =
-    requestAnimationFrame(() => {
-
-      drag.animationFrame =
-        null;
-
-      if (
-        !drag.active ||
-        !drag.strip
-      ) {
-        return;
-      }
-
-      const baseline =
-        Number(
-          drag.strip.dataset.baseline
-        );
-
-      if (
-        drag.direction === "row"
-      ) {
-        drag.strip.style.transform =
-          `translate3d(${
-            baseline +
-            drag.offset
-          }px,0,0)`;
-
-      } else {
-        drag.strip.style.transform =
-          `translate3d(0,${
-            baseline +
-            drag.offset
-          }px,0)`;
-      }
-    });
-}
-
-
-/* =========================================================
-   FINISH
-   ========================================================= */
-
-function finishDrag(
-  event,
-  cancelled = false
-) {
-  if (!drag.active) {
-    return;
-  }
-
-  if (
-    event &&
-    event.pointerId !== undefined &&
-    event.pointerId !==
-      drag.pointerId
-  ) {
-    return;
-  }
-
-  drag.active = false;
-
-  board.classList.remove(
-    "dragging"
-  );
-
-  if (
-    drag.animationFrame !== null
-  ) {
-    cancelAnimationFrame(
-      drag.animationFrame
-    );
-
-    drag.animationFrame = null;
-  }
-
-  if (
-    !drag.direction ||
-    !drag.strip
-  ) {
-    renderBoard();
-    resetDrag();
-    return;
-  }
-
-  /*
-    pointercancelは未確定操作を捨てます。
-  */
-  if (cancelled) {
-    renderBoard();
-    resetDrag();
-    return;
-  }
-
-  let projected =
-    drag.offset;
-
-  projected +=
-    clamp(
-      drag.velocity * .15,
-      -CONFIG.maxVelocityBonus,
-      CONFIG.maxVelocityBonus
-    ) *
-    drag.tileSize;
-
-  let steps =
-    Math.round(
-      projected /
-      drag.tileSize
-    );
-
-  steps =
-    clamp(
-      steps,
-      -CONFIG.maxStepsPerGesture,
-      CONFIG.maxStepsPerGesture
-    );
-
-  settle(
-    steps *
-    drag.tileSize,
-    steps
-  );
-}
-
-
-/* =========================================================
-   SETTLE
-   ========================================================= */
-
-function settle(
-  targetOffset,
-  steps
-) {
-  if (!drag.strip) {
-    renderBoard();
-    resetDrag();
-    return;
-  }
-
-  drag.settling = true;
-
-  const generation =
-    ++drag.settleGeneration;
-
-  const strip =
-    drag.strip;
-
-  const direction =
-    drag.direction;
-
-  const worldRow =
-    drag.worldRow;
-
-  const worldColumn =
-    drag.worldColumn;
-
-  const baseline =
-    Number(
-      strip.dataset.baseline
-    );
-
-  const duration =
-    prefersReducedMotion.matches
-      ? 65
-      : CONFIG.snapDuration;
-
-  strip.style.transition =
-    `transform ${duration}ms cubic-bezier(.20,.82,.24,1)`;
-
-  if (
-    direction === "row"
-  ) {
-    strip.style.transform =
-      `translate3d(${
-        baseline +
-        targetOffset
-      }px,0,0)`;
-
-  } else {
-    strip.style.transform =
-      `translate3d(0,${
-        baseline +
-        targetOffset
-      }px,0)`;
-  }
-
-  let completed = false;
-
-
-  const complete = () => {
-    if (
-      completed ||
-      generation !==
-        drag.settleGeneration
-    ) {
-      return;
-    }
-
-    completed = true;
-
-    strip.removeEventListener(
-      "transitionend",
-      transitionEnd
-    );
-
-    if (
-      drag.settleTimer !== null
-    ) {
-      clearTimeout(
-        drag.settleTimer
-      );
-
-      drag.settleTimer = null;
-    }
-
-    /*
-      視覚上右へ動かしたなら、
-      world rowも右へ循環。
-    */
-    if (
-      direction === "row"
-    ) {
-      rotateWorldRow(
-        worldRow,
-        steps
-      );
-
-    } else {
-      rotateWorldColumn(
-        worldColumn,
-        steps
-      );
-    }
-
-    /*
-      36枚の存在を必ず確認。
-    */
-    if (!validateWorld()) {
-      console.error(
-        "World validation failed."
-      );
-
-      resetWorld();
-    }
-
-    drag.settling = false;
-
-    resetDrag();
-
-    renderBoard();
-
-    triggerSettlePulse();
-  };
-
-
-  const transitionEnd =
-    event => {
-
-      if (
-        event.target !== strip ||
-        event.propertyName !==
-          "transform"
-      ) {
-        return;
-      }
-
-      complete();
-    };
-
-
-  strip.addEventListener(
-    "transitionend",
-    transitionEnd
-  );
-
-  drag.settleTimer =
-    setTimeout(
-      complete,
-      duration + 80
-    );
-}
-
-
-/* =========================================================
-   WORLD RESET
-
-   通常は呼ばれません。
-   内部破損時だけ安全復旧します。
-   ========================================================= */
-
-function resetWorld() {
-  world = [];
-
-  for (
-    let row = 0;
-    row < 6;
-    row++
-  ) {
-    const line = [];
-
-    for (
-      let column = 0;
-      column < 6;
-      column++
-    ) {
-      const index =
-        row * 6 +
-        column;
-
-      line.push(
-        TILE_DEFS[index].id
-      );
-    }
-
-    world.push(line);
-  }
-}
-
-
-/* =========================================================
-   SETTLE FEEDBACK
-   ========================================================= */
-
-function triggerSettlePulse() {
-  if (
-    prefersReducedMotion.matches
-  ) {
-    return;
-  }
-
-  boardShell.classList.remove(
-    "snap-pulse"
-  );
-
-  requestAnimationFrame(() => {
-    boardShell.classList.add(
-      "snap-pulse"
-    );
-  });
-}
-
-
-/* =========================================================
-   RESET DRAG
-   ========================================================= */
-
-function resetDrag() {
-  drag.active = false;
-
-  drag.pointerId = null;
-
-  drag.direction = null;
-
-  drag.visibleRow = -1;
-  drag.visibleColumn = -1;
-
-  drag.worldRow = -1;
-  drag.worldColumn = -1;
-
-  drag.startX = 0;
-  drag.startY = 0;
-
-  drag.lastX = 0;
-  drag.lastY = 0;
-
-  drag.lastTime = 0;
-
-  drag.velocity = 0;
-
-  drag.tileSize = 0;
-  drag.offset = 0;
-
-  drag.strip = null;
-
-  drag.animationFrame = null;
-}
-
-
-/* =========================================================
-   CANCEL
-
-   画面回転・バックグラウンド移行時など。
-   ========================================================= */
-
-function cancelInteraction() {
-  drag.settleGeneration++;
-
-  if (
-    drag.settleTimer !== null
-  ) {
-    clearTimeout(
-      drag.settleTimer
-    );
-
-    drag.settleTimer = null;
-  }
-
-  if (
-    drag.animationFrame !== null
-  ) {
-    cancelAnimationFrame(
-      drag.animationFrame
-    );
-
-    drag.animationFrame = null;
-  }
-
-  drag.active = false;
-  drag.settling = false;
-
-  board.classList.remove(
-    "dragging"
-  );
-
-  resetDrag();
-
-  /*
-    未確定操作はworldへ反映されていないので、
-    確定済み状態を描き直すだけで戻ります。
-  */
-  renderBoard();
-}
-
-
-/* =========================================================
-   EVENTS
-   ========================================================= */
-
-board.addEventListener(
-  "pointerdown",
-  pointerDown
-);
-
-board.addEventListener(
-  "pointermove",
-  pointerMove,
-  {
-    passive: false
-  }
-);
-
-board.addEventListener(
-  "pointerup",
-  event => {
-    finishDrag(
-      event,
-      false
-    );
-  }
-);
-
-board.addEventListener(
-  "pointercancel",
-  event => {
-    finishDrag(
-      event,
-      true
-    );
-  }
-);
-
-board.addEventListener(
-  "contextmenu",
-  event => {
-    event.preventDefault();
-  }
-);
-
-
-/* =========================================================
-   RESIZE / ROTATION
-   ========================================================= */
-
-window.addEventListener(
-  "resize",
-  () => {
-
-    if (
-      drag.active ||
-      drag.settling
-    ) {
-      cancelInteraction();
-      return;
-    }
-
-    renderBoard();
-  }
-);
-
-
-/* =========================================================
-   VISIBILITY
-   ========================================================= */
-
-document.addEventListener(
-  "visibilitychange",
-  () => {
-
-    if (
-      document.hidden
-    ) {
-      cancelInteraction();
-    }
-  }
-);
-
-
-/* =========================================================
-   INITIAL
-   ========================================================= */
-
-if (!validateWorld()) {
-  resetWorld();
-}
-
-renderBoard();
-
-})();
-</script>
-
-</body>
-</html>
+    flat.length !== 36
