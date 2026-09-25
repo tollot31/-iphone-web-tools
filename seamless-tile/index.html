@@ -14,7 +14,20 @@
 
   <style>
     :root {
+      /* =====================================================
+         ATMOSPHERE VARIABLES
+
+         JavaScriptが操作終了後だけ、ここに対応する値を変更します。
+         ドラッグ中には変更しません。
+         ===================================================== */
+
       --page-bg: #10191b;
+      --page-bg-top: #111b1d;
+
+      --ambient-r: 53;
+      --ambient-g: 91;
+      --ambient-b: 91;
+      --ambient-alpha: 0.13;
 
       --tile-bg: #1c2a2d;
       --tile-bg-2: #1e2e31;
@@ -24,8 +37,13 @@
       --line-soft: #89d8cf;
       --node: #c1eee8;
 
+      --line-glow-alpha: 0.00;
+      --board-glow-alpha: 0.18;
+
       --board-size: min(86vw, 410px);
       --board-radius: 24px;
+
+      --atmosphere-duration: 900ms;
     }
 
     * {
@@ -67,6 +85,9 @@
         "SF Pro Text",
         system-ui,
         sans-serif;
+
+      transition:
+        background-color var(--atmosphere-duration) ease;
     }
 
     .app {
@@ -88,14 +109,27 @@
       background:
         radial-gradient(
           circle at 50% 42%,
-          rgba(53, 91, 91, 0.13) 0%,
-          rgba(16, 25, 27, 0) 48%
+          rgba(
+            var(--ambient-r),
+            var(--ambient-g),
+            var(--ambient-b),
+            var(--ambient-alpha)
+          ) 0%,
+          rgba(
+            var(--ambient-r),
+            var(--ambient-g),
+            var(--ambient-b),
+            0
+          ) 49%
         ),
         linear-gradient(
           180deg,
-          #111b1d 0%,
+          var(--page-bg-top) 0%,
           var(--page-bg) 100%
         );
+
+      transition:
+        background var(--atmosphere-duration) ease;
     }
 
     .title {
@@ -128,7 +162,12 @@
       background:
         linear-gradient(
           145deg,
-          rgba(170, 231, 222, 0.18),
+          rgba(
+            170,
+            231,
+            222,
+            var(--board-glow-alpha)
+          ),
           rgba(170, 231, 222, 0.035) 40%,
           rgba(0, 0, 0, 0.24)
         );
@@ -136,6 +175,34 @@
       box-shadow:
         0 22px 55px rgba(0, 0, 0, 0.32),
         0 4px 12px rgba(0, 0, 0, 0.20);
+
+      transition:
+        background var(--atmosphere-duration) ease,
+        box-shadow var(--atmosphere-duration) ease;
+    }
+
+    /*
+      スナップ直後だけ付与される微細な反応。
+
+      常時動き続けるアニメーションではありません。
+    */
+    .board-shell.snap-pulse {
+      animation:
+        snapPulse 260ms cubic-bezier(0.22, 0.78, 0.25, 1);
+    }
+
+    @keyframes snapPulse {
+      0% {
+        transform: scale(1);
+      }
+
+      52% {
+        transform: scale(1.0035);
+      }
+
+      100% {
+        transform: scale(1);
+      }
     }
 
     .board {
@@ -202,34 +269,21 @@
     }
 
     /* =========================================================
-       PREPARED DRAG LAYERS
+       ACTIVE LAYER
 
-       pointerdown時に行用・列用を両方準備します。
+       Step 4方式です。
 
-       方向判定前はopacity:0で待機。
-       SVGは既にSafari側へ渡されているため、
-       方向決定時には表示切替だけで済みます。
+       必要な方向が決定してから、
+       その行または列だけ生成します。
        ========================================================= */
 
-    .prepared-layer {
+    .active-layer {
       position: absolute;
       inset: 0;
 
       z-index: 20;
 
       pointer-events: none;
-
-      opacity: 0;
-
-      visibility: hidden;
-    }
-
-    .prepared-layer.ready {
-      visibility: visible;
-    }
-
-    .prepared-layer.active {
-      opacity: 1;
     }
 
     /* =========================================================
@@ -245,15 +299,6 @@
       overflow: hidden;
 
       background: var(--tile-bg);
-
-      /*
-        iPhone SafariでSVGを含むタイルの描画を
-        合成レイヤーへ乗せやすくします。
-      */
-      transform: translateZ(0);
-
-      backface-visibility: hidden;
-      -webkit-backface-visibility: hidden;
     }
 
     .tile.tone-2 {
@@ -314,9 +359,6 @@
       height: 100%;
 
       will-change: transform;
-
-      backface-visibility: hidden;
-      -webkit-backface-visibility: hidden;
     }
 
     .drag-row-strip .tile {
@@ -351,9 +393,6 @@
       height: calc(500% / 3);
 
       will-change: transform;
-
-      backface-visibility: hidden;
-      -webkit-backface-visibility: hidden;
     }
 
     .drag-column-strip .tile {
@@ -371,8 +410,6 @@
       height: 100%;
 
       overflow: visible;
-
-      transform: translateZ(0);
     }
 
     .circuit-main {
@@ -385,11 +422,31 @@
       stroke-linejoin: round;
 
       vector-effect: non-scaling-stroke;
+
+      /*
+        Atmosphere変更時だけ色がゆっくり変わります。
+      */
+      transition:
+        stroke var(--atmosphere-duration) ease;
+
+      filter:
+        drop-shadow(
+          0 0 5px
+          rgba(
+            122,
+            221,
+            208,
+            var(--line-glow-alpha)
+          )
+        );
     }
 
     .node {
       fill: var(--node);
       opacity: 0.92;
+
+      transition:
+        fill var(--atmosphere-duration) ease;
     }
 
     .node-ring {
@@ -402,6 +459,9 @@
     .soft-node {
       fill: var(--line-soft);
       opacity: 0.75;
+
+      transition:
+        fill var(--atmosphere-duration) ease;
     }
 
     /* =========================================================
@@ -431,6 +491,10 @@
       transform: translateY(4px);
     }
 
+    /* =========================================================
+       RESPONSIVE
+       ========================================================= */
+
     @media (max-height: 620px) {
       :root {
         --board-size: min(76vw, 330px);
@@ -445,9 +509,21 @@
       }
     }
 
+    /* =========================================================
+       REDUCED MOTION
+       ========================================================= */
+
     @media (prefers-reduced-motion: reduce) {
+      :root {
+        --atmosphere-duration: 180ms;
+      }
+
       .hint {
         transition-duration: 100ms;
+      }
+
+      .board-shell.snap-pulse {
+        animation: none;
       }
     }
   </style>
@@ -459,7 +535,10 @@
 
     <h1 class="title">Seamless Tile</h1>
 
-    <div class="board-shell">
+    <div
+      class="board-shell"
+      id="boardShell"
+    >
 
       <div
         class="board"
@@ -470,7 +549,10 @@
 
     </div>
 
-    <p class="hint" id="hint">
+    <p
+      class="hint"
+      id="hint"
+    >
       行や列を、好きな方向へ。
     </p>
 
@@ -488,14 +570,31 @@
       const CONFIG = {
         gridSize: 3,
 
+        /*
+          方向判定を始める距離。
+        */
         directionThreshold: 7,
 
+        /*
+          斜め操作の誤判定を防ぐため、
+          少しだけ優勢方向を要求します。
+        */
         directionBias: 1.08,
 
-        snapDuration: 190,
+        /*
+          基本スナップ時間。
+        */
+        snapDuration: 185,
 
-        maxVelocityBonus: 0.32,
+        /*
+          速いフリックによる補正は小さくします。
+          長い慣性移動にはしません。
+        */
+        maxVelocityBonus: 0.28,
 
+        /*
+          1ジェスチャーで最大2マス。
+        */
         maxStepsPerGesture: 2
       };
 
@@ -503,8 +602,14 @@
       const board =
         document.getElementById("board");
 
+      const boardShell =
+        document.getElementById("boardShell");
+
       const hint =
         document.getElementById("hint");
+
+      const root =
+        document.documentElement;
 
       const prefersReducedMotion =
         window.matchMedia(
@@ -688,6 +793,8 @@
 
       /* =======================================================
          GRID STATE
+
+         これが唯一の正本です。
          ======================================================= */
 
       let grid = [
@@ -724,15 +831,17 @@
         tileSize: 0,
         offset: 0,
 
-        rowLayer: null,
-        columnLayer: null,
-
-        rowStrip: null,
-        columnStrip: null,
-
         strip: null,
 
-        animationFrame: null
+        animationFrame: null,
+
+        /*
+          visibilitychange等で古いtransition処理を
+          無効化するための世代番号です。
+        */
+        settleGeneration: 0,
+
+        settleTimer: null
       };
 
 
@@ -742,6 +851,14 @@
 
       function modulo(value, divisor) {
         return ((value % divisor) + divisor) % divisor;
+      }
+
+
+      function clamp(value, min, max) {
+        return Math.max(
+          min,
+          Math.min(max, value)
+        );
       }
 
 
@@ -761,7 +878,10 @@
       }
 
 
-      function createTile(tileId, isClone = false) {
+      function createTile(
+        tileId,
+        isClone = false
+      ) {
         const tile =
           document.createElement("div");
 
@@ -791,9 +911,6 @@
 
       /* =======================================================
          BOARD RENDER
-
-         通常盤面は操作完了時にだけ再生成します。
-         pointermove中には一切作り直しません。
          ======================================================= */
 
       function renderBoard() {
@@ -832,8 +949,21 @@
           }
         }
 
+        const activeLayer =
+          document.createElement("div");
+
+        activeLayer.className =
+          "active-layer";
+
+        activeLayer.id =
+          "activeLayer";
+
         board.appendChild(
           staticGrid
+        );
+
+        board.appendChild(
+          activeLayer
         );
       }
 
@@ -924,154 +1054,6 @@
 
 
       /* =======================================================
-         PREPARE ROW LAYER
-
-         重要：
-         方向判定後ではなくpointerdown直後に作ります。
-         ======================================================= */
-
-      function buildPreparedRowLayer() {
-        const layer =
-          document.createElement("div");
-
-        layer.className =
-          "prepared-layer ready";
-
-        const wrapper =
-          document.createElement("div");
-
-        wrapper.className =
-          "drag-row";
-
-        wrapper.style.top =
-          `calc(${drag.rowIndex} * 100% / 3)`;
-
-        const strip =
-          document.createElement("div");
-
-        strip.className =
-          "drag-row-strip";
-
-        const row =
-          grid[drag.rowIndex];
-
-        const ids = [
-          row[2],
-          row[0],
-          row[1],
-          row[2],
-          row[0]
-        ];
-
-        ids.forEach(
-          (id, index) => {
-            strip.appendChild(
-              createTile(
-                id,
-                index === 0 ||
-                index === 4
-              )
-            );
-          }
-        );
-
-        wrapper.appendChild(strip);
-        layer.appendChild(wrapper);
-        board.appendChild(layer);
-
-        strip.style.transform =
-          `translate3d(${-drag.tileSize}px, 0, 0)`;
-
-        drag.rowLayer = layer;
-        drag.rowStrip = strip;
-      }
-
-
-      /* =======================================================
-         PREPARE COLUMN LAYER
-         ======================================================= */
-
-      function buildPreparedColumnLayer() {
-        const layer =
-          document.createElement("div");
-
-        layer.className =
-          "prepared-layer ready";
-
-        const wrapper =
-          document.createElement("div");
-
-        wrapper.className =
-          "drag-column";
-
-        wrapper.style.left =
-          `calc(${drag.columnIndex} * 100% / 3)`;
-
-        const strip =
-          document.createElement("div");
-
-        strip.className =
-          "drag-column-strip";
-
-        const column = [
-          grid[0][drag.columnIndex],
-          grid[1][drag.columnIndex],
-          grid[2][drag.columnIndex]
-        ];
-
-        const ids = [
-          column[2],
-          column[0],
-          column[1],
-          column[2],
-          column[0]
-        ];
-
-        ids.forEach(
-          (id, index) => {
-            strip.appendChild(
-              createTile(
-                id,
-                index === 0 ||
-                index === 4
-              )
-            );
-          }
-        );
-
-        wrapper.appendChild(strip);
-        layer.appendChild(wrapper);
-        board.appendChild(layer);
-
-        strip.style.transform =
-          `translate3d(0, ${-drag.tileSize}px, 0)`;
-
-        drag.columnLayer = layer;
-        drag.columnStrip = strip;
-      }
-
-
-      /* =======================================================
-         PREPARE BOTH POSSIBLE DIRECTIONS
-
-         SafariにSVGを早めに渡します。
-         ======================================================= */
-
-      function prepareDragLayers() {
-        buildPreparedRowLayer();
-        buildPreparedColumnLayer();
-
-        /*
-          レイアウトを一度確定させます。
-
-          これにより方向判定時に初めて
-          SVGレイアウトを行う可能性を減らします。
-        */
-        void board.offsetWidth;
-      }
-
-
-      /* =======================================================
          DIRECTION
          ======================================================= */
 
@@ -1113,82 +1095,162 @@
 
 
       /* =======================================================
-         ACTIVATE PREPARED LAYER
+         ROW DRAG PREPARATION
          ======================================================= */
 
-      function activateDirection(
-        direction
-      ) {
-        const staticGrid =
-          board.querySelector(
-            ".static-grid"
+      function prepareRowDrag() {
+        const activeLayer =
+          document.getElementById(
+            "activeLayer"
           );
 
-        if (!staticGrid) {
+        if (!activeLayer) {
           return;
         }
 
-        if (direction === "row") {
-          const tiles =
-            staticGrid.querySelectorAll(
-              `.tile[data-row="${drag.rowIndex}"]`
-            );
-
-          tiles.forEach(
-            tile => {
-              tile.classList.add(
-                "masked"
-              );
-            }
+        const staticTiles =
+          board.querySelectorAll(
+            `.static-grid .tile[data-row="${drag.rowIndex}"]`
           );
 
-          /*
-            不要な列レイヤーはここで消します。
-          */
-          if (drag.columnLayer) {
-            drag.columnLayer.remove();
-            drag.columnLayer = null;
-            drag.columnStrip = null;
-          }
-
-          drag.strip =
-            drag.rowStrip;
-
-          if (drag.rowLayer) {
-            drag.rowLayer.classList.add(
-              "active"
+        staticTiles.forEach(
+          tile => {
+            tile.classList.add(
+              "masked"
             );
           }
+        );
 
-        } else {
-          const tiles =
-            staticGrid.querySelectorAll(
-              `.tile[data-column="${drag.columnIndex}"]`
+        const wrapper =
+          document.createElement("div");
+
+        wrapper.className =
+          "drag-row";
+
+        wrapper.style.top =
+          `calc(${drag.rowIndex} * 100% / 3)`;
+
+        const strip =
+          document.createElement("div");
+
+        strip.className =
+          "drag-row-strip";
+
+        const row =
+          grid[drag.rowIndex];
+
+        /*
+          Step 4と同じ軽量な5枚構成。
+        */
+        const visualIds = [
+          row[2],
+          row[0],
+          row[1],
+          row[2],
+          row[0]
+        ];
+
+        visualIds.forEach(
+          (id, index) => {
+            strip.appendChild(
+              createTile(
+                id,
+                index === 0 ||
+                index === 4
+              )
             );
+          }
+        );
 
-          tiles.forEach(
-            tile => {
-              tile.classList.add(
-                "masked"
-              );
-            }
+        wrapper.appendChild(strip);
+        activeLayer.appendChild(wrapper);
+
+        drag.strip = strip;
+
+        strip.style.transform =
+          `translate3d(${-drag.tileSize}px, 0, 0)`;
+
+        board.classList.add(
+          "dragging"
+        );
+      }
+
+
+      /* =======================================================
+         COLUMN DRAG PREPARATION
+         ======================================================= */
+
+      function prepareColumnDrag() {
+        const activeLayer =
+          document.getElementById(
+            "activeLayer"
           );
 
-          if (drag.rowLayer) {
-            drag.rowLayer.remove();
-            drag.rowLayer = null;
-            drag.rowStrip = null;
-          }
-
-          drag.strip =
-            drag.columnStrip;
-
-          if (drag.columnLayer) {
-            drag.columnLayer.classList.add(
-              "active"
-            );
-          }
+        if (!activeLayer) {
+          return;
         }
+
+        const staticTiles =
+          board.querySelectorAll(
+            `.static-grid .tile[data-column="${drag.columnIndex}"]`
+          );
+
+        staticTiles.forEach(
+          tile => {
+            tile.classList.add(
+              "masked"
+            );
+          }
+        );
+
+        const wrapper =
+          document.createElement("div");
+
+        wrapper.className =
+          "drag-column";
+
+        wrapper.style.left =
+          `calc(${drag.columnIndex} * 100% / 3)`;
+
+        const strip =
+          document.createElement("div");
+
+        strip.className =
+          "drag-column-strip";
+
+        const column = [
+          grid[0][drag.columnIndex],
+          grid[1][drag.columnIndex],
+          grid[2][drag.columnIndex]
+        ];
+
+        const visualIds = [
+          column[2],
+          column[0],
+          column[1],
+          column[2],
+          column[0]
+        ];
+
+        visualIds.forEach(
+          (id, index) => {
+            strip.appendChild(
+              createTile(
+                id,
+                index === 0 ||
+                index === 4
+              )
+            );
+          }
+        );
+
+        wrapper.appendChild(strip);
+        activeLayer.appendChild(wrapper);
+
+        drag.strip = strip;
+
+        strip.style.transform =
+          `translate3d(0, ${-drag.tileSize}px, 0)`;
 
         board.classList.add(
           "dragging"
@@ -1233,27 +1295,23 @@
         drag.direction = null;
 
         drag.rowIndex =
-          Math.min(
-            2,
-            Math.max(
-              0,
-              Math.floor(
-                localY /
-                (rect.height / 3)
-              )
-            )
+          clamp(
+            Math.floor(
+              localY /
+              (rect.height / 3)
+            ),
+            0,
+            2
           );
 
         drag.columnIndex =
-          Math.min(
-            2,
-            Math.max(
-              0,
-              Math.floor(
-                localX /
-                (rect.width / 3)
-              )
-            )
+          clamp(
+            Math.floor(
+              localX /
+              (rect.width / 3)
+            ),
+            0,
+            2
           );
 
         drag.startX =
@@ -1284,21 +1342,15 @@
             event.pointerId
           );
         } catch (_) {
-          // Safari安全策
+          /* Safari safety */
         }
-
-        /*
-          ここがStep 4からの主な変更点です。
-
-          指がまだほとんど動いていない段階で、
-          横・縦両方の表示を準備します。
-        */
-        prepareDragLayers();
       }
 
 
       /* =======================================================
          POINTER MOVE
+
+         ここでは可能な限り軽い処理だけ行います。
          ======================================================= */
 
       function handlePointerMove(
@@ -1325,6 +1377,10 @@
           event.clientY -
           drag.startY;
 
+        /*
+          一度決定した方向は、
+          指を離すまで変えません。
+        */
         if (!drag.direction) {
           const direction =
             determineDirection(
@@ -1343,13 +1399,13 @@
             "hidden"
           );
 
-          /*
-            SVG生成ではなく、
-            準備済みレイヤーを表示するだけです。
-          */
-          activateDirection(
-            direction
-          );
+          if (
+            direction === "row"
+          ) {
+            prepareRowDrag();
+          } else {
+            prepareColumnDrag();
+          }
         }
 
         const now =
@@ -1402,7 +1458,10 @@
 
 
       /* =======================================================
-         REQUEST ANIMATION FRAME
+         FRAME
+
+         ドラッグ中の中心処理。
+         transform以外の視覚処理はしません。
          ======================================================= */
 
       function requestDragFrame() {
@@ -1449,7 +1508,7 @@
 
 
       /* =======================================================
-         FINISH
+         POINTER UP / CANCEL
          ======================================================= */
 
       function finishDrag(
@@ -1487,16 +1546,13 @@
         }
 
         /*
-          タップのみ。
-
-          準備したレイヤーは不要なので
-          現在の盤面へ戻します。
+          方向決定前ならタップ扱い。
         */
         if (
           !drag.direction ||
           !drag.strip
         ) {
-          cleanupPreparedLayers();
+          renderBoard();
           resetDragState();
           return;
         }
@@ -1506,12 +1562,10 @@
 
         if (!cancelled) {
           const velocityContribution =
-            Math.max(
+            clamp(
+              drag.velocity * 0.16,
               -CONFIG.maxVelocityBonus,
-              Math.min(
-                CONFIG.maxVelocityBonus,
-                drag.velocity * 0.18
-              )
+              CONFIG.maxVelocityBonus
             );
 
           projectedOffset +=
@@ -1526,20 +1580,31 @@
           );
 
         steps =
-          Math.max(
+          clamp(
+            steps,
             -CONFIG.maxStepsPerGesture,
-            Math.min(
-              CONFIG.maxStepsPerGesture,
-              steps
-            )
+            CONFIG.maxStepsPerGesture
           );
 
-        const targetOffset =
-          steps *
-          drag.tileSize;
+        /*
+          pointercancelでは速度補正を使わず、
+          現在位置から最寄りへ戻します。
+        */
+        if (cancelled) {
+          steps =
+            clamp(
+              Math.round(
+                drag.offset /
+                drag.tileSize
+              ),
+              -CONFIG.maxStepsPerGesture,
+              CONFIG.maxStepsPerGesture
+            );
+        }
 
         settle(
-          targetOffset,
+          steps *
+          drag.tileSize,
           steps
         );
       }
@@ -1554,12 +1619,18 @@
         steps
       ) {
         if (!drag.strip) {
-          cleanupPreparedLayers();
+          renderBoard();
           resetDragState();
           return;
         }
 
         drag.settling = true;
+
+        /*
+          古いsettle処理を識別する番号。
+        */
+        const generation =
+          ++drag.settleGeneration;
 
         const strip =
           drag.strip;
@@ -1578,11 +1649,11 @@
 
         const duration =
           prefersReducedMotion.matches
-            ? 70
+            ? 65
             : CONFIG.snapDuration;
 
         strip.style.transition =
-          `transform ${duration}ms cubic-bezier(0.22, 0.78, 0.25, 1)`;
+          `transform ${duration}ms cubic-bezier(0.20, 0.82, 0.24, 1)`;
 
         if (
           direction === "row"
@@ -1604,10 +1675,21 @@
         }
 
         let finished = false;
-        let fallbackTimer = null;
+
 
         const complete = () => {
           if (finished) {
+            return;
+          }
+
+          /*
+            visibilitychange等で無効化された
+            古い処理なら何もしません。
+          */
+          if (
+            generation !==
+            drag.settleGeneration
+          ) {
             return;
           }
 
@@ -1619,11 +1701,13 @@
           );
 
           if (
-            fallbackTimer !== null
+            drag.settleTimer !== null
           ) {
             clearTimeout(
-              fallbackTimer
+              drag.settleTimer
             );
+
+            drag.settleTimer = null;
           }
 
           if (
@@ -1641,6 +1725,10 @@
             );
           }
 
+          /*
+            最優先安全条件：
+            9枚・重複なし。
+          */
           if (!validateGrid()) {
             grid = [
               ["A", "B", "C"],
@@ -1649,15 +1737,23 @@
             ];
           }
 
-          /*
-            まず操作状態を解放してから、
-            確定済み盤面を1回だけ再描画します。
-          */
           drag.settling = false;
 
           resetDragState();
 
+          /*
+            確定盤面を描画。
+          */
           renderBoard();
+
+          /*
+            ここから先はドラッグ終了後の処理です。
+
+            指追従中には一切実行されません。
+          */
+          updateAtmosphere();
+
+          triggerSnapPulse();
         };
 
 
@@ -1682,49 +1778,276 @@
         );
 
 
-        fallbackTimer =
+        /*
+          Safariでtransitionendが来ない場合の保険。
+        */
+        drag.settleTimer =
           setTimeout(
             complete,
-            duration + 90
+            duration + 80
           );
       }
 
 
       /* =======================================================
-         CLEANUP
+         ATMOSPHERE RESPONSE
+
+         配列が確定した後に1回だけ実行します。
+
+         「良い配置」「悪い配置」は存在しません。
+         単に現在の構成から照明傾向を決めます。
          ======================================================= */
 
-      function cleanupPreparedLayers() {
-        if (drag.rowLayer) {
-          drag.rowLayer.remove();
+      function updateAtmosphere() {
+
+        /*
+          各タイルをA=0〜I=8として扱い、
+          現在位置との組み合わせから
+          軽い特徴量を作ります。
+
+          スコアや達成度ではありません。
+        */
+
+        let horizontalCharacter = 0;
+        let verticalCharacter = 0;
+        let centerCharacter = 0;
+
+        for (
+          let row = 0;
+          row < 3;
+          row++
+        ) {
+          for (
+            let column = 0;
+            column < 3;
+            column++
+          ) {
+            const id =
+              grid[row][column];
+
+            const value =
+              id.charCodeAt(0) - 65;
+
+            /*
+              左右方向の構成差。
+            */
+            horizontalCharacter +=
+              (column - 1) *
+              ((value % 3) - 1);
+
+            /*
+              上下方向の構成差。
+            */
+            verticalCharacter +=
+              (row - 1) *
+              (
+                Math.floor(value / 3) - 1
+              );
+
+            /*
+              中央付近のタイル特性。
+            */
+            const distance =
+              Math.abs(row - 1) +
+              Math.abs(column - 1);
+
+            if (distance <= 1) {
+              centerCharacter +=
+                value;
+            }
+          }
         }
 
-        if (drag.columnLayer) {
-          drag.columnLayer.remove();
-        }
 
-        const maskedTiles =
-          board.querySelectorAll(
-            ".tile.masked"
+        /*
+          -1〜1程度へ圧縮。
+        */
+        const horizontal =
+          clamp(
+            horizontalCharacter / 8,
+            -1,
+            1
           );
 
-        maskedTiles.forEach(
-          tile => {
-            tile.classList.remove(
-              "masked"
-            );
-          }
+        const vertical =
+          clamp(
+            verticalCharacter / 8,
+            -1,
+            1
+          );
+
+        const center =
+          clamp(
+            (centerCharacter - 20) / 20,
+            -1,
+            1
+          );
+
+
+        /*
+          Night Tealを中心に、
+          ごく狭い範囲だけ色温度を変えます。
+
+          変化を派手にしないことが重要です。
+        */
+
+        const r =
+          Math.round(
+            48 +
+            center * 5
+          );
+
+        const g =
+          Math.round(
+            91 +
+            vertical * 12
+          );
+
+        const b =
+          Math.round(
+            94 +
+            horizontal * 14
+          );
+
+
+        /*
+          線色。
+
+          horizontalが強いと少し青寄り、
+          verticalが強いと少し緑寄り。
+        */
+
+        const lineR =
+          Math.round(
+            101 -
+            horizontal * 5
+          );
+
+        const lineG =
+          Math.round(
+            199 +
+            vertical * 8
+          );
+
+        const lineB =
+          Math.round(
+            187 +
+            horizontal * 13
+          );
+
+
+        const softR =
+          Math.round(
+            137 -
+            horizontal * 4
+          );
+
+        const softG =
+          Math.round(
+            216 +
+            vertical * 6
+          );
+
+        const softB =
+          Math.round(
+            207 +
+            horizontal * 8
+          );
+
+
+        /*
+          発光量も非常に小さくします。
+        */
+
+        const energy =
+          clamp(
+            (
+              Math.abs(horizontal) +
+              Math.abs(vertical) +
+              Math.abs(center)
+            ) / 3,
+            0,
+            1
+          );
+
+        const glow =
+          0.015 +
+          energy * 0.045;
+
+        const boardGlow =
+          0.15 +
+          energy * 0.07;
+
+
+        root.style.setProperty(
+          "--ambient-r",
+          String(r)
         );
 
-        drag.rowLayer = null;
-        drag.columnLayer = null;
+        root.style.setProperty(
+          "--ambient-g",
+          String(g)
+        );
 
-        drag.rowStrip = null;
-        drag.columnStrip = null;
+        root.style.setProperty(
+          "--ambient-b",
+          String(b)
+        );
 
-        drag.strip = null;
+        root.style.setProperty(
+          "--line",
+          `rgb(${lineR}, ${lineG}, ${lineB})`
+        );
+
+        root.style.setProperty(
+          "--line-soft",
+          `rgb(${softR}, ${softG}, ${softB})`
+        );
+
+        root.style.setProperty(
+          "--line-glow-alpha",
+          glow.toFixed(3)
+        );
+
+        root.style.setProperty(
+          "--board-glow-alpha",
+          boardGlow.toFixed(3)
+        );
       }
 
+
+      /* =======================================================
+         SNAP PULSE
+
+         盤面全体がほんのわずかに呼吸する程度です。
+         ======================================================= */
+
+      function triggerSnapPulse() {
+        if (
+          prefersReducedMotion.matches
+        ) {
+          return;
+        }
+
+        boardShell.classList.remove(
+          "snap-pulse"
+        );
+
+        /*
+          animationを確実に再スタートするため、
+          次フレームで付与します。
+        */
+        requestAnimationFrame(() => {
+          boardShell.classList.add(
+            "snap-pulse"
+          );
+        });
+      }
+
+
+      /* =======================================================
+         RESET
+         ======================================================= */
 
       function resetDragState() {
         drag.active = false;
@@ -1748,15 +2071,59 @@
         drag.tileSize = 0;
         drag.offset = 0;
 
-        drag.rowLayer = null;
-        drag.columnLayer = null;
-
-        drag.rowStrip = null;
-        drag.columnStrip = null;
-
         drag.strip = null;
 
         drag.animationFrame = null;
+      }
+
+
+      /* =======================================================
+         CANCEL CURRENT INTERACTION
+
+         回転・非表示などの安全処理。
+         未確定操作は捨てます。
+         ======================================================= */
+
+      function cancelCurrentInteraction() {
+
+        /*
+          進行中settleを無効化。
+        */
+        drag.settleGeneration++;
+
+        if (
+          drag.settleTimer !== null
+        ) {
+          clearTimeout(
+            drag.settleTimer
+          );
+
+          drag.settleTimer = null;
+        }
+
+        if (
+          drag.animationFrame !== null
+        ) {
+          cancelAnimationFrame(
+            drag.animationFrame
+          );
+
+          drag.animationFrame = null;
+        }
+
+        drag.active = false;
+        drag.settling = false;
+
+        board.classList.remove(
+          "dragging"
+        );
+
+        resetDragState();
+
+        /*
+          最後に確定済みのgridへ戻します。
+        */
+        renderBoard();
       }
 
 
@@ -1773,7 +2140,9 @@
       board.addEventListener(
         "pointermove",
         handlePointerMove,
-        { passive: false }
+        {
+          passive: false
+        }
       );
 
 
@@ -1809,23 +2178,30 @@
 
       /* =======================================================
          RESIZE / ROTATION
+
+         サイズ変更中の古いtileSizeを使わないよう、
+         操作中なら安全にキャンセルします。
          ======================================================= */
 
       window.addEventListener(
         "resize",
         () => {
+
           if (
-            !drag.active &&
-            !drag.settling
+            drag.active ||
+            drag.settling
           ) {
-            renderBoard();
+            cancelCurrentInteraction();
+            return;
           }
+
+          renderBoard();
         }
       );
 
 
       /* =======================================================
-         PAGE HIDDEN
+         VISIBILITY
          ======================================================= */
 
       document.addEventListener(
@@ -1836,24 +2212,7 @@
             return;
           }
 
-          if (
-            drag.animationFrame !== null
-          ) {
-            cancelAnimationFrame(
-              drag.animationFrame
-            );
-          }
-
-          drag.active = false;
-          drag.settling = false;
-
-          board.classList.remove(
-            "dragging"
-          );
-
-          resetDragState();
-
-          renderBoard();
+          cancelCurrentInteraction();
         }
       );
 
@@ -1863,6 +2222,8 @@
          ======================================================= */
 
       renderBoard();
+
+      updateAtmosphere();
 
     })();
   </script>
