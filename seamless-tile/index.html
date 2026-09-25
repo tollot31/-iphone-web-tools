@@ -13,14 +13,8 @@
   <title>Seamless Tile</title>
 
   <style>
-    /* =========================================================
-       Seamless Tile — Step 2
-       Static Soft Circuit Board
-       ========================================================= */
-
     :root {
       --page-bg: #10191b;
-      --page-bg-soft: #152124;
 
       --tile-bg: #1c2a2d;
       --tile-bg-2: #1e2e31;
@@ -46,7 +40,7 @@
       margin: 0;
       padding: 0;
 
-      overflow-x: hidden;
+      overflow: hidden;
       overscroll-behavior: none;
 
       background: var(--page-bg);
@@ -54,7 +48,6 @@
       -webkit-text-size-adjust: 100%;
       -webkit-user-select: none;
       user-select: none;
-
       -webkit-touch-callout: none;
     }
 
@@ -117,7 +110,7 @@
     }
 
     /* =========================================================
-       Board
+       BOARD
        ========================================================= */
 
     .board-shell {
@@ -126,9 +119,9 @@
       width: var(--board-size);
       height: var(--board-size);
 
-      border-radius: var(--board-radius);
-
       padding: 1px;
+
+      border-radius: var(--board-radius);
 
       background:
         linear-gradient(
@@ -149,30 +142,30 @@
       width: 100%;
       height: 100%;
 
-      display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      grid-template-rows: repeat(3, 1fr);
-
       overflow: hidden;
 
       border-radius: calc(var(--board-radius) - 1px);
 
       background: var(--tile-bg);
 
-      /* Step 3以降でドラッグ操作に使用します */
       touch-action: none;
 
       isolation: isolate;
+
+      cursor: grab;
     }
 
-    /* ごく薄い盤面全体の光沢 */
+    .board.dragging {
+      cursor: grabbing;
+    }
+
     .board::after {
       content: "";
 
       position: absolute;
       inset: 0;
 
-      z-index: 20;
+      z-index: 50;
 
       pointer-events: none;
 
@@ -191,13 +184,65 @@
     }
 
     /* =========================================================
-       Tile
+       ROWS
+
+       各行は盤面幅と同じです。
+       操作中だけJavaScriptが横方向へ動かします。
        ========================================================= */
+
+    .row {
+      position: absolute;
+
+      left: 0;
+
+      width: 100%;
+      height: calc(100% / 3);
+
+      overflow: visible;
+
+      will-change: transform;
+    }
+
+    .row[data-row="0"] {
+      top: 0;
+    }
+
+    .row[data-row="1"] {
+      top: calc(100% / 3);
+    }
+
+    .row[data-row="2"] {
+      top: calc(200% / 3);
+    }
+
+    /*
+      stripは5枚分の幅を持ちます。
+
+      [前の複製][本物][本物][本物][後ろの複製]
+
+      通常位置では左へ1枚分ずらしておくことで、
+      中央の3枚だけが盤面内に見えます。
+    */
+
+    .row-strip {
+      position: absolute;
+
+      top: 0;
+      left: 0;
+
+      display: flex;
+
+      width: calc(500% / 3);
+      height: 100%;
+
+      will-change: transform;
+    }
 
     .tile {
       position: relative;
 
-      width: 100%;
+      flex: 0 0 20%;
+
       height: 100%;
 
       overflow: hidden;
@@ -205,21 +250,12 @@
       background: var(--tile-bg);
     }
 
-    /*
-      タイル間の境界は「線」ではなく、
-      色のごく小さな差で感じられる程度にしています。
-    */
-
-    .tile:nth-child(3n + 2) {
+    .tile.tone-2 {
       background: var(--tile-bg-2);
     }
 
-    .tile:nth-child(3n) {
+    .tile.tone-3 {
       background: var(--tile-bg-3);
-    }
-
-    .tile:nth-child(n + 4):nth-child(-n + 6) {
-      filter: brightness(1.015);
     }
 
     .tile::after {
@@ -242,7 +278,7 @@
     }
 
     /* =========================================================
-       Soft Circuit SVG
+       SOFT CIRCUIT
        ========================================================= */
 
     .tile svg {
@@ -266,20 +302,8 @@
       vector-effect: non-scaling-stroke;
     }
 
-    .circuit-highlight {
-      fill: none;
-
-      stroke: rgba(192, 240, 233, 0.16);
-      stroke-width: 2;
-
-      stroke-linecap: round;
-
-      vector-effect: non-scaling-stroke;
-    }
-
     .node {
       fill: var(--node);
-
       opacity: 0.92;
     }
 
@@ -292,12 +316,11 @@
 
     .soft-node {
       fill: var(--line-soft);
-
       opacity: 0.75;
     }
 
     /* =========================================================
-       Hint
+       HINT
        ========================================================= */
 
     .hint {
@@ -312,9 +335,17 @@
       color: rgba(216, 235, 232, 0.48);
 
       text-align: center;
+
+      transition:
+        opacity 400ms ease,
+        transform 400ms ease;
     }
 
-    /* 小さな画面への対応 */
+    .hint.hidden {
+      opacity: 0;
+      transform: translateY(4px);
+    }
+
     @media (max-height: 620px) {
       :root {
         --board-size: min(76vw, 330px);
@@ -329,16 +360,9 @@
       }
     }
 
-    /*
-      Step 2では常時アニメーションがないため、
-      reduced-motionでも見た目はほぼ同一です。
-      Step 5で吸着アニメーションを調整します。
-    */
     @media (prefers-reduced-motion: reduce) {
-      *,
-      *::before,
-      *::after {
-        scroll-behavior: auto !important;
+      .hint {
+        transition-duration: 100ms;
       }
     }
   </style>
@@ -355,19 +379,59 @@
       <div
         class="board"
         id="board"
-        role="img"
-        aria-label="触って行や列を組み替える抽象的なタイル模様。現在は静的なデザイン確認版です。"
-      >
+        role="application"
+        aria-label="Seamless Tile。現在は3つの行を左右へスライドできます。正解や完成はありません。"
+      ></div>
 
-        <!-- =====================================================
-             TILE 1
-             上・右・下・左の中央へ線が到達します。
-             ===================================================== -->
-        <div class="tile" data-tile-id="A">
+    </div>
+
+    <p class="hint" id="hint">
+      行を、好きな方向へ。
+    </p>
+
+  </main>
+
+
+  <script>
+    (() => {
+      "use strict";
+
+      /* =======================================================
+         基本設定
+         ======================================================= */
+
+      const CONFIG = {
+        gridSize: 3,
+
+        // 指を少し動かしただけではドラッグ開始にしません。
+        dragThreshold: 5,
+
+        // 吸着時間
+        snapDuration: 190,
+
+        // 高速フリックの暴走を防ぐ最大補正値
+        maxVelocityBonus: 0.32
+      };
+
+      const prefersReducedMotion =
+        window.matchMedia("(prefers-reduced-motion: reduce)");
+
+      const board = document.getElementById("board");
+      const hint = document.getElementById("hint");
+
+
+      /* =======================================================
+         タイル定義
+
+         SVGそのものを内部データとして保持します。
+         配列ではタイルIDだけを管理します。
+         ======================================================= */
+
+      const TILE_DATA = {
+
+        A: `
           <svg viewBox="0 0 100 100" aria-hidden="true">
-
-            <path
-              class="circuit-main"
+            <path class="circuit-main"
               d="
                 M 50 0
                 C 50 20, 28 24, 28 44
@@ -378,20 +442,14 @@
                 C 62 34, 66 50, 100 50
               "
             />
-
             <circle class="soft-node" cx="29" cy="44" r="6" />
             <circle class="node" cx="50" cy="50" r="3.2" />
-
           </svg>
-        </div>
+        `,
 
-
-        <!-- TILE 2 -->
-        <div class="tile" data-tile-id="B">
+        B: `
           <svg viewBox="0 0 100 100" aria-hidden="true">
-
-            <path
-              class="circuit-main"
+            <path class="circuit-main"
               d="
                 M 0 50
                 C 24 50, 28 27, 50 27
@@ -402,22 +460,15 @@
                 C 68 65, 50 70, 50 100
               "
             />
-
             <circle class="soft-node" cx="68" cy="43" r="6.5" />
-
             <circle class="node-ring" cx="50" cy="27" r="5" />
             <circle class="node" cx="50" cy="27" r="2.5" />
-
           </svg>
-        </div>
+        `,
 
-
-        <!-- TILE 3 -->
-        <div class="tile" data-tile-id="C">
+        C: `
           <svg viewBox="0 0 100 100" aria-hidden="true">
-
-            <path
-              class="circuit-main"
+            <path class="circuit-main"
               d="
                 M 50 0
                 C 50 23, 77 25, 77 50
@@ -428,20 +479,14 @@
                 C 63 63, 70 50, 100 50
               "
             />
-
             <circle class="soft-node" cx="77" cy="50" r="6" />
             <circle class="node" cx="44" cy="63" r="3.3" />
-
           </svg>
-        </div>
+        `,
 
-
-        <!-- TILE 4 -->
-        <div class="tile" data-tile-id="D">
+        D: `
           <svg viewBox="0 0 100 100" aria-hidden="true">
-
-            <path
-              class="circuit-main"
+            <path class="circuit-main"
               d="
                 M 0 50
                 C 20 50, 25 26, 47 26
@@ -452,25 +497,14 @@
                 C 35 62, 50 72, 50 100
               "
             />
-
             <circle class="node-ring" cx="35" cy="43" r="6" />
             <circle class="node" cx="35" cy="43" r="2.8" />
-
           </svg>
-        </div>
+        `,
 
-
-        <!-- TILE 5 -->
-        <div class="tile" data-tile-id="E">
+        E: `
           <svg viewBox="0 0 100 100" aria-hidden="true">
-
-            <!--
-              中央タイルだけ少し「分岐」の印象を強めています。
-              ただし交差点・迷路には見えすぎない形です。
-            -->
-
-            <path
-              class="circuit-main"
+            <path class="circuit-main"
               d="
                 M 50 0
                 C 50 22, 50 31, 50 50
@@ -481,21 +515,15 @@
                 C 69 50, 79 50, 100 50
               "
             />
-
             <circle class="soft-node" cx="50" cy="50" r="11" />
             <circle class="node-ring" cx="50" cy="50" r="6" />
             <circle class="node" cx="50" cy="50" r="3" />
-
           </svg>
-        </div>
+        `,
 
-
-        <!-- TILE 6 -->
-        <div class="tile" data-tile-id="F">
+        F: `
           <svg viewBox="0 0 100 100" aria-hidden="true">
-
-            <path
-              class="circuit-main"
+            <path class="circuit-main"
               d="
                 M 50 0
                 C 50 19, 31 26, 31 46
@@ -506,20 +534,14 @@
                 C 70 67, 77 50, 100 50
               "
             />
-
             <circle class="soft-node" cx="31" cy="46" r="6.5" />
             <circle class="node" cx="50" cy="67" r="3.2" />
-
           </svg>
-        </div>
+        `,
 
-
-        <!-- TILE 7 -->
-        <div class="tile" data-tile-id="G">
+        G: `
           <svg viewBox="0 0 100 100" aria-hidden="true">
-
-            <path
-              class="circuit-main"
+            <path class="circuit-main"
               d="
                 M 0 50
                 C 17 50, 24 35, 42 35
@@ -530,22 +552,15 @@
                 C 72 70, 50 75, 50 100
               "
             />
-
             <circle class="node-ring" cx="42" cy="35" r="5.5" />
             <circle class="node" cx="42" cy="35" r="2.8" />
-
             <circle class="soft-node" cx="72" cy="48" r="5" />
-
           </svg>
-        </div>
+        `,
 
-
-        <!-- TILE 8 -->
-        <div class="tile" data-tile-id="H">
+        H: `
           <svg viewBox="0 0 100 100" aria-hidden="true">
-
-            <path
-              class="circuit-main"
+            <path class="circuit-main"
               d="
                 M 50 0
                 C 50 19, 27 26, 27 48
@@ -556,20 +571,14 @@
                 C 70 68, 77 50, 100 50
               "
             />
-
             <circle class="soft-node" cx="27" cy="48" r="7" />
             <circle class="node" cx="48" cy="68" r="3" />
-
           </svg>
-        </div>
+        `,
 
-
-        <!-- TILE 9 -->
-        <div class="tile" data-tile-id="I">
+        I: `
           <svg viewBox="0 0 100 100" aria-hidden="true">
-
-            <path
-              class="circuit-main"
+            <path class="circuit-main"
               d="
                 M 0 50
                 C 23 50, 28 29, 50 29
@@ -580,68 +589,692 @@
                 C 66 68, 50 75, 50 100
               "
             />
-
             <circle class="soft-node" cx="66" cy="47" r="6" />
-
             <circle class="node-ring" cx="50" cy="29" r="5.5" />
             <circle class="node" cx="50" cy="29" r="2.6" />
-
           </svg>
-        </div>
-
-      </div>
-    </div>
-
-    <p class="hint">行や列を、好きな方向へ。</p>
-
-  </main>
+        `
+      };
 
 
-  <script>
-    /* =========================================================
-       Seamless Tile — Step 2
-       この段階では盤面の見た目だけを確認します。
-       ========================================================= */
+      /* =======================================================
+         内部の3×3状態
 
-    const CONFIG = {
-      gridSize: 3,
-      expectedTileCount: 9
-    };
+         ここに存在するIDは常に9個だけです。
+         ======================================================= */
 
-    const board = document.getElementById("board");
+      let grid = [
+        ["A", "B", "C"],
+        ["D", "E", "F"],
+        ["G", "H", "I"]
+      ];
 
-    /*
-      開発中の安全確認です。
 
-      Step 3以降では、このIDを二次元配列で管理します。
-      今回は静的版なのでDOM上の9枚だけを確認しています。
-    */
-    function validateTiles() {
-      const tiles = [...board.querySelectorAll(".tile")];
-      const ids = tiles.map(tile => tile.dataset.tileId);
+      /* =======================================================
+         操作状態
+         ======================================================= */
 
-      const uniqueIds = new Set(ids);
+      const drag = {
+        active: false,
+        moved: false,
 
-      return (
-        tiles.length === CONFIG.expectedTileCount &&
-        uniqueIds.size === CONFIG.expectedTileCount
+        pointerId: null,
+        rowIndex: -1,
+
+        startX: 0,
+        currentX: 0,
+
+        startTime: 0,
+        lastTime: 0,
+        lastX: 0,
+
+        velocityX: 0,
+
+        tileSize: 0,
+        offsetX: 0,
+
+        strip: null,
+
+        animationFrame: null,
+        settling: false
+      };
+
+
+      /* =======================================================
+         ユーティリティ
+         ======================================================= */
+
+      function modulo(value, divisor) {
+        return ((value % divisor) + divisor) % divisor;
+      }
+
+
+      function toneClass(tileId) {
+        const index = tileId.charCodeAt(0) - 65;
+
+        if (index % 3 === 1) {
+          return "tone-2";
+        }
+
+        if (index % 3 === 2) {
+          return "tone-3";
+        }
+
+        return "";
+      }
+
+
+      function createTile(tileId, isClone = false) {
+        const tile = document.createElement("div");
+
+        tile.className = "tile";
+
+        const tone = toneClass(tileId);
+
+        if (tone) {
+          tile.classList.add(tone);
+        }
+
+        tile.dataset.tileId = tileId;
+
+        if (isClone) {
+          tile.dataset.clone = "true";
+        }
+
+        tile.innerHTML = TILE_DATA[tileId];
+
+        return tile;
+      }
+
+
+      /* =======================================================
+         描画
+
+         1行につき、
+
+         [最後の複製][本物1][本物2][本物3][最初の複製]
+
+         の5枚を作ります。
+         ======================================================= */
+
+      function renderBoard() {
+        board.innerHTML = "";
+
+        for (let rowIndex = 0; rowIndex < CONFIG.gridSize; rowIndex++) {
+          const row = document.createElement("div");
+
+          row.className = "row";
+          row.dataset.row = String(rowIndex);
+
+          const strip = document.createElement("div");
+          strip.className = "row-strip";
+
+          const rowData = grid[rowIndex];
+
+          const visualIds = [
+            rowData[2],
+            rowData[0],
+            rowData[1],
+            rowData[2],
+            rowData[0]
+          ];
+
+          visualIds.forEach((tileId, visualIndex) => {
+            const isClone =
+              visualIndex === 0 ||
+              visualIndex === visualIds.length - 1;
+
+            strip.appendChild(
+              createTile(tileId, isClone)
+            );
+          });
+
+          row.appendChild(strip);
+          board.appendChild(row);
+        }
+
+        positionAllRows();
+      }
+
+
+      /*
+        5枚のうち、中央の3枚が見える位置へ配置します。
+      */
+      function positionAllRows() {
+        const tileSize = board.clientWidth / CONFIG.gridSize;
+
+        const strips = board.querySelectorAll(".row-strip");
+
+        strips.forEach(strip => {
+          strip.style.transition = "none";
+          strip.style.transform =
+            `translate3d(${-tileSize}px, 0, 0)`;
+        });
+      }
+
+
+      /* =======================================================
+         配列更新
+         ======================================================= */
+
+      function rotateRow(rowIndex, steps) {
+        const row = grid[rowIndex];
+
+        const normalizedSteps =
+          modulo(steps, CONFIG.gridSize);
+
+        if (normalizedSteps === 0) {
+          return;
+        }
+
+        /*
+          正のsteps = 右へ移動
+
+          [A B C]
+              ↓
+          [C A B]
+        */
+
+        grid[rowIndex] = [
+          ...row.slice(-normalizedSteps),
+          ...row.slice(0, -normalizedSteps)
+        ];
+      }
+
+
+      /* =======================================================
+         状態検査
+
+         本物の9タイルが消えたり重複していないか確認できます。
+         ======================================================= */
+
+      function validateGrid() {
+        const ids = grid.flat();
+
+        if (ids.length !== 9) {
+          return false;
+        }
+
+        const unique = new Set(ids);
+
+        if (unique.size !== 9) {
+          return false;
+        }
+
+        const expected = Object.keys(TILE_DATA);
+
+        return expected.every(id => unique.has(id));
+      }
+
+
+      /* =======================================================
+         ドラッグ開始
+         ======================================================= */
+
+      function handlePointerDown(event) {
+        if (drag.active || drag.settling) {
+          return;
+        }
+
+        if (!event.isPrimary) {
+          return;
+        }
+
+        const rect = board.getBoundingClientRect();
+
+        const localY = event.clientY - rect.top;
+
+        const rowIndex = Math.min(
+          CONFIG.gridSize - 1,
+          Math.max(
+            0,
+            Math.floor(localY / (rect.height / CONFIG.gridSize))
+          )
+        );
+
+        const rowElement =
+          board.querySelector(`.row[data-row="${rowIndex}"]`);
+
+        if (!rowElement) {
+          return;
+        }
+
+        const strip =
+          rowElement.querySelector(".row-strip");
+
+        drag.active = true;
+        drag.moved = false;
+
+        drag.pointerId = event.pointerId;
+        drag.rowIndex = rowIndex;
+
+        drag.startX = event.clientX;
+        drag.currentX = event.clientX;
+
+        drag.startTime = performance.now();
+        drag.lastTime = drag.startTime;
+        drag.lastX = event.clientX;
+
+        drag.velocityX = 0;
+
+        drag.tileSize =
+          rect.width / CONFIG.gridSize;
+
+        drag.offsetX = 0;
+
+        drag.strip = strip;
+
+        board.classList.add("dragging");
+
+        strip.style.transition = "none";
+
+        try {
+          board.setPointerCapture(event.pointerId);
+        } catch (_) {
+          // Safari等でcaptureできない場合でも
+          // pointerイベント自体は継続可能な範囲で処理します。
+        }
+      }
+
+
+      /* =======================================================
+         ドラッグ中
+         ======================================================= */
+
+      function handlePointerMove(event) {
+        if (!drag.active) {
+          return;
+        }
+
+        if (event.pointerId !== drag.pointerId) {
+          return;
+        }
+
+        event.preventDefault();
+
+        const now = performance.now();
+
+        drag.currentX = event.clientX;
+
+        const totalDelta =
+          drag.currentX - drag.startX;
+
+        if (
+          !drag.moved &&
+          Math.abs(totalDelta) >= CONFIG.dragThreshold
+        ) {
+          drag.moved = true;
+          hint.classList.add("hidden");
+        }
+
+        if (!drag.moved) {
+          return;
+        }
+
+        const elapsed =
+          Math.max(1, now - drag.lastTime);
+
+        const instantVelocity =
+          (event.clientX - drag.lastX) / elapsed;
+
+        /*
+          速度を少し平滑化します。
+          これにより一瞬の座標ノイズで
+          フリック判定が暴れにくくなります。
+        */
+        drag.velocityX =
+          drag.velocityX * 0.72 +
+          instantVelocity * 0.28;
+
+        drag.lastX = event.clientX;
+        drag.lastTime = now;
+
+        drag.offsetX = totalDelta;
+
+        requestDragFrame();
+      }
+
+
+      function requestDragFrame() {
+        if (drag.animationFrame !== null) {
+          return;
+        }
+
+        drag.animationFrame =
+          requestAnimationFrame(() => {
+            drag.animationFrame = null;
+
+            if (!drag.active || !drag.strip) {
+              return;
+            }
+
+            /*
+              tileSize 1枚分を基準位置として、
+              そこへ指の移動量を加えます。
+            */
+            const x =
+              -drag.tileSize + drag.offsetX;
+
+            drag.strip.style.transform =
+              `translate3d(${x}px, 0, 0)`;
+          });
+      }
+
+
+      /* =======================================================
+         ドラッグ終了
+         ======================================================= */
+
+      function finishDrag(event, cancelled = false) {
+        if (!drag.active) {
+          return;
+        }
+
+        if (
+          event &&
+          event.pointerId !== undefined &&
+          event.pointerId !== drag.pointerId
+        ) {
+          return;
+        }
+
+        drag.active = false;
+
+        board.classList.remove("dragging");
+
+        if (drag.animationFrame !== null) {
+          cancelAnimationFrame(drag.animationFrame);
+          drag.animationFrame = null;
+        }
+
+        if (!drag.strip) {
+          resetDragState();
+          return;
+        }
+
+        /*
+          タップだけなら何も変更しません。
+        */
+        if (!drag.moved) {
+          drag.strip.style.transform =
+            `translate3d(${-drag.tileSize}px, 0, 0)`;
+
+          resetDragState();
+          return;
+        }
+
+        /*
+          pointercancel時は、
+          現在位置から最寄りのマスへ安全に吸着します。
+
+          通常終了時のみ、わずかな速度補正を加えます。
+        */
+
+        let projectedOffset = drag.offsetX;
+
+        if (!cancelled) {
+          const velocityContribution =
+            Math.max(
+              -CONFIG.maxVelocityBonus,
+              Math.min(
+                CONFIG.maxVelocityBonus,
+                drag.velocityX * 0.18
+              )
+            );
+
+          projectedOffset +=
+            velocityContribution * drag.tileSize;
+        }
+
+        let steps =
+          Math.round(
+            projectedOffset / drag.tileSize
+          );
+
+        /*
+          3×3なので、極端な高速入力でも
+          1回の操作で暴走しないよう制限します。
+        */
+        steps = Math.max(-2, Math.min(2, steps));
+
+        const targetOffset =
+          steps * drag.tileSize;
+
+        settleRow(targetOffset, steps);
+      }
+
+
+      /* =======================================================
+         吸着
+         ======================================================= */
+
+      function settleRow(targetOffset, steps) {
+        if (!drag.strip) {
+          resetDragState();
+          return;
+        }
+
+        drag.settling = true;
+
+        const strip = drag.strip;
+
+        const duration =
+          prefersReducedMotion.matches
+            ? 70
+            : CONFIG.snapDuration;
+
+        strip.style.transition =
+          `transform ${duration}ms cubic-bezier(0.22, 0.78, 0.25, 1)`;
+
+        const targetX =
+          -drag.tileSize + targetOffset;
+
+        strip.style.transform =
+          `translate3d(${targetX}px, 0, 0)`;
+
+        let finished = false;
+
+        const complete = () => {
+          if (finished) {
+            return;
+          }
+
+          finished = true;
+
+          strip.removeEventListener(
+            "transitionend",
+            onTransitionEnd
+          );
+
+          clearTimeout(fallbackTimer);
+
+          /*
+            ここで初めて内部配列を確定します。
+          */
+          rotateRow(drag.rowIndex, steps);
+
+          if (!validateGrid()) {
+            /*
+              通常は到達しません。
+              状態破損が起きた場合に、
+              それ以上DOMと内部配列をずらさないための安全策です。
+            */
+            grid = [
+              ["A", "B", "C"],
+              ["D", "E", "F"],
+              ["G", "H", "I"]
+            ];
+          }
+
+          /*
+            確定した配列から盤面を作り直します。
+
+            DOM再構築はドラッグ中には行わず、
+            操作完了時に1回だけ行います。
+          */
+          renderBoard();
+
+          drag.settling = false;
+
+          resetDragState();
+        };
+
+        const onTransitionEnd = event => {
+          if (
+            event.target !== strip ||
+            event.propertyName !== "transform"
+          ) {
+            return;
+          }
+
+          complete();
+        };
+
+        strip.addEventListener(
+          "transitionend",
+          onTransitionEnd
+        );
+
+        /*
+          Safariでtransitionendが失われても
+          操作不能にならないための保険です。
+        */
+        const fallbackTimer =
+          setTimeout(
+            complete,
+            duration + 80
+          );
+      }
+
+
+      /* =======================================================
+         操作状態の初期化
+         ======================================================= */
+
+      function resetDragState() {
+        drag.active = false;
+        drag.moved = false;
+
+        drag.pointerId = null;
+        drag.rowIndex = -1;
+
+        drag.startX = 0;
+        drag.currentX = 0;
+
+        drag.startTime = 0;
+        drag.lastTime = 0;
+        drag.lastX = 0;
+
+        drag.velocityX = 0;
+
+        drag.tileSize = 0;
+        drag.offsetX = 0;
+
+        drag.strip = null;
+
+        drag.animationFrame = null;
+      }
+
+
+      /* =======================================================
+         イベント
+         ======================================================= */
+
+      board.addEventListener(
+        "pointerdown",
+        handlePointerDown
       );
-    }
 
-    validateTiles();
+      board.addEventListener(
+        "pointermove",
+        handlePointerMove,
+        { passive: false }
+      );
 
-    /*
-      Step 2では操作処理を追加しません。
+      board.addEventListener(
+        "pointerup",
+        event => {
+          finishDrag(event, false);
+        }
+      );
 
-      次のStep 3で、
-      ・Pointer Events
-      ・横ドラッグ
-      ・循環表示
-      ・吸着
-      ・二次元配列
+      board.addEventListener(
+        "pointercancel",
+        event => {
+          finishDrag(event, true);
+        }
+      );
 
-      を追加します。
-    */
+      board.addEventListener(
+        "contextmenu",
+        event => {
+          event.preventDefault();
+        }
+      );
+
+
+      /* =======================================================
+         画面サイズ変更
+         ======================================================= */
+
+      window.addEventListener(
+        "resize",
+        () => {
+          /*
+            操作していないときだけ位置を再計算します。
+          */
+          if (!drag.active && !drag.settling) {
+            positionAllRows();
+          }
+        }
+      );
+
+
+      /* =======================================================
+         ページ非表示時
+
+         途中状態のまま残さず、
+         現在確定済みの配列へ戻します。
+         ======================================================= */
+
+      document.addEventListener(
+        "visibilitychange",
+        () => {
+          if (!document.hidden) {
+            return;
+          }
+
+          if (drag.animationFrame !== null) {
+            cancelAnimationFrame(
+              drag.animationFrame
+            );
+
+            drag.animationFrame = null;
+          }
+
+          /*
+            未確定のドラッグは破棄します。
+            内部gridはまだ変更されていないため安全です。
+          */
+          drag.active = false;
+          drag.settling = false;
+
+          board.classList.remove("dragging");
+
+          resetDragState();
+
+          renderBoard();
+        }
+      );
+
+
+      /* =======================================================
+         初期表示
+         ======================================================= */
+
+      renderBoard();
+
+    })();
   </script>
 
 </body>
