@@ -16,43 +16,38 @@
 
 /* =========================================================
    SOFT MACHINE
-   STEP 2.4 — WOODEN INSTRUMENT
+   STEP 2.5 — MATERIAL POLISH
 
-   Design reference:
-   ・ウォールナット系の木製筐体
-   ・黒いマット操作パネル
-   ・金属製の操作子
-   ・木製レバーノブ
-   ・限定的なシアン / アンバー
-   ・実在する小型電子楽器のような製品感
+   今回の目的：
+   ・Step 2.4のレイアウトを維持
+   ・木材に半艶を追加
+   ・金属にサテン光沢を追加
+   ・黒パネルは艶消しのまま
+   ・LEDだけ透明感のある発光
    ========================================================= */
 
 :root {
-
   --page: #0c0907;
 
-  --wood-dark: #2b180f;
-  --wood-mid: #5b3420;
-  --wood-light: #815236;
-  --wood-edge: #a06a45;
+  --wood-deep: #24130c;
+  --wood-dark: #3c2115;
+  --wood-mid: #633b25;
+  --wood-light: #8a5938;
 
-  --panel: #151719;
-  --panel-deep: #0b0d0e;
-  --panel-light: #202326;
+  --panel: #17191b;
+  --panel-deep: #090b0c;
 
-  --line: #3a3d3f;
-  --line-soft: #292c2e;
+  --line: #414445;
 
-  --metal-dark: #353a3d;
-  --metal-mid: #777e81;
-  --metal-light: #b7bcbe;
+  --metal-dark: #343a3c;
+  --metal-mid: #747b7c;
+  --metal-light: #c2c6c4;
 
-  --text: #d0d0ca;
-  --text-mid: #8d8f8b;
-  --text-dim: #5e605d;
+  --text: #deddd6;
+  --text-mid: #949690;
 
-  --cyan: #59d6d0;
-  --amber: #e59a43;
+  --cyan: #59d8d2;
+  --amber: #e99b42;
 }
 
 
@@ -67,21 +62,17 @@
 
 html,
 body {
-
   margin: 0;
-
   width: 100%;
   height: 100%;
 
   overflow: hidden;
-
   overscroll-behavior: none;
 
   background: var(--page);
 }
 
 body {
-
   font-family:
     -apple-system,
     BlinkMacSystemFont,
@@ -103,7 +94,6 @@ body {
    ========================================================= */
 
 .app {
-
   width: min(100vw, 460px);
   height: 100dvh;
   min-height: 560px;
@@ -118,11 +108,11 @@ body {
   display: flex;
 
   background:
-
     radial-gradient(
-      circle at 50% 30%,
-      #21160f,
-      #080605 70%
+      ellipse at 50% 25%,
+      #21150e 0%,
+      #0b0806 62%,
+      #070504 100%
     );
 }
 
@@ -132,69 +122,108 @@ body {
    ========================================================= */
 
 .chassis {
-
   position: relative;
 
   flex: 1;
-
   min-width: 0;
   min-height: 0;
 
   padding: 14px;
 
-  border-radius: 23px;
+  overflow: hidden;
 
-  /*
-     CSSのみで木目を表現しています。
-     外部画像は使用していません。
-  */
+  border-radius: 23px;
 
   background:
 
+    /* subtle long grain */
     repeating-linear-gradient(
-      96deg,
-      rgba(255,255,255,0.018) 0px,
-      rgba(255,255,255,0.018) 1px,
+      92deg,
+      transparent 0px,
+      transparent 8px,
+      rgba(20,7,2,.13) 9px,
+      transparent 11px,
+      transparent 22px
+    ),
+
+    /* finer grain */
+    repeating-linear-gradient(
+      86deg,
+      rgba(255,224,190,.025) 0px,
+      rgba(255,224,190,.025) 1px,
       transparent 1px,
       transparent 7px
     ),
 
-    repeating-linear-gradient(
-      82deg,
-      rgba(28,10,3,0.16) 0px,
-      rgba(28,10,3,0.16) 2px,
-      transparent 2px,
-      transparent 15px
-    ),
-
     linear-gradient(
-      115deg,
-      #6d432a 0%,
-      #402518 27%,
-      #70472e 50%,
-      #392117 73%,
-      #65402a 100%
+      112deg,
+      #75472c 0%,
+      #4b2a1a 18%,
+      #75472d 39%,
+      #3e2216 61%,
+      #6c4028 82%,
+      #4a291a 100%
     );
 
-  border: 1px solid #7d5034;
+  border: 1px solid #895839;
 
   box-shadow:
+    0 24px 52px rgba(0,0,0,.68),
 
-    0 22px 50px rgba(0,0,0,0.65),
+    inset 0 1px 0 rgba(255,224,190,.30),
+    inset 0 -2px 3px rgba(21,7,2,.58),
 
-    inset 0 1px 0 rgba(255,225,190,0.18),
-
-    inset 0 -2px 3px rgba(28,10,3,0.5);
+    0 0 0 1px rgba(30,13,6,.45);
 }
 
 
-/* wood inner bevel */
+/*
+   木材の半艶。
 
-.chassis::before {
+   白いベタ塗りではなく、
+   上から柔らかな光が反射している程度にしています。
+*/
 
+.chassis::after {
   content: "";
 
   position: absolute;
+  z-index: 0;
+
+  inset: 0;
+
+  pointer-events: none;
+
+  border-radius: inherit;
+
+  background:
+
+    linear-gradient(
+      168deg,
+      rgba(255,235,210,.13) 0%,
+      rgba(255,235,210,.045) 11%,
+      transparent 25%
+    ),
+
+    linear-gradient(
+      90deg,
+      rgba(255,220,185,.05),
+      transparent 18%,
+      transparent 80%,
+      rgba(255,220,185,.025)
+    );
+
+  mix-blend-mode: screen;
+}
+
+
+/* inner wood bevel */
+
+.chassis::before {
+  content: "";
+
+  position: absolute;
+  z-index: 1;
 
   inset: 7px;
 
@@ -202,24 +231,21 @@ body {
 
   border-radius: 18px;
 
-  border:
-    1px solid rgba(22,10,5,0.5);
+  border: 1px solid rgba(25,9,4,.72);
 
   box-shadow:
-
-    inset 0 1px 1px rgba(255,220,180,0.07),
-
-    0 1px 0 rgba(255,210,170,0.06);
+    inset 0 1px 1px rgba(255,220,180,.10),
+    0 1px 0 rgba(255,210,170,.08);
 }
 
 
 /* =========================================================
-   BLACK FACE PLATE
+   FACEPLATE
    ========================================================= */
 
 .faceplate {
-
   position: relative;
+  z-index: 2;
 
   width: 100%;
   height: 100%;
@@ -235,36 +261,35 @@ body {
 
   background:
 
-    radial-gradient(
-      circle at 50% 0%,
-      rgba(255,255,255,0.025),
-      transparent 33%
+    /* extremely restrained panel reflection */
+    linear-gradient(
+      160deg,
+      rgba(255,255,255,.028) 0%,
+      transparent 19%
     ),
 
     linear-gradient(
       180deg,
-      #1b1d1f,
-      #111315
+      #1c1e20 0%,
+      #151719 52%,
+      #111315 100%
     );
 
-  border: 1px solid #080909;
+  border: 1px solid #070808;
 
   box-shadow:
-
-    inset 0 1px 0 rgba(255,255,255,0.06),
-
-    inset 0 0 0 1px rgba(255,255,255,0.018),
-
-    0 4px 10px rgba(0,0,0,0.48);
+    inset 0 1px 0 rgba(255,255,255,.09),
+    inset 0 0 0 1px rgba(255,255,255,.018),
+    inset 0 -1px 0 rgba(0,0,0,.8),
+    0 5px 12px rgba(0,0,0,.52);
 }
 
 
 /* =========================================================
-   MOUNTING SCREWS
+   SCREWS
    ========================================================= */
 
 .screw {
-
   position: absolute;
 
   width: 7px;
@@ -275,20 +300,20 @@ body {
   border-radius: 50%;
 
   background:
-
     radial-gradient(
-      circle at 35% 30%,
-      #a5a8a7,
-      #606566 45%,
-      #272b2c 80%
+      circle at 32% 25%,
+      #d1d2ce 0%,
+      #858a89 25%,
+      #4b5051 57%,
+      #222627 100%
     );
 
   box-shadow:
-    0 1px 2px rgba(0,0,0,.7);
+    0 1px 2px rgba(0,0,0,.75),
+    inset 0 1px 0 rgba(255,255,255,.3);
 }
 
 .screw::after {
-
   content: "";
 
   position: absolute;
@@ -299,30 +324,15 @@ body {
   left: 1.5px;
   top: 3px;
 
-  background: #242728;
+  background: #25292a;
 
   transform: rotate(-25deg);
 }
 
-.s1 {
-  top: 10px;
-  left: 10px;
-}
-
-.s2 {
-  top: 10px;
-  right: 10px;
-}
-
-.s3 {
-  bottom: 10px;
-  left: 10px;
-}
-
-.s4 {
-  bottom: 10px;
-  right: 10px;
-}
+.s1 { top: 10px; left: 10px; }
+.s2 { top: 10px; right: 10px; }
+.s3 { bottom: 10px; left: 10px; }
+.s4 { bottom: 10px; right: 10px; }
 
 
 /* =========================================================
@@ -330,7 +340,6 @@ body {
    ========================================================= */
 
 .header {
-
   flex: 0 0 47px;
 
   display: flex;
@@ -341,62 +350,63 @@ body {
 }
 
 .brand {
-
   display: flex;
   flex-direction: column;
-
   gap: 4px;
 }
 
 .title {
-
   font-size: 12px;
   font-weight: 650;
 
   letter-spacing: .21em;
 
-  color: #e0dfd8;
+  color: #e5e3dc;
+
+  text-shadow:
+    0 1px 0 rgba(0,0,0,.8);
 }
 
 .subtitle {
-
   font-size: 5.5px;
-
   letter-spacing: .18em;
-
-  color: #747570;
+  color: #797a75;
 }
 
 .status {
-
   display: flex;
   align-items: center;
-
   gap: 7px;
 
   padding-top: 3px;
 }
 
 .status-text {
-
   font-size: 5px;
-
   letter-spacing: .17em;
-
-  color: #696b67;
+  color: #737570;
 }
 
 .status-led {
+  position: relative;
 
-  width: 6px;
-  height: 6px;
+  width: 7px;
+  height: 7px;
 
   border-radius: 50%;
 
-  background: var(--cyan);
+  background:
+    radial-gradient(
+      circle at 35% 30%,
+      #d9ffff 0%,
+      #7de7e1 24%,
+      #3bbab6 65%,
+      #23706e 100%
+    );
 
   box-shadow:
-    0 0 6px rgba(89,214,208,.35);
+    0 0 4px rgba(89,216,210,.75),
+    0 0 9px rgba(89,216,210,.25);
 }
 
 
@@ -405,7 +415,6 @@ body {
    ========================================================= */
 
 .section-heading {
-
   height: 20px;
 
   display: flex;
@@ -420,23 +429,20 @@ body {
 
   letter-spacing: .18em;
 
-  color: #858781;
+  color: #90918c;
 }
 
 .section-index {
-
   color: var(--amber);
 }
 
 
 /* =========================================================
-   MECHANISM AREA
+   MECHANISM
    ========================================================= */
 
 .mechanism-section {
-
   flex: 0 0 40%;
-
   min-height: 0;
 
   display: flex;
@@ -444,11 +450,9 @@ body {
 }
 
 .mechanism {
-
   position: relative;
 
   flex: 1;
-
   min-height: 0;
 
   overflow: hidden;
@@ -456,20 +460,22 @@ body {
   border-radius: 7px;
 
   background:
-
+    linear-gradient(
+      155deg,
+      rgba(255,255,255,.018),
+      transparent 28%
+    ),
     linear-gradient(
       180deg,
       #0b0d0e,
-      #090a0b
+      #08090a
     );
 
-  border: 1px solid #3a3c3c;
+  border: 1px solid #3d4041;
 
   box-shadow:
-
-    inset 0 4px 10px rgba(0,0,0,.58),
-
-    inset 0 1px 0 rgba(255,255,255,.02);
+    inset 0 5px 12px rgba(0,0,0,.68),
+    inset 0 1px 0 rgba(255,255,255,.025);
 }
 
 
@@ -478,40 +484,45 @@ body {
    ========================================================= */
 
 .path-horizontal {
-
   position: absolute;
 
   left: 11%;
   right: 10%;
-
   top: 49%;
 
   height: 2px;
 
-  background: #363b3d;
+  background:
+    linear-gradient(
+      180deg,
+      #515758,
+      #252a2b
+    );
 }
 
 .path-vertical {
-
   position: absolute;
 
   left: 23%;
-
   top: 49%;
 
   width: 2px;
   height: 27%;
 
-  background: #363b3d;
+  background:
+    linear-gradient(
+      90deg,
+      #53595a,
+      #24292a
+    );
 }
 
 
 /* =========================================================
-   GEAR
+   GEAR — SATIN METAL
    ========================================================= */
 
 .gear-unit {
-
   position: absolute;
 
   left: 8%;
@@ -524,26 +535,24 @@ body {
 }
 
 .gear {
-
   position: absolute;
-
   inset: 0;
 
   border-radius: 50%;
 
   background:
-
     repeating-conic-gradient(
-      #878c8d 0deg 6deg,
-      #404648 6deg 13deg
+      #9da2a1 0deg 3deg,
+      #73797a 3deg 6deg,
+      #373d3f 6deg 13deg
     );
 
   box-shadow:
-    0 4px 7px rgba(0,0,0,.55);
+    0 5px 8px rgba(0,0,0,.6),
+    inset 0 1px 1px rgba(255,255,255,.2);
 }
 
 .gear::before {
-
   content: "";
 
   position: absolute;
@@ -553,18 +562,22 @@ body {
   border-radius: 50%;
 
   background:
-
     linear-gradient(
       145deg,
-      #62686a,
-      #303537
+      #7c8282 0%,
+      #555b5c 37%,
+      #343a3b 72%,
+      #4c5253 100%
     );
 
-  border: 5px solid #121415;
+  border: 5px solid #111314;
+
+  box-shadow:
+    inset 1px 1px 1px rgba(255,255,255,.13),
+    inset -1px -1px 2px rgba(0,0,0,.6);
 }
 
 .gear::after {
-
   content: "";
 
   position: absolute;
@@ -579,7 +592,15 @@ body {
 
   border-radius: 50%;
 
-  background: #070809;
+  background:
+    radial-gradient(
+      circle at 40% 35%,
+      #242829,
+      #050607 70%
+    );
+
+  box-shadow:
+    0 0 0 1px rgba(255,255,255,.05);
 }
 
 
@@ -588,44 +609,56 @@ body {
    ========================================================= */
 
 .track {
-
   position: absolute;
 
   left: 37%;
   right: 8%;
-
   top: 30%;
 
   height: 27px;
 
   border-radius: 4px;
 
-  background: #060708;
+  background:
+    linear-gradient(
+      180deg,
+      #050607,
+      #090a0b
+    );
 
-  border: 1px solid #383b3c;
+  border: 1px solid #3b3e3f;
 
   box-shadow:
-    inset 0 3px 5px rgba(0,0,0,.75);
+    inset 0 3px 6px rgba(0,0,0,.8),
+    inset 0 1px 0 rgba(255,255,255,.018);
 }
 
 .track-line {
-
   position: absolute;
 
   left: 10px;
   right: 10px;
-
   top: 50%;
 
-  height: 2px;
+  height: 3px;
 
   transform: translateY(-50%);
 
-  background: #797f80;
+  border-radius: 2px;
+
+  background:
+    linear-gradient(
+      180deg,
+      #c0c4c1 0%,
+      #7b8180 38%,
+      #444a4b 100%
+    );
+
+  box-shadow:
+    0 1px 1px rgba(0,0,0,.7);
 }
 
 .ball {
-
   position: absolute;
 
   width: 16px;
@@ -639,16 +672,18 @@ body {
   border-radius: 50%;
 
   background:
-
     radial-gradient(
-      circle at 34% 28%,
-      #d0d1cd,
-      #8d9190 42%,
-      #3c4142 80%
+      circle at 29% 22%,
+      #f1f1ec 0%,
+      #c1c4c1 18%,
+      #848a89 42%,
+      #464c4d 72%,
+      #252a2b 100%
     );
 
   box-shadow:
-    0 2px 4px rgba(0,0,0,.6);
+    0 3px 5px rgba(0,0,0,.65),
+    inset -1px -1px 2px rgba(0,0,0,.35);
 }
 
 
@@ -657,7 +692,6 @@ body {
    ========================================================= */
 
 .piston {
-
   position: absolute;
 
   left: 23%;
@@ -668,7 +702,6 @@ body {
 }
 
 .piston-body {
-
   position: absolute;
 
   width: 48px;
@@ -679,18 +712,22 @@ body {
   border-radius: 4px;
 
   background:
-
     linear-gradient(
       180deg,
-      #555b5c,
-      #33383a
+      #767c7b 0%,
+      #555b5b 18%,
+      #3c4243 60%,
+      #292e2f 100%
     );
 
-  border: 1px solid #707576;
+  border: 1px solid #767b7a;
+
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,.17),
+    0 3px 5px rgba(0,0,0,.42);
 }
 
 .piston-rod {
-
   position: absolute;
 
   left: 44px;
@@ -702,12 +739,18 @@ body {
   border-radius: 2px;
 
   background:
-
     linear-gradient(
       180deg,
-      #b5b8b6,
-      #767c7c
+      #e0e1dc 0%,
+      #b5b9b6 23%,
+      #858b89 55%,
+      #606665 78%,
+      #8b908e 100%
     );
+
+  box-shadow:
+    0 2px 3px rgba(0,0,0,.45),
+    inset 0 1px 0 rgba(255,255,255,.45);
 }
 
 
@@ -716,7 +759,6 @@ body {
    ========================================================= */
 
 .display-spring {
-
   position: absolute;
 
   right: 8%;
@@ -727,7 +769,6 @@ body {
 }
 
 .spring-stop {
-
   position: absolute;
 
   width: 6px;
@@ -735,48 +776,52 @@ body {
 
   top: 3px;
 
-  background: #888d8d;
+  background:
+    linear-gradient(
+      90deg,
+      #545a5a,
+      #b0b4b1 48%,
+      #606666
+    );
+
+  box-shadow:
+    1px 2px 2px rgba(0,0,0,.4);
 }
 
-.spring-stop.left {
-  left: 0;
-}
-
-.spring-stop.right {
-  right: 0;
-}
+.spring-stop.left { left: 0; }
+.spring-stop.right { right: 0; }
 
 .spring-coil {
-
   position: absolute;
 
   left: 5px;
   right: 5px;
-
   top: 6px;
 
   height: 18px;
 
-  border-top: 2px solid #8a8f8e;
-  border-bottom: 2px solid #8a8f8e;
+  border-top: 2px solid #afb3b0;
+  border-bottom: 2px solid #686e6d;
 
   background:
-
     repeating-linear-gradient(
       90deg,
       transparent 0 7px,
-      #8a8f8e 7px 9px,
-      transparent 9px 14px
+      #a8adaa 7px 8px,
+      #5d6362 8px 10px,
+      transparent 10px 14px
     );
+
+  filter:
+    drop-shadow(0 2px 1px rgba(0,0,0,.4));
 }
 
 
 /* =========================================================
-   INDICATOR
+   AMBER INDICATOR
    ========================================================= */
 
 .indicator {
-
   position: absolute;
 
   right: 7%;
@@ -789,24 +834,34 @@ body {
 }
 
 .indicator-led {
-
   width: 7px;
   height: 7px;
 
   border-radius: 50%;
 
-  background: var(--amber);
+  background:
+    radial-gradient(
+      circle at 35% 28%,
+      #ffe2b3,
+      #f4ad5a 30%,
+      #d77b27 70%
+    );
 
   box-shadow:
-    0 0 7px rgba(229,154,67,.3);
+    0 0 4px rgba(233,155,66,.8),
+    0 0 9px rgba(233,155,66,.22);
 }
 
 .indicator-bar {
-
   width: 27px;
   height: 2px;
 
-  background: #484c4c;
+  background:
+    linear-gradient(
+      180deg,
+      #646968,
+      #353a3b
+    );
 }
 
 
@@ -815,37 +870,38 @@ body {
    ========================================================= */
 
 .divider {
-
   flex: 0 0 12px;
-
   position: relative;
 }
 
 .divider::after {
-
   content: "";
 
   position: absolute;
 
   left: 0;
   right: 0;
-
   top: 50%;
 
   height: 1px;
 
-  background: #444541;
+  background:
+    linear-gradient(
+      90deg,
+      transparent,
+      #555650 5%,
+      #555650 95%,
+      transparent
+    );
 }
 
 
 /* =========================================================
-   CONTROL SECTION
+   CONTROLS
    ========================================================= */
 
 .control-section {
-
   flex: 1;
-
   min-height: 0;
 
   display: flex;
@@ -853,15 +909,12 @@ body {
 }
 
 .controls {
-
   flex: 1;
-
   min-height: 0;
 
   display: grid;
 
-  grid-template-columns:
-    1fr 1fr;
+  grid-template-columns: 1fr 1fr;
 
   grid-template-rows:
     1fr
@@ -873,7 +926,6 @@ body {
 }
 
 .control {
-
   position: relative;
 
   min-width: 0;
@@ -884,7 +936,6 @@ body {
 }
 
 .control-name {
-
   height: 16px;
 
   font-size: 5.5px;
@@ -892,13 +943,11 @@ body {
 
   letter-spacing: .17em;
 
-  color: #969791;
+  color: #a0a19b;
 }
 
 .control-number {
-
   margin-right: 5px;
-
   color: var(--amber);
 }
 
@@ -908,7 +957,6 @@ body {
    ========================================================= */
 
 .trigger-body {
-
   flex: 1;
 
   display: flex;
@@ -917,7 +965,6 @@ body {
 }
 
 .trigger-well {
-
   width: 65px;
   height: 65px;
 
@@ -926,49 +973,75 @@ body {
 
   border-radius: 50%;
 
-  background: #070809;
+  background:
+    radial-gradient(
+      circle,
+      #0b0d0e,
+      #050607
+    );
 
-  border: 1px solid #414445;
+  border: 1px solid #444849;
 
   box-shadow:
-    inset 0 4px 7px rgba(0,0,0,.7);
+    inset 0 5px 8px rgba(0,0,0,.82),
+    0 1px 0 rgba(255,255,255,.025);
 }
 
 .trigger-button {
-
   position: relative;
 
   width: 49px;
   height: 49px;
 
   border: 0;
-
   border-radius: 50%;
 
   background:
-
     radial-gradient(
-      circle at 35% 25%,
-      #a7aaa7,
-      #686e6e 44%,
-      #3a3f40 78%
+      circle at 28% 20%,
+      #d0d2ce 0%,
+      #a1a5a2 17%,
+      #747a79 42%,
+      #505657 67%,
+      #333839 100%
     );
 
   box-shadow:
-
     0 4px 0 #252929,
+    0 8px 12px rgba(0,0,0,.5),
 
-    0 7px 10px rgba(0,0,0,.45),
-
-    inset 1px 1px 2px rgba(255,255,255,.12);
+    inset 1px 1px 1px rgba(255,255,255,.3),
+    inset -2px -3px 5px rgba(0,0,0,.28);
 
   transition:
     transform 80ms ease,
     box-shadow 80ms ease;
 }
 
-.trigger-button::after {
+.trigger-button::before {
+  content: "";
 
+  position: absolute;
+
+  left: 10px;
+  right: 10px;
+  top: 7px;
+
+  height: 8px;
+
+  border-radius: 50%;
+
+  background:
+    linear-gradient(
+      180deg,
+      rgba(255,255,255,.18),
+      transparent
+    );
+
+  filter: blur(.2px);
+}
+
+.trigger-button::after {
   content: "";
 
   position: absolute;
@@ -983,18 +1056,26 @@ body {
 
   border-radius: 50%;
 
-  background: var(--amber);
+  background:
+    radial-gradient(
+      circle at 35% 30%,
+      #ffe1ac,
+      var(--amber) 48%,
+      #b96621
+    );
+
+  box-shadow:
+    0 0 5px rgba(233,155,66,.35);
 }
 
 .trigger-button:active {
-
   transform: translateY(3px);
 
   box-shadow:
-
     0 1px 0 #252929,
+    0 3px 5px rgba(0,0,0,.45),
 
-    0 3px 5px rgba(0,0,0,.45);
+    inset 1px 2px 5px rgba(0,0,0,.2);
 }
 
 
@@ -1003,7 +1084,6 @@ body {
    ========================================================= */
 
 .rotary-body {
-
   flex: 1;
 
   display: flex;
@@ -1012,7 +1092,6 @@ body {
 }
 
 .rotary-scale {
-
   position: relative;
 
   width: 79px;
@@ -1024,16 +1103,14 @@ body {
   border-radius: 50%;
 
   background:
-
     repeating-conic-gradient(
       from -130deg,
-      #747875 0deg 1deg,
+      #888d89 0deg 1deg,
       transparent 1deg 14deg
     );
 }
 
 .rotary-scale::after {
-
   content: "";
 
   position: absolute;
@@ -1046,9 +1123,7 @@ body {
 }
 
 .rotary-knob {
-
   position: relative;
-
   z-index: 2;
 
   width: 56px;
@@ -1057,22 +1132,46 @@ body {
   border-radius: 50%;
 
   background:
-
     radial-gradient(
-      circle at 35% 27%,
-      #898e8d,
-      #555b5c 48%,
-      #2e3334 80%
+      circle at 30% 20%,
+      #b3b6b2 0%,
+      #858a87 18%,
+      #5d6362 45%,
+      #3a4041 72%,
+      #292e2f 100%
     );
 
-  border: 1px solid #747978;
+  border: 1px solid #7f8582;
 
   box-shadow:
-    0 5px 8px rgba(0,0,0,.42);
+    0 6px 9px rgba(0,0,0,.48),
+
+    inset 1px 1px 1px rgba(255,255,255,.25),
+    inset -2px -3px 4px rgba(0,0,0,.25);
+}
+
+.rotary-knob::before {
+  content: "";
+
+  position: absolute;
+
+  left: 10px;
+  right: 10px;
+  top: 7px;
+
+  height: 8px;
+
+  border-radius: 50%;
+
+  background:
+    linear-gradient(
+      180deg,
+      rgba(255,255,255,.14),
+      transparent
+    );
 }
 
 .rotary-knob::after {
-
   content: "";
 
   position: absolute;
@@ -1087,10 +1186,15 @@ body {
 
   border-radius: 2px;
 
-  background: var(--cyan);
+  background:
+    linear-gradient(
+      180deg,
+      #b7ffff,
+      var(--cyan)
+    );
 
   box-shadow:
-    0 0 5px rgba(89,214,208,.25);
+    0 0 5px rgba(89,216,210,.45);
 }
 
 
@@ -1099,12 +1203,10 @@ body {
    ========================================================= */
 
 .transfer {
-
   grid-column: 1 / 3;
 }
 
 .transfer-body {
-
   position: relative;
 
   flex: 1;
@@ -1114,7 +1216,6 @@ body {
 }
 
 .slider-track {
-
   position: relative;
 
   width: 100%;
@@ -1122,34 +1223,44 @@ body {
 
   border-radius: 3px;
 
-  background: #070809;
+  background:
+    linear-gradient(
+      180deg,
+      #050607,
+      #090a0b
+    );
 
-  border: 1px solid #3d4041;
+  border: 1px solid #414445;
 
   box-shadow:
-    inset 0 3px 5px rgba(0,0,0,.7);
+    inset 0 4px 6px rgba(0,0,0,.78);
 }
 
 .slider-track::after {
-
   content: "";
 
   position: absolute;
 
   left: 12px;
   right: 12px;
-
   top: 50%;
 
-  height: 2px;
+  height: 3px;
 
   transform: translateY(-50%);
 
-  background: #777c7b;
+  border-radius: 2px;
+
+  background:
+    linear-gradient(
+      180deg,
+      #b1b5b2,
+      #747a79 48%,
+      #444a4b
+    );
 }
 
 .slider-knob {
-
   position: absolute;
 
   width: 44px;
@@ -1165,21 +1276,40 @@ body {
   border-radius: 4px;
 
   background:
-
     linear-gradient(
-      145deg,
-      #868b89,
-      #4b5152
+      155deg,
+      #a8aca8 0%,
+      #7a807e 19%,
+      #5a6060 48%,
+      #3c4243 77%,
+      #4e5454 100%
     );
 
-  border: 1px solid #8b908e;
+  border: 1px solid #909592;
 
   box-shadow:
-    0 5px 8px rgba(0,0,0,.45);
+    0 6px 9px rgba(0,0,0,.48),
+
+    inset 1px 1px 1px rgba(255,255,255,.28),
+    inset -1px -2px 3px rgba(0,0,0,.25);
+}
+
+.slider-knob::before {
+  content: "";
+
+  position: absolute;
+
+  left: 4px;
+  right: 4px;
+  top: 3px;
+
+  height: 1px;
+
+  background:
+    rgba(255,255,255,.25);
 }
 
 .slider-knob::after {
-
   content: "";
 
   position: absolute;
@@ -1194,16 +1324,22 @@ body {
 
   border-radius: 2px;
 
-  background: var(--amber);
+  background:
+    linear-gradient(
+      180deg,
+      #ffd39d,
+      var(--amber)
+    );
+
+  box-shadow:
+    0 0 4px rgba(233,155,66,.25);
 }
 
 .slider-scale {
-
   position: absolute;
 
   left: 12px;
   right: 12px;
-
   bottom: 0;
 
   display: flex;
@@ -1211,11 +1347,10 @@ body {
 }
 
 .slider-scale span {
-
   width: 1px;
   height: 4px;
 
-  background: #666966;
+  background: #6d706b;
 }
 
 
@@ -1224,7 +1359,6 @@ body {
    ========================================================= */
 
 .lever-body {
-
   position: relative;
 
   flex: 1;
@@ -1235,7 +1369,6 @@ body {
 }
 
 .lever-slot {
-
   position: relative;
 
   width: 78px;
@@ -1243,16 +1376,20 @@ body {
 
   border-radius: 5px;
 
-  background: #070809;
+  background:
+    radial-gradient(
+      ellipse at center,
+      #0b0d0e,
+      #050607 74%
+    );
 
-  border: 1px solid #414445;
+  border: 1px solid #444849;
 
   box-shadow:
-    inset 0 4px 8px rgba(0,0,0,.75);
+    inset 0 5px 9px rgba(0,0,0,.82);
 }
 
 .lever-arm {
-
   position: absolute;
 
   width: 10px;
@@ -1270,23 +1407,24 @@ body {
   border-radius: 2px;
 
   background:
-
     linear-gradient(
       90deg,
-      #474d4e,
-      #a4a8a6 48%,
-      #565c5c
+      #3e4445 0%,
+      #8f9593 20%,
+      #d0d2ce 47%,
+      #777d7b 67%,
+      #3d4344 100%
     );
 
   box-shadow:
-    3px 4px 6px rgba(0,0,0,.45);
+    3px 5px 7px rgba(0,0,0,.5),
+    inset 1px 0 0 rgba(255,255,255,.18);
 }
 
 
-/* Wooden lever knob */
+/* polished wooden handle */
 
 .lever-handle {
-
   position: absolute;
 
   width: 29px;
@@ -1300,19 +1438,43 @@ body {
   border-radius: 50%;
 
   background:
-
     radial-gradient(
-      circle at 35% 28%,
-      #b17a50,
-      #75482d 47%,
-      #422619 80%
+      circle at 29% 20%,
+      #d09a68 0%,
+      #ad7045 20%,
+      #7c492d 49%,
+      #4c2a1b 76%,
+      #321b12 100%
     );
 
-  border:
-    1px solid #8c5c3b;
+  border: 1px solid #925c39;
 
   box-shadow:
-    0 4px 7px rgba(0,0,0,.48);
+    0 5px 8px rgba(0,0,0,.5),
+
+    inset 1px 1px 1px rgba(255,220,180,.25),
+    inset -2px -3px 4px rgba(45,15,5,.3);
+}
+
+.lever-handle::after {
+  content: "";
+
+  position: absolute;
+
+  left: 6px;
+  right: 7px;
+  top: 4px;
+
+  height: 6px;
+
+  border-radius: 50%;
+
+  background:
+    linear-gradient(
+      180deg,
+      rgba(255,230,200,.18),
+      transparent
+    );
 }
 
 
@@ -1321,7 +1483,6 @@ body {
    ========================================================= */
 
 .tension-body {
-
   flex: 1;
 
   display: flex;
@@ -1330,7 +1491,6 @@ body {
 }
 
 .tension-unit {
-
   position: relative;
 
   width: 116px;
@@ -1338,7 +1498,6 @@ body {
 }
 
 .tension-anchor {
-
   position: absolute;
 
   left: 0;
@@ -1353,42 +1512,48 @@ body {
 
   background:
     linear-gradient(
-      180deg,
-      #585e5e,
-      #383e3f
+      155deg,
+      #8a8f8c 0%,
+      #5b6160 28%,
+      #3b4142 72%,
+      #4a5050 100%
     );
 
-  border: 1px solid #727776;
+  border: 1px solid #7c817e;
+
+  box-shadow:
+    inset 1px 1px 1px rgba(255,255,255,.18),
+    0 4px 6px rgba(0,0,0,.35);
 }
 
 .tension-spring {
-
   position: absolute;
 
   left: 25px;
   right: 35px;
-
   top: 50%;
 
   height: 19px;
 
   transform: translateY(-50%);
 
-  border-top: 2px solid #979b98;
-  border-bottom: 2px solid #979b98;
+  border-top: 2px solid #b5b9b5;
+  border-bottom: 2px solid #656b69;
 
   background:
-
     repeating-linear-gradient(
       90deg,
       transparent 0 7px,
-      #979b98 7px 9px,
-      transparent 9px 15px
+      #b5b9b5 7px 8px,
+      #686e6c 8px 10px,
+      transparent 10px 15px
     );
+
+  filter:
+    drop-shadow(0 2px 1px rgba(0,0,0,.42));
 }
 
 .tension-handle {
-
   position: absolute;
 
   right: 0;
@@ -1402,21 +1567,40 @@ body {
   border-radius: 4px;
 
   background:
-
     linear-gradient(
-      145deg,
-      #858a88,
-      #4b5151
+      155deg,
+      #a7aba7 0%,
+      #7b817f 20%,
+      #555b5b 51%,
+      #393f40 80%,
+      #4a5050 100%
     );
 
-  border: 1px solid #898e8c;
+  border: 1px solid #8c918e;
 
   box-shadow:
-    0 5px 8px rgba(0,0,0,.45);
+    0 6px 9px rgba(0,0,0,.46),
+
+    inset 1px 1px 1px rgba(255,255,255,.24),
+    inset -1px -2px 3px rgba(0,0,0,.24);
+}
+
+.tension-handle::before {
+  content: "";
+
+  position: absolute;
+
+  left: 4px;
+  right: 4px;
+  top: 3px;
+
+  height: 1px;
+
+  background:
+    rgba(255,255,255,.22);
 }
 
 .tension-handle::after {
-
   content: "";
 
   position: absolute;
@@ -1431,7 +1615,15 @@ body {
 
   border-radius: 2px;
 
-  background: var(--cyan);
+  background:
+    linear-gradient(
+      180deg,
+      #bafffb,
+      var(--cyan)
+    );
+
+  box-shadow:
+    0 0 5px rgba(89,216,210,.38);
 }
 
 
@@ -1440,7 +1632,6 @@ body {
    ========================================================= */
 
 .footer {
-
   flex: 0 0 18px;
 
   display: flex;
@@ -1450,21 +1641,17 @@ body {
   padding: 0 3px;
 
   font-size: 5px;
-
   letter-spacing: .16em;
 
-  color: #666762;
+  color: #6c6d68;
 }
 
 .footer-lights {
-
   display: flex;
-
   gap: 5px;
 }
 
 .footer-lights span {
-
   width: 3px;
   height: 3px;
 
@@ -1474,13 +1661,15 @@ body {
 }
 
 .footer-lights span:first-child {
-
   background: var(--cyan);
+
+  box-shadow:
+    0 0 4px rgba(89,216,210,.45);
 }
 
 
 /* =========================================================
-   SHORTER IPHONES
+   SHORT IPHONES
    ========================================================= */
 
 @media (max-height: 700px) {
@@ -1533,16 +1722,10 @@ body {
 
 <main class="app">
 
-
-  <!-- =====================================================
-       WOODEN PRODUCT BODY
-       ===================================================== -->
-
   <section
     class="chassis"
     aria-label="Soft Machine"
   >
-
 
     <section class="faceplate">
 
@@ -1593,7 +1776,6 @@ body {
 
       <section class="mechanism-section">
 
-
         <div class="section-heading">
 
           <span class="section-index">
@@ -1608,28 +1790,22 @@ body {
         <div class="mechanism">
 
 
-          <!-- simple mechanical paths -->
-
           <div class="path-horizontal"></div>
-
           <div class="path-vertical"></div>
 
 
           <!-- gear -->
 
           <div class="gear-unit">
-
             <div class="gear"></div>
-
           </div>
 
 
-          <!-- ball rail -->
+          <!-- ball track -->
 
           <div class="track">
 
             <div class="track-line"></div>
-
             <div class="ball"></div>
 
           </div>
@@ -1640,7 +1816,6 @@ body {
           <div class="piston">
 
             <div class="piston-body"></div>
-
             <div class="piston-rod"></div>
 
           </div>
@@ -1651,20 +1826,17 @@ body {
           <div class="display-spring">
 
             <div class="spring-stop left"></div>
-
             <div class="spring-coil"></div>
-
             <div class="spring-stop right"></div>
 
           </div>
 
 
-          <!-- small indicator -->
+          <!-- indicator -->
 
           <div class="indicator">
 
             <div class="indicator-led"></div>
-
             <div class="indicator-bar"></div>
 
           </div>
@@ -1684,7 +1856,6 @@ body {
 
       <section class="control-section">
 
-
         <div class="section-heading">
 
           <span class="section-index">
@@ -1699,12 +1870,9 @@ body {
         <div class="controls">
 
 
-          <!-- =============================================
-               01 TRIGGER
-               ============================================= -->
+          <!-- TRIGGER -->
 
           <div class="control">
-
 
             <div class="control-name">
 
@@ -1719,9 +1887,7 @@ body {
 
             <div class="trigger-body">
 
-
               <div class="trigger-well">
-
 
                 <button
                   class="trigger-button"
@@ -1729,22 +1895,16 @@ body {
                   aria-label="Trigger button"
                 ></button>
 
-
               </div>
 
-
             </div>
-
 
           </div>
 
 
-          <!-- =============================================
-               02 ROTARY
-               ============================================= -->
+          <!-- ROTARY -->
 
           <div class="control">
-
 
             <div class="control-name">
 
@@ -1759,9 +1919,7 @@ body {
 
             <div class="rotary-body">
 
-
               <div class="rotary-scale">
-
 
                 <div
                   class="rotary-knob"
@@ -1773,22 +1931,16 @@ body {
                   aria-valuenow="50"
                 ></div>
 
-
               </div>
 
-
             </div>
-
 
           </div>
 
 
-          <!-- =============================================
-               03 TRANSFER
-               ============================================= -->
+          <!-- TRANSFER -->
 
           <div class="control transfer">
-
 
             <div class="control-name">
 
@@ -1803,7 +1955,6 @@ body {
 
             <div class="transfer-body">
 
-
               <div
                 class="slider-track"
                 role="slider"
@@ -1814,9 +1965,7 @@ body {
                 aria-valuenow="50"
               >
 
-
                 <div class="slider-knob"></div>
-
 
               </div>
 
@@ -1835,19 +1984,14 @@ body {
 
               </div>
 
-
             </div>
-
 
           </div>
 
 
-          <!-- =============================================
-               04 LEVER
-               ============================================= -->
+          <!-- LEVER -->
 
           <div class="control">
-
 
             <div class="control-name">
 
@@ -1862,9 +2006,7 @@ body {
 
             <div class="lever-body">
 
-
               <div class="lever-slot">
-
 
                 <div
                   class="lever-arm"
@@ -1876,28 +2018,20 @@ body {
                   aria-valuenow="50"
                 >
 
-
                   <div class="lever-handle"></div>
-
 
                 </div>
 
-
               </div>
 
-
             </div>
-
 
           </div>
 
 
-          <!-- =============================================
-               05 TENSION
-               ============================================= -->
+          <!-- TENSION -->
 
           <div class="control">
-
 
             <div class="control-name">
 
@@ -1912,7 +2046,6 @@ body {
 
             <div class="tension-body">
 
-
               <div
                 class="tension-unit"
                 role="slider"
@@ -1923,19 +2056,13 @@ body {
                 aria-valuenow="0"
               >
 
-
                 <div class="tension-anchor"></div>
-
                 <div class="tension-spring"></div>
-
                 <div class="tension-handle"></div>
-
 
               </div>
 
-
             </div>
-
 
           </div>
 
@@ -1951,7 +2078,6 @@ body {
 
       <footer class="footer">
 
-
         <div>
           SM–01
         </div>
@@ -1964,7 +2090,6 @@ body {
           <span></span>
 
         </div>
-
 
       </footer>
 
@@ -1979,22 +2104,24 @@ body {
 <script>
 
 /* =========================================================
-   SOFT MACHINE — STEP 2.4
+   SOFT MACHINE — STEP 2.5
 
-   現在は外観確認段階です。
+   MATERIAL POLISH
 
-   動作：
-   ・TRIGGERのみCSSの押下表現
+   この段階では外観を確認します。
 
-   まだ実装しないもの：
-   ・ROTARY操作
-   ・TRANSFER操作
-   ・LEVER操作
-   ・TENSION操作
-   ・機械連鎖
-   ・Web Audio
+   実装済み：
+   ・Triggerの押下表現
 
-   デザイン確定後にStep 3へ進みます。
+   未実装：
+   ・Rotary操作
+   ・Transfer操作
+   ・Lever操作
+   ・Tension操作
+   ・連鎖反応
+   ・サウンド
+
+   デザイン確定後、Step 3へ進みます。
    ========================================================= */
 
 </script>
