@@ -26,7 +26,6 @@
 
   --board-size: min(86vw, 410px);
   --board-radius: 22px;
-  --snap-duration: 185ms;
 }
 
 * {
@@ -38,6 +37,7 @@ html,
 body {
   width: 100%;
   min-height: 100%;
+
   margin: 0;
   padding: 0;
 
@@ -236,7 +236,7 @@ body {
 
 
 /* =========================================================
-   WOOD TILE
+   TILE
    ========================================================= */
 
 .tile {
@@ -304,7 +304,7 @@ body {
 
 
 /* =========================================================
-   THREE-WOOD SYSTEM
+   THREE WOOD COLORS
    ========================================================= */
 
 .wood-fill-light {
@@ -320,24 +320,8 @@ body {
 }
 
 
-/*
-  境界線も別色を増やさずDark Woodを使用。
-*/
-.wood-line {
-  fill: none;
-
-  stroke: var(--wood-dark);
-  stroke-width: 1.4;
-
-  stroke-linecap: round;
-  stroke-linejoin: round;
-
-  opacity: .28;
-}
-
-
 /* =========================================================
-   DRAG ROW / COLUMN
+   ACTIVE STRIPS
    ========================================================= */
 
 .drag-row {
@@ -502,7 +486,13 @@ const CONFIG = {
   snapDuration: 185,
 
   maxVelocityBonus: 0.25,
-  maxStepsPerGesture: 2
+  maxStepsPerGesture: 2,
+
+  /*
+    初期盤面の偏りを減らすための
+    シャッフル試行回数。
+  */
+  shuffleAttempts: 180
 };
 
 
@@ -522,7 +512,12 @@ const prefersReducedMotion =
 
 
 /* =========================================================
-   36 UNIQUE TILES
+   36 TILES
+
+   pattern = 0〜5
+   variant = 0〜5
+
+   6 pattern × 6 variant = 36
    ========================================================= */
 
 const WOOD_NAMES = [
@@ -563,7 +558,7 @@ const TILE_MAP =
 
 
 /* =========================================================
-   THREE-WOOD ASSIGNMENT
+   WOOD ASSIGNMENT
    ========================================================= */
 
 function getWoodClasses(tile) {
@@ -593,17 +588,35 @@ function getWoodClasses(tile) {
 
 
 /* =========================================================
-   STEP 5R-6 GEOMETRIC GRAMMAR
+   3 × 3 GEOMETRIC GRID
 
-   重要ルール：
+   SVGは100×100ですが、主要座標を
 
-   ・主要な色面は必ず外周へ到達する
-   ・中央だけで完結する小図形を原則作らない
-   ・孤立色面は最大1色
-   ・図柄は「タイルの絵」ではなく
-     「大きな模様を切り取った断片」として設計
+   0
+   33.333
+   66.667
+   100
 
-   6 family × 6 transform = 36 tiles
+   に限定します。
+
+   これによって隣接タイル同士で、
+   色面の出入口が共通位置へ揃いやすくなります。
+   ========================================================= */
+
+const G1 = 33.333;
+const G2 = 66.667;
+
+
+/* =========================================================
+   TILE SVG
+
+   6種類すべて、
+
+   ・内部だけで完結する装飾を作らない
+   ・色面を外周へ到達させる
+   ・主要な境界点を3×3グリッドへ固定
+
+   という規則で構成。
    ========================================================= */
 
 function tileSVG(tile) {
@@ -611,11 +624,18 @@ function tileSVG(tile) {
   const wood =
     getWoodClasses(tile);
 
+
+  /*
+    90度回転もグリッド位置を保存するため、
+    接続点は必ず同じ規格に残ります。
+  */
   const rotation =
     (tile.variant % 4) * 90;
 
+
   const flip =
     tile.variant >= 4;
+
 
   const transform =
     `translate(50 50)
@@ -627,9 +647,9 @@ function tileSVG(tile) {
   const patterns = [
 
     /* =====================================================
-       0 — DIAGONAL FIELD
+       0 — DIAGONAL
 
-       3つの面すべてが外周へ到達。
+       左上 → 右下方向の大きな面。
        ===================================================== */
     `
     <g transform="${transform}">
@@ -638,69 +658,29 @@ function tileSVG(tile) {
         class="${wood.a}"
         points="
           0,0
-          100,0
-          0,100
+          ${G2},0
+          100,${G1}
+          100,${G2}
+          ${G2},100
+          ${G1},100
+          0,${G2}
         "
       />
 
       <polygon
         class="${wood.b}"
         points="
+          ${G2},0
           100,0
-          100,50
-          50,100
-          0,100
+          100,${G1}
         "
       />
 
       <polygon
         class="${wood.c}"
         points="
-          100,50
-          100,100
-          50,100
-        "
-      />
-
-    </g>
-    `,
-
-
-    /* =====================================================
-       1 — CROSSING BAND
-
-       対角方向へ抜ける帯。
-       中央で完結しない。
-       ===================================================== */
-    `
-    <g transform="${transform}">
-
-      <polygon
-        class="${wood.a}"
-        points="
-          0,0
-          45,0
-          100,55
-          100,100
-          85,100
-          0,15
-        "
-      />
-
-      <polygon
-        class="${wood.b}"
-        points="
-          45,0
-          100,0
-          100,55
-        "
-      />
-
-      <polygon
-        class="${wood.c}"
-        points="
-          0,15
-          85,100
+          0,${G2}
+          ${G1},100
           0,100
         "
       />
@@ -710,11 +690,9 @@ function tileSVG(tile) {
 
 
     /* =====================================================
-       2 — EDGE DIAMOND FRAGMENT
+       1 — WIDE BAND
 
-       完全な菱形を中央に置かず、
-       巨大な菱形の一部分だけが
-       タイルを横切っている構成。
+       斜めの太い帯。
        ===================================================== */
     `
     <g transform="${transform}">
@@ -723,29 +701,29 @@ function tileSVG(tile) {
         class="${wood.a}"
         points="
           0,0
-          50,0
-          100,50
+          ${G1},0
+          100,${G2}
           100,100
-          50,100
-          0,50
+          ${G2},100
+          0,${G1}
         "
       />
 
       <polygon
         class="${wood.b}"
         points="
-          0,0
-          0,50
-          50,0
+          ${G1},0
+          100,0
+          100,${G2}
         "
       />
 
       <polygon
         class="${wood.c}"
         points="
-          50,100
-          100,50
-          100,100
+          0,${G1}
+          ${G2},100
+          0,100
         "
       />
 
@@ -754,12 +732,56 @@ function tileSVG(tile) {
 
 
     /* =====================================================
-       3 — BROAD CURVE
+       2 — SPLIT FIELD
 
-       円そのものではなく、
-       大きな円弧の断片。
+       中央図形ではなく、
+       上下左右から侵入する色面。
+       ===================================================== */
+    `
+    <g transform="${transform}">
 
-       両色とも外周へ到達。
+      <polygon
+        class="${wood.a}"
+        points="
+          0,0
+          ${G2},0
+          100,${G1}
+          100,${G2}
+          ${G2},100
+          ${G1},100
+          0,${G2}
+        "
+      />
+
+      <polygon
+        class="${wood.b}"
+        points="
+          ${G2},0
+          100,0
+          100,${G1}
+        "
+      />
+
+      <polygon
+        class="${wood.c}"
+        points="
+          0,${G2}
+          ${G1},100
+          0,100
+        "
+      />
+
+    </g>
+    `,
+
+
+    /* =====================================================
+       3 — GRID ARC
+
+       曲線の始点・終点だけは
+       1/3グリッドへ固定。
+
+       曲線そのものはその間を滑らかに接続。
        ===================================================== */
     `
     <g transform="${transform}">
@@ -769,8 +791,12 @@ function tileSVG(tile) {
         d="
           M0 0
           H100
-          V28
-          C58 28 28 58 28 100
+          V${G1}
+
+          C${G2} ${G1},
+           ${G1} ${G2},
+           ${G1} 100
+
           H0
           Z
         "
@@ -779,71 +805,24 @@ function tileSVG(tile) {
       <path
         class="${wood.b}"
         d="
-          M100 28
+          M100 ${G1}
           V100
-          H28
-          C28 58 58 28 100 28
+          H${G1}
+
+          C${G1} ${G2},
+           ${G2} ${G1},
+           100 ${G1}
+
           Z
         "
       />
-
-      <path
-        class="${wood.c}"
-        d="
-          M0 72
-          C22 32 54 10 100 10
-          L100 0
-          L0 0
-          Z
-        "
-        opacity=".72"
-      />
-
-    </g>
-    `,
-
-
-    /* =====================================================
-       4 — OPEN CHEVRON
-
-       山形が中央で閉じず、
-       左右・上下へ抜ける。
-       ===================================================== */
-    `
-    <g transform="${transform}">
 
       <polygon
-        class="${wood.a}"
+        class="${wood.c}"
         points="
           0,0
-          50,45
-          100,0
-          100,35
-          50,80
-          0,35
-        "
-      />
-
-      <polygon
-        class="${wood.b}"
-        points="
-          0,35
-          50,80
-          100,35
-          100,100
-          75,100
-          50,78
-          25,100
-          0,100
-        "
-      />
-
-      <polygon
-        class="${wood.c}"
-        points="
-          25,100
-          50,78
-          75,100
+          ${G1},0
+          0,${G1}
         "
       />
 
@@ -852,10 +831,9 @@ function tileSVG(tile) {
 
 
     /* =====================================================
-       5 — OFFSET TRAPEZOID FIELD
+       4 — CHEVRON
 
-       台形を「中央の図形」として置かず、
-       画面外まで続く巨大面として扱う。
+       全頂点を3×3グリッドへ固定。
        ===================================================== */
     `
     <g transform="${transform}">
@@ -864,21 +842,24 @@ function tileSVG(tile) {
         class="${wood.a}"
         points="
           0,0
-          72,0
-          100,45
-          100,100
-          72,100
-          42,50
-          0,50
+          50,${G1}
+          100,0
+          100,${G1}
+          50,${G2}
+          0,${G1}
         "
       />
 
       <polygon
         class="${wood.b}"
         points="
-          0,50
-          42,50
-          72,100
+          0,${G1}
+          50,${G2}
+          100,${G1}
+          100,100
+          ${G2},100
+          50,${G2}
+          ${G1},100
           0,100
         "
       />
@@ -886,9 +867,56 @@ function tileSVG(tile) {
       <polygon
         class="${wood.c}"
         points="
-          72,0
+          ${G1},100
+          50,${G2}
+          ${G2},100
+        "
+      />
+
+    </g>
+    `,
+
+
+    /* =====================================================
+       5 — STEPPED FIELD
+
+       斜めだけでなく直角方向も混ぜることで、
+       盤面全体の繰り返し感を減らします。
+       ===================================================== */
+    `
+    <g transform="${transform}">
+
+      <polygon
+        class="${wood.a}"
+        points="
+          0,0
+          ${G2},0
+          ${G2},${G1}
+          100,${G1}
+          100,${G2}
+          ${G1},${G2}
+          ${G1},100
+          0,100
+        "
+      />
+
+      <polygon
+        class="${wood.b}"
+        points="
+          ${G2},0
           100,0
-          100,45
+          100,${G1}
+          ${G2},${G1}
+        "
+      />
+
+      <polygon
+        class="${wood.c}"
+        points="
+          ${G1},${G2}
+          100,${G2}
+          100,100
+          ${G1},100
         "
       />
 
@@ -910,15 +938,63 @@ function tileSVG(tile) {
 
 
 /* =========================================================
-   6 × 6 WORLD
+   WORLD
    ========================================================= */
 
 let world = [];
 
 
-function resetWorld() {
+const WINDOW = {
+  rowStart: 1,
+  columnStart: 1
+};
 
-  world = [];
+
+/* =========================================================
+   SHUFFLE
+   ========================================================= */
+
+function shuffledCopy(array) {
+
+  const result =
+    [...array];
+
+
+  for (
+    let i = result.length - 1;
+    i > 0;
+    i--
+  ) {
+
+    const j =
+      Math.floor(
+        Math.random() *
+        (i + 1)
+      );
+
+
+    [
+      result[i],
+      result[j]
+    ] = [
+      result[j],
+      result[i]
+    ];
+  }
+
+
+  return result;
+}
+
+
+/* =========================================================
+   CREATE WORLD FROM ORDER
+   ========================================================= */
+
+function worldFromIds(ids) {
+
+  const result = [];
+
 
   for (
     let row = 0;
@@ -926,40 +1002,330 @@ function resetWorld() {
     row++
   ) {
 
-    const line = [];
-
-    for (
-      let column = 0;
-      column < CONFIG.worldSize;
-      column++
-    ) {
-
-      const index =
+    result.push(
+      ids.slice(
         row *
-        CONFIG.worldSize +
-        column;
+        CONFIG.worldSize,
 
-      line.push(
-        TILE_DEFS[index].id
-      );
-    }
-
-    world.push(line);
+        (row + 1) *
+        CONFIG.worldSize
+      )
+    );
   }
+
+
+  return result;
 }
 
 
-resetWorld();
+/* =========================================================
+   INITIAL LAYOUT SCORE
+
+   数字が小さいほど、
+   初期表示の同系統パターンが散っています。
+
+   ここでは「ゲーム的な最適化」ではなく、
+   初期の見た目の偏りだけを抑えます。
+   ========================================================= */
+
+function initialLayoutScore(candidateWorld) {
+
+  const visible = [];
+
+
+  for (
+    let row = 0;
+    row < 3;
+    row++
+  ) {
+
+    const line = [];
+
+
+    for (
+      let column = 0;
+      column < 3;
+      column++
+    ) {
+
+      const id =
+        candidateWorld[
+          WINDOW.rowStart + row
+        ][
+          WINDOW.columnStart + column
+        ];
+
+
+      line.push(
+        TILE_MAP.get(id)
+      );
+    }
+
+
+    visible.push(line);
+  }
+
+
+  let score = 0;
+
+
+  /*
+    横・縦で同じpatternが直接隣接すると
+    強めのペナルティ。
+  */
+  for (
+    let row = 0;
+    row < 3;
+    row++
+  ) {
+
+    for (
+      let column = 0;
+      column < 3;
+      column++
+    ) {
+
+      const current =
+        visible[row][column];
+
+
+      if (
+        column < 2
+      ) {
+
+        const right =
+          visible[row][column + 1];
+
+
+        if (
+          current.pattern ===
+          right.pattern
+        ) {
+          score += 5;
+        }
+
+
+        if (
+          current.wood ===
+          right.wood
+        ) {
+          score += 1;
+        }
+      }
+
+
+      if (
+        row < 2
+      ) {
+
+        const below =
+          visible[row + 1][column];
+
+
+        if (
+          current.pattern ===
+          below.pattern
+        ) {
+          score += 5;
+        }
+
+
+        if (
+          current.wood ===
+          below.wood
+        ) {
+          score += 1;
+        }
+      }
+
+
+      /*
+        斜め方向も同patternが固まりすぎないよう
+        軽いペナルティ。
+      */
+      if (
+        row < 2 &&
+        column < 2
+      ) {
+
+        const diagonal =
+          visible[row + 1][column + 1];
+
+
+        if (
+          current.pattern ===
+          diagonal.pattern
+        ) {
+          score += 2;
+        }
+      }
+
+
+      if (
+        row < 2 &&
+        column > 0
+      ) {
+
+        const diagonal =
+          visible[row + 1][column - 1];
+
+
+        if (
+          current.pattern ===
+          diagonal.pattern
+        ) {
+          score += 2;
+        }
+      }
+    }
+  }
+
+
+  /*
+    同じpatternが3×3内に
+    3枚以上出る場合も抑制。
+  */
+  const patternCounts =
+    new Array(6).fill(0);
+
+
+  visible
+    .flat()
+    .forEach(tile => {
+
+      patternCounts[
+        tile.pattern
+      ]++;
+    });
+
+
+  patternCounts.forEach(
+    count => {
+
+      if (
+        count > 2
+      ) {
+
+        score +=
+          (count - 2) * 4;
+      }
+    }
+  );
+
+
+  return score;
+}
 
 
 /* =========================================================
-   VISIBLE 3 × 3 WINDOW
+   RANDOM INITIAL WORLD
+
+   180候補から、
+   最もパターンの偏りが少ないものを採用。
+
+   36枚は必ず1枚ずつ存在します。
    ========================================================= */
 
-const WINDOW = {
-  rowStart: 1,
-  columnStart: 1
-};
+function createRandomWorld() {
+
+  const ids =
+    TILE_DEFS.map(
+      tile => tile.id
+    );
+
+
+  let bestWorld =
+    null;
+
+  let bestScore =
+    Infinity;
+
+
+  for (
+    let attempt = 0;
+    attempt < CONFIG.shuffleAttempts;
+    attempt++
+  ) {
+
+    const shuffled =
+      shuffledCopy(ids);
+
+
+    const candidate =
+      worldFromIds(
+        shuffled
+      );
+
+
+    const score =
+      initialLayoutScore(
+        candidate
+      );
+
+
+    if (
+      score < bestScore
+    ) {
+
+      bestScore =
+        score;
+
+      bestWorld =
+        candidate;
+    }
+
+
+    /*
+      十分散っていれば
+      それ以上探索しません。
+    */
+    if (
+      bestScore === 0
+    ) {
+      break;
+    }
+  }
+
+
+  world =
+    bestWorld ||
+    worldFromIds(ids);
+}
+
+
+/* =========================================================
+   VALIDATION
+   ========================================================= */
+
+function validateWorld() {
+
+  const flat =
+    world.flat();
+
+
+  if (
+    flat.length !== 36
+  ) {
+    return false;
+  }
+
+
+  const unique =
+    new Set(flat);
+
+
+  if (
+    unique.size !== 36
+  ) {
+    return false;
+  }
+
+
+  return TILE_DEFS.every(
+    tile =>
+      unique.has(tile.id)
+  );
+}
 
 
 /* =========================================================
@@ -971,7 +1337,6 @@ const drag = {
   settling: false,
 
   pointerId: null,
-
   direction: null,
 
   visibleRow: -1,
@@ -1029,67 +1394,31 @@ function modulo(
 }
 
 
-function getTile(id) {
-  return TILE_MAP.get(id);
-}
-
-
 function createTileElement(id) {
 
   const data =
-    getTile(id);
+    TILE_MAP.get(id);
+
 
   const element =
-    document.createElement("div");
+    document.createElement(
+      "div"
+    );
+
 
   element.className =
     `tile wood-${WOOD_NAMES[data.wood]}`;
 
+
   element.dataset.tileId =
     id;
+
 
   element.innerHTML =
     tileSVG(data);
 
+
   return element;
-}
-
-
-/* =========================================================
-   WORLD VALIDATION
-   ========================================================= */
-
-function validateWorld() {
-
-  const flat =
-    world.flat();
-
-  if (
-    flat.length !==
-    CONFIG.worldSize *
-    CONFIG.worldSize
-  ) {
-    return false;
-  }
-
-
-  const unique =
-    new Set(flat);
-
-
-  if (
-    unique.size !==
-    CONFIG.worldSize *
-    CONFIG.worldSize
-  ) {
-    return false;
-  }
-
-
-  return TILE_DEFS.every(
-    tile =>
-      unique.has(tile.id)
-  );
 }
 
 
@@ -1104,7 +1433,7 @@ function getVisibleGrid() {
 
   for (
     let row = 0;
-    row < CONFIG.visibleSize;
+    row < 3;
     row++
   ) {
 
@@ -1113,17 +1442,15 @@ function getVisibleGrid() {
 
     for (
       let column = 0;
-      column < CONFIG.visibleSize;
+      column < 3;
       column++
     ) {
 
       line.push(
         world[
-          WINDOW.rowStart +
-          row
+          WINDOW.rowStart + row
         ][
-          WINDOW.columnStart +
-          column
+          WINDOW.columnStart + column
         ]
       );
     }
@@ -1151,7 +1478,10 @@ function renderBoard() {
 
 
   const staticGrid =
-    document.createElement("div");
+    document.createElement(
+      "div"
+    );
+
 
   staticGrid.className =
     "static-grid";
@@ -1190,7 +1520,10 @@ function renderBoard() {
 
 
   const activeLayer =
-    document.createElement("div");
+    document.createElement(
+      "div"
+    );
+
 
   activeLayer.className =
     "active-layer";
@@ -1202,6 +1535,7 @@ function renderBoard() {
   board.appendChild(
     staticGrid
   );
+
 
   board.appendChild(
     activeLayer
@@ -1346,7 +1680,7 @@ function determineDirection(
 
 
 /* =========================================================
-   PREPARE ROW DRAG
+   PREPARE ROW
    ========================================================= */
 
 function prepareRowDrag() {
@@ -1372,17 +1706,24 @@ function prepareRowDrag() {
 
 
   const wrapper =
-    document.createElement("div");
+    document.createElement(
+      "div"
+    );
+
 
   wrapper.className =
     "drag-row";
+
 
   wrapper.style.top =
     `calc(${drag.visibleRow} * 100% / 3)`;
 
 
   const strip =
-    document.createElement("div");
+    document.createElement(
+      "div"
+    );
+
 
   strip.className =
     "drag-row-strip";
@@ -1408,11 +1749,13 @@ function prepareRowDrag() {
     const tile =
       createTileElement(id);
 
+
     tile.style.width =
       `${drag.tileSize}px`;
 
     tile.style.height =
       `${drag.tileSize}px`;
+
 
     strip.appendChild(tile);
   });
@@ -1449,7 +1792,7 @@ function prepareRowDrag() {
 
 
 /* =========================================================
-   PREPARE COLUMN DRAG
+   PREPARE COLUMN
    ========================================================= */
 
 function prepareColumnDrag() {
@@ -1475,17 +1818,24 @@ function prepareColumnDrag() {
 
 
   const wrapper =
-    document.createElement("div");
+    document.createElement(
+      "div"
+    );
+
 
   wrapper.className =
     "drag-column";
+
 
   wrapper.style.left =
     `calc(${drag.visibleColumn} * 100% / 3)`;
 
 
   const strip =
-    document.createElement("div");
+    document.createElement(
+      "div"
+    );
+
 
   strip.className =
     "drag-column-strip";
@@ -1514,11 +1864,13 @@ function prepareColumnDrag() {
     const tile =
       createTileElement(id);
 
+
     tile.style.width =
       `${drag.tileSize}px`;
 
     tile.style.height =
       `${drag.tileSize}px`;
+
 
     strip.appendChild(tile);
   });
@@ -1585,8 +1937,10 @@ function pointerDown(event) {
   drag.active =
     true;
 
+
   drag.pointerId =
     event.pointerId;
+
 
   drag.direction =
     null;
@@ -1618,6 +1972,7 @@ function pointerDown(event) {
     WINDOW.rowStart +
     drag.visibleRow;
 
+
   drag.worldColumn =
     WINDOW.columnStart +
     drag.visibleColumn;
@@ -1629,23 +1984,29 @@ function pointerDown(event) {
   drag.startY =
     event.clientY;
 
+
   drag.lastX =
     event.clientX;
 
   drag.lastY =
     event.clientY;
 
+
   drag.lastTime =
     performance.now();
+
 
   drag.velocity =
     0;
 
+
   drag.offset =
     0;
 
+
   drag.tileSize =
     rect.width / 3;
+
 
   drag.strip =
     null;
@@ -1684,6 +2045,7 @@ function pointerMove(event) {
   const dx =
     event.clientX -
     drag.startX;
+
 
   const dy =
     event.clientY -
@@ -1749,8 +2111,10 @@ function pointerMove(event) {
       event.clientX -
       drag.lastX;
 
+
     drag.offset =
       dx;
+
 
     drag.lastX =
       event.clientX;
@@ -1761,8 +2125,10 @@ function pointerMove(event) {
       event.clientY -
       drag.lastY;
 
+
     drag.offset =
       dy;
+
 
     drag.lastY =
       event.clientY;
@@ -1788,7 +2154,7 @@ function pointerMove(event) {
 
 
 /* =========================================================
-   DRAG FRAME
+   FRAME
    ========================================================= */
 
 function requestDragFrame() {
@@ -1845,7 +2211,7 @@ function requestDragFrame() {
 
 
 /* =========================================================
-   FINISH DRAG
+   FINISH
    ========================================================= */
 
 function finishDrag(
@@ -1886,6 +2252,7 @@ function finishDrag(
       drag.animationFrame
     );
 
+
     drag.animationFrame =
       null;
   }
@@ -1903,9 +2270,6 @@ function finishDrag(
   }
 
 
-  /*
-    pointercancel時は未確定操作を破棄。
-  */
   if (cancelled) {
 
     renderBoard();
@@ -1980,11 +2344,14 @@ function settle(
   const strip =
     drag.strip;
 
+
   const direction =
     drag.direction;
 
+
   const worldRow =
     drag.worldRow;
+
 
   const worldColumn =
     drag.worldColumn;
@@ -2060,6 +2427,7 @@ function settle(
         drag.settleTimer
       );
 
+
       drag.settleTimer =
         null;
     }
@@ -2083,13 +2451,18 @@ function settle(
     }
 
 
+    /*
+      万一36枚構造が壊れた場合だけ、
+      新しい安全なランダムworldへ戻します。
+    */
     if (!validateWorld()) {
 
       console.error(
         "Seamless Tile: world validation failed."
       );
 
-      resetWorld();
+
+      createRandomWorld();
     }
 
 
@@ -2116,6 +2489,7 @@ function settle(
         return;
       }
 
+
       complete();
     };
 
@@ -2135,7 +2509,7 @@ function settle(
 
 
 /* =========================================================
-   SETTLE FEEDBACK
+   FEEDBACK
    ========================================================= */
 
 function triggerSettlePulse() {
@@ -2170,23 +2544,30 @@ function resetDrag() {
   drag.active =
     false;
 
+
   drag.pointerId =
     null;
+
 
   drag.direction =
     null;
 
+
   drag.visibleRow =
     -1;
+
 
   drag.visibleColumn =
     -1;
 
+
   drag.worldRow =
     -1;
 
+
   drag.worldColumn =
     -1;
+
 
   drag.startX =
     0;
@@ -2194,26 +2575,33 @@ function resetDrag() {
   drag.startY =
     0;
 
+
   drag.lastX =
     0;
 
   drag.lastY =
     0;
 
+
   drag.lastTime =
     0;
+
 
   drag.velocity =
     0;
 
+
   drag.tileSize =
     0;
+
 
   drag.offset =
     0;
 
+
   drag.strip =
     null;
+
 
   drag.animationFrame =
     null;
@@ -2221,7 +2609,7 @@ function resetDrag() {
 
 
 /* =========================================================
-   CANCEL INTERACTION
+   CANCEL
    ========================================================= */
 
 function cancelInteraction() {
@@ -2238,6 +2626,7 @@ function cancelInteraction() {
       drag.settleTimer
     );
 
+
     drag.settleTimer =
       null;
   }
@@ -2252,6 +2641,7 @@ function cancelInteraction() {
       drag.animationFrame
     );
 
+
     drag.animationFrame =
       null;
   }
@@ -2259,6 +2649,7 @@ function cancelInteraction() {
 
   drag.active =
     false;
+
 
   drag.settling =
     false;
@@ -2328,7 +2719,7 @@ board.addEventListener(
 
 
 /* =========================================================
-   RESIZE / ORIENTATION
+   RESIZE / ROTATION
    ========================================================= */
 
 window.addEventListener(
@@ -2370,12 +2761,19 @@ document.addEventListener(
 
 
 /* =========================================================
-   INITIAL
+   INITIALIZE
+
+   毎回ここで36枚を新しく配置します。
+   保存は行いません。
    ========================================================= */
 
+createRandomWorld();
+
+
 if (!validateWorld()) {
-  resetWorld();
+  createRandomWorld();
 }
+
 
 renderBoard();
 
