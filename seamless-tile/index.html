@@ -996,3 +996,212 @@ function validateWorld() {
 
   if (
     flat.length !== 36
+  ) {
+    return false;
+  }
+
+  const unique =
+    new Set(flat);
+
+  if (
+    unique.size !== 36
+  ) {
+    return false;
+  }
+
+  return TILE_DEFS.every(
+    tile =>
+      unique.has(tile.id)
+  );
+}
+
+
+/* =========================================================
+   VISIBLE GRID
+   ========================================================= */
+
+function getVisibleGrid() {
+
+  const result = [];
+
+  for (
+    let row = 0;
+    row < 3;
+    row++
+  ) {
+
+    const line = [];
+
+    for (
+      let column = 0;
+      column < 3;
+      column++
+    ) {
+
+      line.push(
+        world[
+          WINDOW.rowStart + row
+        ][
+          WINDOW.columnStart + column
+        ]
+      );
+    }
+
+    result.push(line);
+  }
+
+  return result;
+}
+
+
+/* =========================================================
+   RENDER
+   ========================================================= */
+
+function renderBoard() {
+
+  board.innerHTML = "";
+
+  const visible =
+    getVisibleGrid();
+
+  const staticGrid =
+    document.createElement("div");
+
+  staticGrid.className =
+    "static-grid";
+
+
+  for (
+    let row = 0;
+    row < 3;
+    row++
+  ) {
+
+    for (
+      let column = 0;
+      column < 3;
+      column++
+    ) {
+
+      const tile =
+        createTileElement(
+          visible[row][column]
+        );
+
+      tile.dataset.row =
+        String(row);
+
+      tile.dataset.column =
+        String(column);
+
+      staticGrid.appendChild(
+        tile
+      );
+    }
+  }
+
+
+  const activeLayer =
+    document.createElement("div");
+
+  activeLayer.className =
+    "active-layer";
+
+  activeLayer.id =
+    "activeLayer";
+
+
+  board.appendChild(
+    staticGrid
+  );
+
+  board.appendChild(
+    activeLayer
+  );
+}
+
+
+/* =========================================================
+   WORLD ROTATION
+   ========================================================= */
+
+function rotateWorldRow(
+  rowIndex,
+  steps
+) {
+
+  const row =
+    world[rowIndex];
+
+  const amount =
+    modulo(
+      steps,
+      CONFIG.worldSize
+    );
+
+  if (!amount) {
+    return;
+  }
+
+  world[rowIndex] = [
+    ...row.slice(-amount),
+    ...row.slice(0, -amount)
+  ];
+}
+
+
+function rotateWorldColumn(
+  columnIndex,
+  steps
+) {
+
+  const column =
+    world.map(
+      row =>
+        row[columnIndex]
+    );
+
+  const amount =
+    modulo(
+      steps,
+      CONFIG.worldSize
+    );
+
+  if (!amount) {
+    return;
+  }
+
+
+  const rotated = [
+    ...column.slice(-amount),
+    ...column.slice(0, -amount)
+  ];
+
+
+  for (
+    let row = 0;
+    row < CONFIG.worldSize;
+    row++
+  ) {
+
+    world[row][columnIndex] =
+      rotated[row];
+  }
+}
+
+
+/* =========================================================
+   DIRECTION LOCK
+   ========================================================= */
+
+function determineDirection(dx, dy) {
+
+  const ax =
+    Math.abs(dx);
+
+  const ay =
+    Math.abs(dy);
+
+  const distance =
+    Math.max(ax,
