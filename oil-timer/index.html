@@ -3,89 +3,106 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport"
-      content="width=device-width, initial-scale=1.0, viewport-fit=cover, user-scalable=no">
+      content="width=device-width,initial-scale=1,viewport-fit=cover,user-scalable=no">
 <meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="theme-color" content="#ecebe7">
+<meta name="theme-color" content="#f2eee7">
 
 <title>Oil Timer</title>
 
 <style>
-* {
-  box-sizing: border-box;
-  -webkit-tap-highlight-color: transparent;
+*{
+  box-sizing:border-box;
+  -webkit-tap-highlight-color:transparent;
 }
 
-html, body {
-  margin: 0;
-  width: 100%;
-  height: 100%;
-  overflow: hidden;
+html,body{
+  margin:0;
+  width:100%;
+  height:100%;
+  overflow:hidden;
+  background:#f2eee7;
+  touch-action:manipulation;
+}
+
+body{
+  display:flex;
+  align-items:center;
+  justify-content:center;
+}
+
+#app{
+  position:relative;
+  width:100%;
+  height:100dvh;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  overflow:hidden;
+
   background:
-    radial-gradient(circle at 50% 38%, #ffffff 0%, #f4f3ef 48%, #e4e2dc 100%);
-  font-family: -apple-system, BlinkMacSystemFont, "Helvetica Neue", sans-serif;
-  user-select: none;
-  -webkit-user-select: none;
-  touch-action: manipulation;
+    radial-gradient(
+      ellipse at 50% 44%,
+      #fffefa 0%,
+      #f7f3ec 45%,
+      #e8e1d7 100%
+    );
 }
 
-body {
-  display: flex;
-  align-items: center;
-  justify-content: center;
+#shadow{
+  position:absolute;
+  width:min(68vw,310px);
+  height:38px;
+  top:calc(50% + min(64vw,290px));
+  border-radius:50%;
+  background:rgba(65,48,32,.11);
+  filter:blur(14px);
 }
 
-#app {
-  position: relative;
-  width: 100%;
-  height: 100%;
-  min-height: 100dvh;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
+#timerWrap{
+  position:relative;
+  width:min(65vw,295px);
+  height:min(138vw,625px);
+  max-height:78vh;
 
-#timer {
-  position: relative;
-  width: min(74vw, 330px);
-  aspect-ratio: 0.58;
-  cursor: pointer;
-
-  transform: rotate(0deg);
   transition:
-    transform 700ms cubic-bezier(.3,.8,.25,1);
+    transform .75s cubic-bezier(.2,.75,.2,1);
 }
 
-#timer.flipped {
-  transform: rotate(180deg);
+#timerWrap.flipped{
+  transform:rotate(180deg);
 }
 
-canvas {
-  position: absolute;
-  inset: 0;
-  width: 100%;
-  height: 100%;
-  display: block;
+canvas{
+  position:absolute;
+  inset:0;
+  width:100%;
+  height:100%;
 }
 
-#hint {
-  position: absolute;
-  bottom: max(26px, env(safe-area-inset-bottom));
-  left: 0;
-  right: 0;
+#hint{
+  position:absolute;
+  bottom:max(24px,env(safe-area-inset-bottom));
+  left:0;
+  right:0;
 
-  text-align: center;
+  text-align:center;
 
-  color: rgba(30,30,30,.35);
-  font-size: 12px;
-  letter-spacing: .12em;
+  font-family:
+    -apple-system,
+    BlinkMacSystemFont,
+    "Helvetica Neue",
+    sans-serif;
 
-  pointer-events: none;
+  font-size:11px;
+  letter-spacing:.18em;
+  color:rgba(65,55,45,.32);
 
-  transition: opacity 500ms ease;
+  transition:opacity .4s;
+  pointer-events:none;
 }
 
-#hint.hidden {
-  opacity: 0;
+#hint.hide{
+  opacity:0;
 }
 </style>
 </head>
@@ -94,8 +111,10 @@ canvas {
 
 <div id="app">
 
-  <div id="timer" aria-label="Oil Timer">
-    <canvas id="canvas"></canvas>
+  <div id="shadow"></div>
+
+  <div id="timerWrap">
+    <canvas id="c"></canvas>
   </div>
 
   <div id="hint">TAP TO FLIP</div>
@@ -105,619 +124,1012 @@ canvas {
 <script>
 (() => {
 
-  const canvas = document.getElementById("canvas");
-  const ctx = canvas.getContext("2d");
+const canvas = document.getElementById("c");
+const ctx = canvas.getContext("2d");
 
-  const timer = document.getElementById("timer");
-  const hint = document.getElementById("hint");
+const wrap = document.getElementById("timerWrap");
+const hint = document.getElementById("hint");
 
-  /* =========================================================
-     SETTINGS
-  ========================================================= */
+let W=0;
+let H=0;
+let DPR=1;
 
-  const DURATION = 45;       // seconds
-  const DROP_COUNT = 38;
+let last=performance.now();
 
-  const OIL = {
-    r: 34,
-    g: 142,
-    b: 238
-  };
+let flipped=false;
+let resetPending=false;
 
-  /* =========================================================
-     STATE
-  ========================================================= */
 
-  let W = 0;
-  let H = 0;
-  let dpr = 1;
+/* =========================================================
+   COLORS
+========================================================= */
 
-  let startTime = performance.now();
-
-  let flipped = false;
-
-  let drops = [];
-
-  /* =========================================================
-     RESIZE
-  ========================================================= */
-
-  function resize() {
-
-    const rect = canvas.getBoundingClientRect();
-
-    dpr = Math.min(window.devicePixelRatio || 1, 2);
-
-    W = rect.width;
-    H = rect.height;
-
-    canvas.width = Math.round(W * dpr);
-    canvas.height = Math.round(H * dpr);
-
-    ctx.setTransform(dpr,0,0,dpr,0,0);
-
-    createDrops();
+const COLORS = [
+  {
+    base:[21,174,187],
+    light:[98,232,224],
+    dark:[0,119,145]
+  },
+  {
+    base:[238,73,135],
+    light:[255,150,184],
+    dark:[188,30,101]
   }
+];
 
-  window.addEventListener("resize", resize);
 
-  /* =========================================================
-     GEOMETRY
-  ========================================================= */
+/* =========================================================
+   SIMULATION
+========================================================= */
 
-  function chamberPath() {
+let drops=[];
+let storedTop=1;
 
-    const cx = W / 2;
+let nozzleTimer=0;
 
-    const top = H * 0.09;
-    const bottom = H * 0.91;
+const TOTAL_TIME=48;
 
-    const wide = W * 0.39;
-    const neck = W * 0.085;
+let elapsed=0;
 
-    const neckTop = H * 0.46;
-    const neckBottom = H * 0.54;
 
-    ctx.beginPath();
+/* =========================================================
+   SIZE
+========================================================= */
 
-    ctx.moveTo(cx - wide, top);
+function resize(){
 
-    ctx.bezierCurveTo(
-      cx - wide * 1.02, H * .24,
-      cx - wide * .70, H * .37,
-      cx - neck, neckTop
-    );
+  const r=canvas.getBoundingClientRect();
 
-    ctx.bezierCurveTo(
-      cx - neck * .85, H * .485,
-      cx - neck * .85, H * .515,
-      cx - neck, neckBottom
-    );
+  DPR=Math.min(devicePixelRatio||1,2);
 
-    ctx.bezierCurveTo(
-      cx - wide * .70, H * .63,
-      cx - wide * 1.02, H * .76,
-      cx - wide, bottom
-    );
+  W=r.width;
+  H=r.height;
 
-    ctx.quadraticCurveTo(
-      cx, H * .97,
-      cx + wide, bottom
-    );
+  canvas.width=Math.round(W*DPR);
+  canvas.height=Math.round(H*DPR);
 
-    ctx.bezierCurveTo(
-      cx + wide * 1.02, H * .76,
-      cx + wide * .70, H * .63,
-      cx + neck, neckBottom
-    );
+  ctx.setTransform(DPR,0,0,DPR,0,0);
 
-    ctx.bezierCurveTo(
-      cx + neck * .85, H * .515,
-      cx + neck * .85, H * .485,
-      cx + neck, neckTop
-    );
+  reset();
+}
 
-    ctx.bezierCurveTo(
-      cx + wide * .70, H * .37,
-      cx + wide * 1.02, H * .24,
-      cx + wide, top
-    );
+window.addEventListener("resize",resize);
 
-    ctx.quadraticCurveTo(
-      cx, H * .03,
-      cx - wide, top
-    );
 
-    ctx.closePath();
-  }
+/* =========================================================
+   RESET
+========================================================= */
 
-  /* =========================================================
-     DROPS
-  ========================================================= */
+function reset(){
 
-  function createDrops() {
+  drops=[];
 
-    drops = [];
+  storedTop=1;
 
-    for (let i = 0; i < DROP_COUNT; i++) {
+  elapsed=0;
 
-      drops.push({
-        offset: Math.random(),
-        speed: 0.85 + Math.random() * 0.35,
-        size: 3 + Math.random() * 4,
-        sway: Math.random() * Math.PI * 2
-      });
+  nozzleTimer=.25;
+}
 
-    }
-  }
 
-  /* =========================================================
-     DRAW BODY
-  ========================================================= */
+/* =========================================================
+   GLASS SHAPE
+========================================================= */
 
-  function drawBody() {
+function vesselPath(){
 
-    ctx.save();
+  const cx=W/2;
 
-    chamberPath();
+  ctx.beginPath();
 
-    const glass = ctx.createLinearGradient(0,0,W,0);
+  ctx.moveTo(W*.25,H*.06);
 
-    glass.addColorStop(0, "rgba(255,255,255,.48)");
-    glass.addColorStop(.22, "rgba(255,255,255,.10)");
-    glass.addColorStop(.5, "rgba(210,225,235,.08)");
-    glass.addColorStop(.78, "rgba(255,255,255,.18)");
-    glass.addColorStop(1, "rgba(255,255,255,.55)");
+  ctx.bezierCurveTo(
+    W*.17,H*.12,
+    W*.15,H*.23,
+    W*.17,H*.34
+  );
 
-    ctx.fillStyle = glass;
-    ctx.fill();
+  ctx.bezierCurveTo(
+    W*.18,H*.41,
+    W*.29,H*.43,
+    W*.31,H*.47
+  );
 
-    ctx.lineWidth = 2;
-    ctx.strokeStyle = "rgba(80,95,105,.22)";
-    ctx.stroke();
+  ctx.bezierCurveTo(
+    W*.34,H*.49,
+    W*.34,H*.51,
+    W*.31,H*.53
+  );
 
-    ctx.restore();
+  ctx.bezierCurveTo(
+    W*.28,H*.57,
+    W*.18,H*.59,
+    W*.17,H*.67
+  );
 
-    /* outer highlight */
+  ctx.bezierCurveTo(
+    W*.14,H*.78,
+    W*.17,H*.90,
+    W*.25,H*.94
+  );
 
-    ctx.save();
+  ctx.quadraticCurveTo(
+    cx,H*.985,
+    W*.75,H*.94
+  );
 
-    chamberPath();
+  ctx.bezierCurveTo(
+    W*.83,H*.90,
+    W*.86,H*.78,
+    W*.83,H*.67
+  );
 
-    ctx.clip();
+  ctx.bezierCurveTo(
+    W*.82,H*.59,
+    W*.72,H*.57,
+    W*.69,H*.53
+  );
 
-    const shine = ctx.createLinearGradient(
-      W*.18,0,
-      W*.55,0
-    );
+  ctx.bezierCurveTo(
+    W*.66,H*.51,
+    W*.66,H*.49,
+    W*.69,H*.47
+  );
 
-    shine.addColorStop(0,"rgba(255,255,255,.0)");
-    shine.addColorStop(.45,"rgba(255,255,255,.40)");
-    shine.addColorStop(.55,"rgba(255,255,255,.10)");
-    shine.addColorStop(1,"rgba(255,255,255,0)");
+  ctx.bezierCurveTo(
+    W*.71,H*.43,
+    W*.82,H*.41,
+    W*.83,H*.34
+  );
 
-    ctx.fillStyle = shine;
-    ctx.fillRect(0,0,W,H);
+  ctx.bezierCurveTo(
+    W*.85,H*.23,
+    W*.83,H*.12,
+    W*.75,H*.06
+  );
 
-    ctx.restore();
-  }
+  ctx.quadraticCurveTo(
+    cx,H*.015,
+    W*.25,H*.06
+  );
 
-  /* =========================================================
-     OIL
-  ========================================================= */
+  ctx.closePath();
+}
 
-  function drawOil(progress) {
 
-    ctx.save();
+/* =========================================================
+   BACK GLASS
+========================================================= */
 
-    chamberPath();
-    ctx.clip();
+function drawGlassBack(){
 
-    const cx = W/2;
+  ctx.save();
+
+  vesselPath();
+
+  const g=ctx.createLinearGradient(0,0,W,0);
+
+  g.addColorStop(0,"rgba(180,196,200,.18)");
+  g.addColorStop(.12,"rgba(255,255,255,.55)");
+  g.addColorStop(.32,"rgba(255,255,255,.10)");
+  g.addColorStop(.68,"rgba(225,240,242,.08)");
+  g.addColorStop(.88,"rgba(255,255,255,.52)");
+  g.addColorStop(1,"rgba(160,180,186,.20)");
+
+  ctx.fillStyle=g;
+  ctx.fill();
+
+  ctx.restore();
+}
+
+
+/* =========================================================
+   UPPER OIL RESERVOIRS
+========================================================= */
+
+function drawUpperOil(){
+
+  ctx.save();
+
+  vesselPath();
+  ctx.clip();
+
+  const remaining=Math.max(0,storedTop);
+
+  const baseY=H*.355;
+  const topY=H*.09;
+
+  const oilTop=
+    baseY-(baseY-topY)*remaining;
+
+  /*
+    two colored reservoirs
+  */
+
+  drawReservoir(
+    W*.18,
+    W*.505,
+    oilTop,
+    baseY,
+    COLORS[0]
+  );
+
+  drawReservoir(
+    W*.495,
+    W*.82,
+    oilTop+H*.012,
+    baseY,
+    COLORS[1]
+  );
+
+  ctx.restore();
+}
+
+
+function drawReservoir(x1,x2,y1,y2,col){
+
+  const g=ctx.createLinearGradient(
+    x1,y1,
+    x2,y2
+  );
+
+  g.addColorStop(
+    0,
+    rgb(col.light,.96)
+  );
+
+  g.addColorStop(
+    .45,
+    rgb(col.base,.97)
+  );
+
+  g.addColorStop(
+    1,
+    rgb(col.dark,.98)
+  );
+
+  ctx.fillStyle=g;
+
+  ctx.beginPath();
+
+  ctx.moveTo(x1,y2);
+
+  ctx.lineTo(x1,y1+4);
+
+  ctx.bezierCurveTo(
+    x1+(x2-x1)*.3,
+    y1-3,
+    x1+(x2-x1)*.7,
+    y1+4,
+    x2,
+    y1
+  );
+
+  ctx.lineTo(x2,y2);
+
+  ctx.closePath();
+
+  ctx.fill();
+
+  /*
+    liquid highlight
+  */
+
+  ctx.strokeStyle="rgba(255,255,255,.27)";
+  ctx.lineWidth=2;
+
+  ctx.beginPath();
+
+  ctx.moveTo(x1+8,y1+8);
+  ctx.lineTo(x1+8,y2-15);
+
+  ctx.stroke();
+}
+
+
+/* =========================================================
+   NOZZLES
+========================================================= */
+
+function drawNozzles(){
+
+  const y=H*.405;
+
+  drawNozzle(
+    W*.42,
+    y,
+    COLORS[0]
+  );
+
+  drawNozzle(
+    W*.58,
+    y,
+    COLORS[1]
+  );
+}
+
+
+function drawNozzle(x,y,col){
+
+  const g=ctx.createLinearGradient(
+    x-10,y,
+    x+10,y
+  );
+
+  g.addColorStop(
+    0,
+    rgb(col.dark,.95)
+  );
+
+  g.addColorStop(
+    .5,
+    rgb(col.light,.98)
+  );
+
+  g.addColorStop(
+    1,
+    rgb(col.base,.98)
+  );
+
+  ctx.fillStyle=g;
+
+  ctx.beginPath();
+
+  ctx.moveTo(x-9,y-14);
+
+  ctx.bezierCurveTo(
+    x-8,y-2,
+    x-5,y+7,
+    x-3,y+13
+  );
+
+  ctx.quadraticCurveTo(
+    x,y+17,
+    x+3,y+13
+  );
+
+  ctx.bezierCurveTo(
+    x+5,y+7,
+    x+8,y-2,
+    x+9,y-14
+  );
+
+  ctx.closePath();
+
+  ctx.fill();
+}
+
+
+/* =========================================================
+   DROPS
+========================================================= */
+
+function spawnDrop(){
+
+  if(storedTop<=0)
+    return;
+
+  const colorIndex =
+    Math.random()<.5 ? 0 : 1;
+
+  const x=
+    colorIndex===0
+    ? W*.42
+    : W*.58;
+
+  const radius=
+    W*(.038+Math.random()*.014);
+
+  drops.push({
+
+    x:x,
+    y:H*.435,
+
+    vx:
+      (Math.random()-.5)*4,
+
+    vy:
+      8+Math.random()*6,
+
+    r:radius,
+
+    squash:1,
+
+    color:colorIndex,
+
+    landed:false,
+
+    phase:Math.random()*6.28
+
+  });
+
+  storedTop=Math.max(
+    0,
+    storedTop-.027
+  );
+}
+
+
+/* =========================================================
+   PHYSICS
+========================================================= */
+
+function updateDrops(dt){
+
+  const gravity=185;
+
+  const floor=H*.895;
+
+  for(let i=0;i<drops.length;i++){
+
+    const d=drops[i];
+
+    if(d.landed)
+      continue;
+
+    d.vy+=gravity*dt;
 
     /*
-      Top reservoir shrinks.
-      Bottom reservoir grows.
+      tiny viscous sway
     */
 
-    const upperStart = H * .12;
-    const upperEnd = H * .455;
+    d.vx+=
+      Math.sin(
+        elapsed*2+d.phase
+      )*.3*dt;
 
-    const lowerStart = H * .545;
-    const lowerEnd = H * .88;
+    d.vx*=.994;
 
-    const upperHeight =
-      (upperEnd-upperStart) * (1-progress);
+    d.x+=d.vx*dt;
+    d.y+=d.vy*dt;
 
-    const lowerHeight =
-      (lowerEnd-lowerStart) * progress;
+    /*
+      wall approximation
+    */
 
-    const oilGradient = ctx.createLinearGradient(
-      0,
-      H*.1,
-      0,
-      H*.9
-    );
+    const wallLeft=W*.21;
+    const wallRight=W*.79;
 
-    oilGradient.addColorStop(
-      0,
-      `rgba(${OIL.r+30},${OIL.g+30},255,.92)`
-    );
+    if(d.x-d.r<wallLeft){
 
-    oilGradient.addColorStop(
-      .5,
-      `rgba(${OIL.r},${OIL.g},${OIL.b},.96)`
-    );
-
-    oilGradient.addColorStop(
-      1,
-      `rgba(15,105,220,.96)`
-    );
-
-    ctx.fillStyle = oilGradient;
-
-    /* TOP */
-
-    if (progress < .995) {
-
-      const y =
-        upperStart +
-        (upperEnd-upperStart) *
-        progress;
-
-      ctx.beginPath();
-
-      ctx.moveTo(0,y);
-
-      ctx.quadraticCurveTo(
-        cx,
-        y + Math.sin(performance.now()/500)*2,
-        W,
-        y
-      );
-
-      ctx.lineTo(W,0);
-      ctx.lineTo(0,0);
-
-      ctx.closePath();
-
-      ctx.fill();
+      d.x=wallLeft+d.r;
+      d.vx=Math.abs(d.vx)*.35;
     }
 
-    /* BOTTOM */
+    if(d.x+d.r>wallRight){
 
-    if (progress > .005) {
-
-      const y =
-        lowerEnd -
-        lowerHeight;
-
-      ctx.beginPath();
-
-      ctx.moveTo(0,H);
-
-      ctx.lineTo(W,H);
-
-      ctx.lineTo(W,y);
-
-      ctx.quadraticCurveTo(
-        cx,
-        y - Math.sin(performance.now()/550)*2,
-        0,
-        y
-      );
-
-      ctx.closePath();
-
-      ctx.fill();
+      d.x=wallRight-d.r;
+      d.vx=-Math.abs(d.vx)*.35;
     }
 
-    ctx.restore();
-  }
+    /*
+      collide with settled droplets
+    */
 
-  /* =========================================================
-     FALLING DROPLETS
-  ========================================================= */
+    let supportY=floor;
 
-  function drawDrops(progress, time) {
+    for(let j=0;j<drops.length;j++){
 
-    if (progress >= 1) return;
+      if(i===j)
+        continue;
 
-    ctx.save();
+      const o=drops[j];
 
-    chamberPath();
-    ctx.clip();
+      if(!o.landed)
+        continue;
 
-    const cx = W/2;
+      const dx=d.x-o.x;
 
-    const y1 = H*.475;
-    const y2 = H*.73;
+      const horizontal=
+        Math.abs(dx);
 
-    drops.forEach((d,index) => {
+      if(horizontal < (d.r+o.r)*.78){
 
-      const phase =
-        (
-          progress * DURATION *
-          d.speed * .72 +
-          d.offset
-        ) % 1;
+        const possible=
+          o.y-o.r-d.r*.82;
 
-      const y =
-        y1 +
-        (y2-y1) *
-        phase;
-
-      const sway =
-        Math.sin(
-          time*.004 +
-          d.sway
-        ) *
-        W*.018;
-
-      const x = cx+sway;
-
-      const stretch =
-        1 +
-        Math.sin(phase*Math.PI) * .55;
-
-      ctx.beginPath();
-
-      ctx.ellipse(
-        x,
-        y,
-        d.size,
-        d.size*stretch,
-        0,
-        0,
-        Math.PI*2
-      );
-
-      const g = ctx.createRadialGradient(
-        x-d.size*.4,
-        y-d.size*.5,
-        .5,
-        x,
-        y,
-        d.size*1.5
-      );
-
-      g.addColorStop(
-        0,
-        "rgba(110,195,255,.95)"
-      );
-
-      g.addColorStop(
-        .4,
-        `rgba(${OIL.r},${OIL.g},${OIL.b},.98)`
-      );
-
-      g.addColorStop(
-        1,
-        "rgba(0,85,205,.95)"
-      );
-
-      ctx.fillStyle = g;
-      ctx.fill();
-
-    });
-
-    ctx.restore();
-  }
-
-  /* =========================================================
-     BUBBLES
-  ========================================================= */
-
-  function drawBubbles(progress,time) {
-
-    ctx.save();
-
-    chamberPath();
-    ctx.clip();
-
-    const amount = 7;
-
-    for(let i=0;i<amount;i++){
-
-      const phase =
-        (time*.00004 + i*.137) % 1;
-
-      const x =
-        W*.32 +
-        ((i*47)%100)/100 *
-        W*.36;
-
-      const y =
-        H*.82 -
-        phase *
-        H*.20 *
-        progress;
-
-      const r =
-        1.2 +
-        (i%3)*.7;
-
-      ctx.beginPath();
-      ctx.arc(x,y,r,0,Math.PI*2);
-
-      ctx.strokeStyle =
-        "rgba(255,255,255,.55)";
-
-      ctx.lineWidth = .8;
-
-      ctx.stroke();
+        if(possible<supportY)
+          supportY=possible;
+      }
     }
 
-    ctx.restore();
+    if(d.y+d.r>=supportY){
+
+      d.y=
+        supportY-d.r;
+
+      d.vy=0;
+
+      d.landed=true;
+
+      d.squash=.73;
+    }
   }
 
-  /* =========================================================
-     BASES
-  ========================================================= */
 
-  function drawCaps() {
+  /*
+    settled droplets relax
+  */
 
-    const capH = H*.045;
+  drops.forEach(d=>{
 
-    const drawCap = y => {
+    if(d.landed){
 
-      const g =
-        ctx.createLinearGradient(
-          W*.15,0,
-          W*.85,0
-        );
+      d.squash +=
+        (1-d.squash)*
+        Math.min(1,dt*3);
+    }
 
-      g.addColorStop(
-        0,
-        "rgba(95,105,110,.75)"
-      );
+  });
+}
 
-      g.addColorStop(
-        .2,
-        "rgba(230,235,235,.95)"
-      );
 
-      g.addColorStop(
-        .5,
-        "rgba(255,255,255,.98)"
-      );
+/* =========================================================
+   DRAW DROPLETS
+========================================================= */
 
-      g.addColorStop(
-        .8,
-        "rgba(200,210,215,.95)"
-      );
+function drawDrops(){
 
-      g.addColorStop(
-        1,
-        "rgba(80,90,95,.75)"
-      );
+  ctx.save();
 
-      ctx.fillStyle = g;
+  vesselPath();
+  ctx.clip();
 
-      roundRect(
-        W*.13,
-        y,
-        W*.74,
-        capH,
-        8
-      );
+  for(const d of drops){
 
-      ctx.fill();
-    };
+    drawDrop(d);
 
-    drawCap(H*.025);
-    drawCap(H*.93);
   }
 
-  function roundRect(x,y,w,h,r){
+  ctx.restore();
+}
 
-    ctx.beginPath();
 
-    ctx.moveTo(x+r,y);
+function drawDrop(d){
 
-    ctx.arcTo(
-      x+w,y,
-      x+w,y+h,
-      r
+  const col=COLORS[d.color];
+
+  const speed=Math.min(
+    d.vy/160,
+    1
+  );
+
+  const rx=
+    d.r*(1+.16*speed);
+
+  const ry=
+    d.r*
+    (1-.12*speed)*
+    d.squash;
+
+  ctx.save();
+
+  ctx.translate(d.x,d.y);
+
+  /*
+    soft shadow
+  */
+
+  ctx.beginPath();
+
+  ctx.ellipse(
+    1,
+    2,
+    rx*1.05,
+    ry*1.05,
+    0,
+    0,
+    Math.PI*2
+  );
+
+  ctx.fillStyle="rgba(0,40,60,.08)";
+  ctx.fill();
+
+
+  /*
+    body
+  */
+
+  const g=
+    ctx.createRadialGradient(
+      -rx*.34,
+      -ry*.40,
+      rx*.08,
+      0,
+      0,
+      rx*1.12
     );
 
-    ctx.arcTo(
-      x+w,y+h,
-      x,y+h,
-      r
+  g.addColorStop(
+    0,
+    rgb(col.light,1)
+  );
+
+  g.addColorStop(
+    .32,
+    rgb(col.base,1)
+  );
+
+  g.addColorStop(
+    .78,
+    rgb(col.base,1)
+  );
+
+  g.addColorStop(
+    1,
+    rgb(col.dark,1)
+  );
+
+  ctx.beginPath();
+
+  ctx.ellipse(
+    0,
+    0,
+    rx,
+    ry,
+    0,
+    0,
+    Math.PI*2
+  );
+
+  ctx.fillStyle=g;
+  ctx.fill();
+
+
+  /*
+    glossy highlight
+  */
+
+  ctx.beginPath();
+
+  ctx.ellipse(
+    -rx*.31,
+    -ry*.34,
+    rx*.22,
+    ry*.15,
+    -.45,
+    0,
+    Math.PI*2
+  );
+
+  ctx.fillStyle=
+    "rgba(255,255,255,.50)";
+
+  ctx.fill();
+
+  ctx.restore();
+}
+
+
+/* =========================================================
+   GLASS FRONT
+========================================================= */
+
+function drawGlassFront(){
+
+  ctx.save();
+
+  vesselPath();
+
+  ctx.lineWidth=2;
+
+  ctx.strokeStyle=
+    "rgba(85,105,110,.25)";
+
+  ctx.stroke();
+
+  ctx.clip();
+
+
+  /*
+    left reflection
+  */
+
+  const shine=
+    ctx.createLinearGradient(
+      W*.17,0,
+      W*.38,0
     );
 
-    ctx.arcTo(
-      x,y+h,
-      x,y,
-      r
+  shine.addColorStop(
+    0,
+    "rgba(255,255,255,.03)"
+  );
+
+  shine.addColorStop(
+    .45,
+    "rgba(255,255,255,.43)"
+  );
+
+  shine.addColorStop(
+    .7,
+    "rgba(255,255,255,.09)"
+  );
+
+  shine.addColorStop(
+    1,
+    "rgba(255,255,255,0)"
+  );
+
+  ctx.fillStyle=shine;
+
+  ctx.fillRect(
+    W*.12,
+    H*.05,
+    W*.3,
+    H*.9
+  );
+
+
+  /*
+    narrow specular line
+  */
+
+  ctx.strokeStyle=
+    "rgba(255,255,255,.66)";
+
+  ctx.lineWidth=2;
+
+  ctx.beginPath();
+
+  ctx.moveTo(
+    W*.26,
+    H*.12
+  );
+
+  ctx.bezierCurveTo(
+    W*.20,H*.28,
+    W*.27,H*.36,
+    W*.32,H*.43
+  );
+
+  ctx.stroke();
+
+  ctx.restore();
+}
+
+
+/* =========================================================
+   FRAME
+========================================================= */
+
+function drawFrame(){
+
+  /*
+    top cap
+  */
+
+  cap(H*.025);
+
+  /*
+    bottom cap
+  */
+
+  cap(H*.935);
+}
+
+
+function cap(y){
+
+  const x=W*.17;
+  const w=W*.66;
+  const h=H*.04;
+
+  const g=
+    ctx.createLinearGradient(
+      x,0,
+      x+w,0
     );
 
-    ctx.arcTo(
-      x,y,
-      x+w,y,
-      r
-    );
+  g.addColorStop(
+    0,
+    "#d7d3ca"
+  );
 
-    ctx.closePath();
+  g.addColorStop(
+    .18,
+    "#faf8f2"
+  );
+
+  g.addColorStop(
+    .48,
+    "#e8e5dc"
+  );
+
+  g.addColorStop(
+    .75,
+    "#fffdf7"
+  );
+
+  g.addColorStop(
+    1,
+    "#c9c4bb"
+  );
+
+  ctx.fillStyle=g;
+
+  roundedRect(
+    x,
+    y,
+    w,
+    h,
+    h*.35
+  );
+
+  ctx.fill();
+
+  ctx.strokeStyle=
+    "rgba(85,75,65,.15)";
+
+  ctx.lineWidth=1;
+
+  ctx.stroke();
+}
+
+
+function roundedRect(
+  x,y,w,h,r
+){
+
+  ctx.beginPath();
+
+  ctx.moveTo(x+r,y);
+
+  ctx.arcTo(
+    x+w,y,
+    x+w,y+h,
+    r
+  );
+
+  ctx.arcTo(
+    x+w,y+h,
+    x,y+h,
+    r
+  );
+
+  ctx.arcTo(
+    x,y+h,
+    x,y,
+    r
+  );
+
+  ctx.arcTo(
+    x,y,
+    x+w,y,
+    r
+  );
+
+  ctx.closePath();
+}
+
+
+/* =========================================================
+   RGB
+========================================================= */
+
+function rgb(c,a=1){
+
+  return `rgba(
+    ${c[0]},
+    ${c[1]},
+    ${c[2]},
+    ${a}
+  )`;
+}
+
+
+/* =========================================================
+   LOOP
+========================================================= */
+
+function loop(now){
+
+  let dt=
+    (now-last)/1000;
+
+  last=now;
+
+  dt=Math.min(dt,.033);
+
+  elapsed+=dt;
+
+
+  /*
+    create droplets
+  */
+
+  if(storedTop>0){
+
+    nozzleTimer-=dt;
+
+    if(nozzleTimer<=0){
+
+      spawnDrop();
+
+      nozzleTimer=
+        .70+
+        Math.random()*.55;
+    }
   }
 
-  /* =========================================================
-     RENDER
-  ========================================================= */
 
-  function render(time) {
+  updateDrops(dt);
 
-    ctx.clearRect(0,0,W,H);
 
-    const elapsed =
-      (time-startTime)/1000;
+  ctx.clearRect(
+    0,0,W,H
+  );
 
-    const progress =
-      Math.min(
-        elapsed/DURATION,
-        1
-      );
 
-    drawOil(progress);
-    drawDrops(progress,time);
-    drawBubbles(progress,time);
+  drawGlassBack();
 
-    drawBody();
-    drawCaps();
+  drawUpperOil();
 
-    requestAnimationFrame(render);
-  }
+  drawNozzles();
 
-  /* =========================================================
-     FLIP
-  ========================================================= */
+  drawDrops();
 
-  function flipTimer(){
+  drawGlassFront();
 
-    flipped = !flipped;
+  drawFrame();
 
-    timer.classList.toggle(
+
+  requestAnimationFrame(loop);
+}
+
+
+/* =========================================================
+   FLIP
+========================================================= */
+
+wrap.addEventListener(
+  "click",
+  () => {
+
+    if(resetPending)
+      return;
+
+    resetPending=true;
+
+    hint.classList.add("hide");
+
+    flipped=!flipped;
+
+    wrap.classList.toggle(
       "flipped",
       flipped
     );
 
-    hint.classList.add("hidden");
 
     /*
-      Wait until physical-looking flip
-      is nearly complete before restarting.
+      Reset while timer is upside down.
+      This keeps the interaction visually
+      similar to a physical liquid timer.
     */
 
-    setTimeout(() => {
+    setTimeout(()=>{
 
-      startTime = performance.now();
+      reset();
 
-      createDrops();
+      resetPending=false;
 
-    },420);
+    },500);
+
   }
+);
 
-  timer.addEventListener(
-    "click",
-    flipTimer
-  );
 
-  /* prevent accidental Safari gestures */
+/* =========================================================
+   START
+========================================================= */
 
-  timer.addEventListener(
-    "touchmove",
-    e => e.preventDefault(),
-    { passive:false }
-  );
+resize();
 
-  /* =========================================================
-     START
-  ========================================================= */
-
-  resize();
-
-  requestAnimationFrame(render);
+requestAnimationFrame(t=>{
+  last=t;
+  requestAnimationFrame(loop);
+});
 
 })();
 </script>
