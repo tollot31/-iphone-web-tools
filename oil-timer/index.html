@@ -1,11 +1,12 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="ja">
 <head>
-<meta charset="UTF-8">
+<meta charset="utf-8">
 <meta name="viewport"
       content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
 <meta name="apple-mobile-web-app-capable" content="yes">
-<title>Liquid Timer</title>
+<meta name="theme-color" content="#eeeae2">
+<title>Oil Timer</title>
 
 <style>
 *{
@@ -18,152 +19,231 @@ html,body{
   width:100%;
   height:100%;
   overflow:hidden;
-  background:#e9e7e2;
+  overscroll-behavior:none;
 }
 
 body{
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  touch-action:manipulation;
+  background:#eeeae2;
+  touch-action:none;
+  user-select:none;
+  -webkit-user-select:none;
 }
 
-#stage{
-  position:relative;
-  width:min(92vw,430px);
-  height:100dvh;
+#app{
+  position:fixed;
+  inset:0;
   display:flex;
   align-items:center;
   justify-content:center;
-  overflow:hidden;
 
   background:
     radial-gradient(
       ellipse at 50% 42%,
-      #ffffff 0%,
-      #f6f5f1 50%,
-      #e4e1da 100%
+      #fff 0%,
+      #f8f6f1 43%,
+      #e7e1d7 100%
     );
 }
 
 #timer{
   position:relative;
-  width:min(73vw,310px);
-  height:min(150vw,640px);
-  max-height:82vh;
+  width:min(70vw,300px);
+  aspect-ratio:0.52;
+
+  filter:
+    drop-shadow(0 18px 20px rgba(54,43,31,.12));
+
+  transform:rotate(0deg);
 
   transition:
-    transform .72s cubic-bezier(.22,.75,.22,1);
+    transform 760ms
+    cubic-bezier(.22,.75,.2,1);
 }
 
-#timer.flip{
+#timer.flipped{
   transform:rotate(180deg);
 }
 
 canvas{
+  display:block;
   width:100%;
   height:100%;
-  display:block;
 }
 
 #hint{
-  position:absolute;
-  bottom:max(20px,env(safe-area-inset-bottom));
-  width:100%;
+  position:fixed;
+  bottom:max(22px,env(safe-area-inset-bottom));
+  left:0;
+  right:0;
+
   text-align:center;
 
-  font-family:-apple-system,BlinkMacSystemFont,sans-serif;
+  font-family:
+    -apple-system,
+    BlinkMacSystemFont,
+    "Helvetica Neue",
+    sans-serif;
+
   font-size:10px;
-  letter-spacing:.2em;
-  color:rgba(30,30,30,.25);
+  font-weight:500;
+  letter-spacing:.19em;
+
+  color:rgba(35,31,27,.27);
 
   pointer-events:none;
+
+  transition:opacity .4s;
+}
+
+#hint.hidden{
+  opacity:0;
+}
+
+@media(prefers-reduced-motion:reduce){
+  #timer{
+    transition-duration:1ms;
+  }
 }
 </style>
 </head>
 
 <body>
 
-<div id="stage">
+<div id="app">
 
   <div id="timer">
     <canvas id="canvas"></canvas>
   </div>
 
-  <div id="hint">TAP TO TURN</div>
+  <div id="hint">
+    TAP TO TURN
+  </div>
 
 </div>
 
 <script>
 (() => {
 
-const canvas =
-  document.getElementById("canvas");
+"use strict";
 
-const ctx =
-  canvas.getContext("2d");
+/* =========================================================
+   ELEMENTS
+========================================================= */
 
 const timer =
   document.getElementById("timer");
 
-let W,H,DPR;
+const canvas =
+  document.getElementById("canvas");
 
-let last=performance.now();
+const hint =
+  document.getElementById("hint");
 
-let drops=[];
-let pools=[];
-
-let spawnClock=0;
-
-let side=0;
-
-let remaining=1;
-
-let flipped=false;
+const ctx =
+  canvas.getContext("2d");
 
 
-/* ============================================================
-   COLORS
-============================================================ */
+/* =========================================================
+   CANVAS
+========================================================= */
 
-const cyan={
-  light:"#83efe3",
-  mid:"#22c6c3",
-  dark:"#07919e"
+let W = 0;
+let H = 0;
+let DPR = 1;
+
+
+/* =========================================================
+   CONSTANTS
+========================================================= */
+
+const OIL = {
+
+  light : [255, 177, 79],
+  main  : [242, 113, 25],
+  deep  : [205, 64, 11]
+
 };
 
-const pink={
-  light:"#ff9bbd",
-  mid:"#f34e8c",
-  dark:"#c92167"
-};
+const DROP_INTERVAL_MIN = 1.05;
+const DROP_INTERVAL_MAX = 1.65;
+
+const GRAVITY = 105;
+
+const DRAG = 0.985;
 
 
-/* ============================================================
+/* =========================================================
+   STATE
+========================================================= */
+
+let flipped = false;
+let turning = false;
+
+let topAmount = 1;
+let bottomAmount = 0;
+
+let forming = null;
+let drops = [];
+
+let nextDrop = 0;
+
+let lastTime = performance.now();
+
+let liquidTime = 0;
+
+
+/* =========================================================
+   HELPERS
+========================================================= */
+
+function clamp(v,a,b){
+  return Math.max(a,Math.min(b,v));
+}
+
+function lerp(a,b,t){
+  return a+(b-a)*t;
+}
+
+function easeOut(t){
+  return 1-Math.pow(1-t,3);
+}
+
+function rgba(c,a=1){
+  return `rgba(${c[0]},${c[1]},${c[2]},${a})`;
+}
+
+function random(a,b){
+  return a+Math.random()*(b-a);
+}
+
+
+/* =========================================================
    RESIZE
-============================================================ */
+========================================================= */
 
 function resize(){
 
-  const r=
+  const r =
     canvas.getBoundingClientRect();
 
-  DPR=Math.min(
-    devicePixelRatio||1,
-    2
-  );
+  W = r.width;
+  H = r.height;
 
-  W=r.width;
-  H=r.height;
+  DPR =
+    Math.min(
+      window.devicePixelRatio || 1,
+      2
+    );
 
-  canvas.width=W*DPR;
-  canvas.height=H*DPR;
+  canvas.width =
+    Math.round(W*DPR);
+
+  canvas.height =
+    Math.round(H*DPR);
 
   ctx.setTransform(
     DPR,0,0,DPR,0,0
   );
-
-  reset();
 }
 
 window.addEventListener(
@@ -172,418 +252,703 @@ window.addEventListener(
 );
 
 
-/* ============================================================
-   RESET
-============================================================ */
+/* =========================================================
+   TIMER BODY
+========================================================= */
 
-function reset(){
+function bodyPath(){
 
-  drops=[];
-  pools=[];
+  const x1 = W*.14;
+  const x2 = W*.86;
 
-  spawnClock=.25;
+  const y1 = H*.055;
+  const y2 = H*.945;
 
-  remaining=1;
-
-  side=0;
-}
-
-
-/* ============================================================
-   CONTAINER
-============================================================ */
-
-function bottlePath(){
+  const r = W*.095;
 
   ctx.beginPath();
 
-  ctx.moveTo(
-    W*.19,
-    H*.07
-  );
+  ctx.moveTo(x1+r,y1);
+
+  ctx.lineTo(x2-r,y1);
 
   ctx.quadraticCurveTo(
-    W*.13,
-    H*.08,
-    W*.13,
-    H*.15
+    x2,y1,
+    x2,y1+r
   );
 
-  ctx.lineTo(
-    W*.13,
-    H*.84
-  );
+  ctx.lineTo(x2,y2-r);
 
   ctx.quadraticCurveTo(
-    W*.13,
-    H*.93,
-    W*.22,
-    H*.94
+    x2,y2,
+    x2-r,y2
   );
 
-  ctx.lineTo(
-    W*.78,
-    H*.94
-  );
+  ctx.lineTo(x1+r,y2);
 
   ctx.quadraticCurveTo(
-    W*.87,
-    H*.93,
-    W*.87,
-    H*.84
+    x1,y2,
+    x1,y2-r
   );
 
-  ctx.lineTo(
-    W*.87,
-    H*.15
-  );
+  ctx.lineTo(x1,y1+r);
 
   ctx.quadraticCurveTo(
-    W*.87,
-    H*.08,
-    W*.81,
-    H*.07
+    x1,y1,
+    x1+r,y1
   );
 
   ctx.closePath();
 }
 
 
-/* ============================================================
+/* =========================================================
    BACK GLASS
-============================================================ */
+========================================================= */
 
-function drawBottleBack(){
+function drawGlassBack(){
 
   ctx.save();
 
-  bottlePath();
+  bodyPath();
 
-  const g=
+  const g =
     ctx.createLinearGradient(
-      0,0,W,0
+      W*.14,0,
+      W*.86,0
     );
 
   g.addColorStop(
     0,
-    "rgba(190,205,210,.30)"
+    "rgba(183,204,210,.32)"
   );
 
   g.addColorStop(
-    .12,
-    "rgba(255,255,255,.60)"
+    .08,
+    "rgba(255,255,255,.58)"
   );
 
   g.addColorStop(
-    .32,
-    "rgba(255,255,255,.13)"
+    .24,
+    "rgba(255,255,255,.12)"
   );
 
   g.addColorStop(
-    .72,
-    "rgba(220,235,240,.08)"
+    .62,
+    "rgba(225,239,242,.07)"
   );
 
   g.addColorStop(
-    .9,
-    "rgba(255,255,255,.55)"
+    .88,
+    "rgba(255,255,255,.42)"
   );
 
   g.addColorStop(
     1,
-    "rgba(170,190,195,.28)"
+    "rgba(170,193,200,.30)"
   );
 
-  ctx.fillStyle=g;
+  ctx.fillStyle = g;
   ctx.fill();
 
   ctx.restore();
 }
 
 
-/* ============================================================
-   TOP RESERVOIRS
-============================================================ */
+/* =========================================================
+   INTERNAL CHAMBER CLIP
+========================================================= */
 
-function drawReservoirs(){
+function chamberClip(){
 
-  ctx.save();
+  ctx.beginPath();
 
-  bottlePath();
+  ctx.roundRect(
+    W*.18,
+    H*.075,
+    W*.64,
+    H*.85,
+    W*.055
+  );
+
   ctx.clip();
-
-  const bottom=
-    H*.285;
-
-  const maxHeight=
-    H*.16;
-
-  const level=
-    bottom-
-    maxHeight*remaining;
-
-
-  reservoir(
-    W*.17,
-    W*.495,
-    level,
-    bottom,
-    cyan
-  );
-
-  reservoir(
-    W*.505,
-    W*.83,
-    level,
-    bottom,
-    pink
-  );
-
-  ctx.restore();
 }
 
 
-function reservoir(
-  x1,x2,y1,y2,color
-){
+/* =========================================================
+   TOP RESERVOIR
+========================================================= */
 
-  const g=
+function drawTopReservoir(){
+
+  if(topAmount <= .001)
+    return;
+
+  ctx.save();
+
+  chamberClip();
+
+  const floor = H*.315;
+
+  const maxHeight = H*.205;
+
+  const surface =
+    floor -
+    maxHeight*topAmount;
+
+  const wave =
+    Math.sin(liquidTime*1.5)*1.4;
+
+  const g =
     ctx.createLinearGradient(
-      x1,y1,
-      x2,y2
+      0,
+      surface,
+      0,
+      floor
     );
 
   g.addColorStop(
     0,
-    color.light
+    rgba(OIL.light,1)
   );
 
   g.addColorStop(
-    .38,
-    color.mid
+    .22,
+    rgba(OIL.main,1)
   );
 
   g.addColorStop(
     1,
-    color.dark
+    rgba(OIL.deep,1)
   );
 
-  ctx.fillStyle=g;
+  ctx.fillStyle = g;
 
   ctx.beginPath();
 
-  ctx.moveTo(x1,y2);
-
-  ctx.lineTo(x1,y1+3);
+  ctx.moveTo(
+    W*.18,
+    surface
+  );
 
   ctx.bezierCurveTo(
-    x1+(x2-x1)*.25,
-    y1-2,
-    x1+(x2-x1)*.7,
-    y1+2,
-    x2,
-    y1
+    W*.33,
+    surface-wave,
+
+    W*.66,
+    surface+wave,
+
+    W*.82,
+    surface
   );
 
-  ctx.lineTo(x2,y2);
+  ctx.lineTo(
+    W*.82,
+    floor
+  );
+
+  ctx.lineTo(
+    W*.18,
+    floor
+  );
 
   ctx.closePath();
 
   ctx.fill();
 
 
-  ctx.strokeStyle=
-    "rgba(255,255,255,.42)";
+  /* subtle internal highlight */
 
-  ctx.lineWidth=2;
+  ctx.fillStyle =
+    "rgba(255,255,255,.16)";
 
-  ctx.beginPath();
-
-  ctx.moveTo(
-    x1+8,
-    y1+10
+  ctx.fillRect(
+    W*.225,
+    surface+7,
+    W*.025,
+    Math.max(
+      0,
+      floor-surface-14
+    )
   );
 
-  ctx.lineTo(
-    x1+8,
-    y2-8
-  );
-
-  ctx.stroke();
+  ctx.restore();
 }
 
 
-/* ============================================================
-   FUNNEL / NOZZLES
-============================================================ */
+/* =========================================================
+   FUNNEL
+========================================================= */
 
-function drawFunnels(){
+function drawFunnel(){
 
-  funnel(
-    W*.37,
-    cyan
-  );
+  const cx = W*.5;
 
-  funnel(
-    W*.63,
-    pink
-  );
-}
+  const top = H*.305;
+  const bottom = H*.395;
 
+  ctx.save();
 
-function funnel(x,color){
+  chamberClip();
 
-  const top=
-    H*.275;
-
-  const tip=
-    H*.355;
-
-  const g=
+  const g =
     ctx.createLinearGradient(
-      x-20,
+      cx-W*.19,
       top,
-      x+20,
-      tip
+      cx+W*.19,
+      bottom
     );
 
   g.addColorStop(
     0,
-    color.light
+    rgba(OIL.light,1)
   );
 
   g.addColorStop(
     .45,
-    color.mid
+    rgba(OIL.main,1)
   );
 
   g.addColorStop(
     1,
-    color.dark
+    rgba(OIL.deep,1)
   );
 
-  ctx.fillStyle=g;
+  ctx.fillStyle = g;
 
   ctx.beginPath();
 
   ctx.moveTo(
-    x-W*.105,
+    cx-W*.25,
     top
   );
 
   ctx.lineTo(
-    x+W*.105,
+    cx+W*.25,
     top
   );
 
   ctx.bezierCurveTo(
-    x+W*.08,
+    cx+W*.16,
     top+H*.025,
-    x+W*.025,
-    tip-H*.012,
-    x+W*.014,
-    tip
+
+    cx+W*.045,
+    bottom-H*.018,
+
+    cx+W*.017,
+    bottom
   );
 
   ctx.lineTo(
-    x-W*.014,
-    tip
+    cx-W*.017,
+    bottom
   );
 
   ctx.bezierCurveTo(
-    x-W*.025,
-    tip-H*.012,
-    x-W*.08,
+    cx-W*.045,
+    bottom-H*.018,
+
+    cx-W*.16,
     top+H*.025,
-    x-W*.105,
+
+    cx-W*.25,
     top
   );
 
   ctx.closePath();
 
   ctx.fill();
+
+  ctx.restore();
 }
 
 
-/* ============================================================
+/* =========================================================
    DROP CREATION
-============================================================ */
+========================================================= */
 
-function createDrop(){
+function beginDrop(){
 
-  if(remaining<=0)
+  if(
+    topAmount <= .015 ||
+    forming
+  ){
     return;
+  }
 
-  side=
-    side===0 ? 1 : 0;
-
-  const color=
-    side===0 ? cyan : pink;
-
-  const x=
-    side===0
-      ? W*.37
-      : W*.63;
-
-  drops.push({
-
-    x,
-    y:H*.358,
-
-    vx:
-      (Math.random()-.5)*
-      W*.025,
-
-    vy:
-      H*.025,
-
-    r:
-      W*
-      (.045+
-       Math.random()*.012),
-
-    color,
+  forming = {
 
     age:0,
 
-    wobble:
-      Math.random()*
-      Math.PI*2,
+    duration:
+      random(.55,.78),
 
-    state:"forming",
+    size:
+      random(
+        W*.052,
+        W*.068
+      )
 
-    form:0
+  };
+}
+
+
+function releaseDrop(){
+
+  if(!forming)
+    return;
+
+  const size =
+    forming.size;
+
+  drops.push({
+
+    x:
+      W*.5 +
+      random(-W*.008,W*.008),
+
+    y:
+      H*.405,
+
+    vx:
+      random(-2.4,2.4),
+
+    vy:
+      random(8,13),
+
+    r:size,
+
+    age:0,
+
+    phase:
+      random(0,Math.PI*2),
+
+    rotation:
+      random(-.08,.08)
 
   });
 
-  remaining=
+  const volume =
+    random(.034,.045);
+
+  topAmount =
     Math.max(
       0,
-      remaining-.032
+      topAmount-volume
+    );
+
+  forming = null;
+
+  nextDrop =
+    random(
+      DROP_INTERVAL_MIN,
+      DROP_INTERVAL_MAX
     );
 }
 
 
-/* ============================================================
-   PHYSICS
-============================================================ */
+/* =========================================================
+   FORMING DROP
+========================================================= */
 
-function update(dt){
+function updateForming(dt){
 
-  spawnClock-=dt;
+  if(!forming)
+    return;
+
+  forming.age += dt;
 
   if(
-    spawnClock<=0 &&
-    remaining>0
+    forming.age >=
+    forming.duration
   ){
-
-    createDrop();
-
-    spawnClock=
-      .78+
-      Math.random()*.48;
+    releaseDrop();
   }
+}
 
+
+function drawForming(){
+
+  if(!forming)
+    return;
+
+  const t =
+    clamp(
+      forming.age /
+      forming.duration,
+      0,
+      1
+    );
+
+  const e =
+    easeOut(t);
+
+  const cx = W*.5;
+
+  const neckY =
+    H*.391;
+
+  const r =
+    forming.size;
+
+  /*
+    Early:
+    small bulge.
+
+    Late:
+    large heavy drop with a
+    narrowing neck.
+  */
+
+  const width =
+    r*
+    lerp(.30,1,e);
+
+  const length =
+    r*
+    lerp(.45,1.72,e);
+
+  const neck =
+    r*
+    lerp(.22,.075,t*t);
+
+  const bottom =
+    neckY+length;
+
+  const g =
+    ctx.createRadialGradient(
+      cx-width*.35,
+      neckY+length*.55,
+      width*.08,
+
+      cx,
+      neckY+length*.55,
+      width*1.25
+    );
+
+  g.addColorStop(
+    0,
+    rgba(OIL.light,1)
+  );
+
+  g.addColorStop(
+    .30,
+    rgba(OIL.main,1)
+  );
+
+  g.addColorStop(
+    1,
+    rgba(OIL.deep,1)
+  );
+
+  ctx.fillStyle = g;
+
+  ctx.beginPath();
+
+  ctx.moveTo(
+    cx-neck,
+    neckY
+  );
+
+  ctx.bezierCurveTo(
+    cx-neck,
+    neckY+length*.18,
+
+    cx-width*.82,
+    neckY+length*.26,
+
+    cx-width,
+    neckY+length*.55
+  );
+
+  ctx.bezierCurveTo(
+    cx-width*.95,
+    bottom-r*.12,
+
+    cx-width*.48,
+    bottom,
+
+    cx,
+    bottom
+  );
+
+  ctx.bezierCurveTo(
+    cx+width*.48,
+    bottom,
+
+    cx+width*.95,
+    bottom-r*.12,
+
+    cx+width,
+    neckY+length*.55
+  );
+
+  ctx.bezierCurveTo(
+    cx+width*.82,
+    neckY+length*.26,
+
+    cx+neck,
+    neckY+length*.18,
+
+    cx+neck,
+    neckY
+  );
+
+  ctx.closePath();
+
+  ctx.fill();
+
+
+  /* highlight */
+
+  ctx.beginPath();
+
+  ctx.ellipse(
+    cx-width*.32,
+    neckY+length*.57,
+
+    width*.17,
+    length*.10,
+
+    -.45,
+    0,
+    Math.PI*2
+  );
+
+  ctx.fillStyle =
+    "rgba(255,255,255,.43)";
+
+  ctx.fill();
+}
+
+
+/* =========================================================
+   BOTTOM LIQUID
+========================================================= */
+
+function bottomSurface(){
+
+  const base =
+    H*.895;
+
+  const rise =
+    H*.245 *
+    Math.pow(
+      bottomAmount,
+      .82
+    );
+
+  return base-rise;
+}
+
+
+function drawBottomReservoir(){
+
+  if(bottomAmount <= .001)
+    return;
+
+  ctx.save();
+
+  chamberClip();
+
+  const surface =
+    bottomSurface();
+
+  const impact =
+    drops.some(
+      d =>
+        d.y >
+        surface-H*.08
+    );
+
+  const wavePower =
+    impact ? 4 : 1.3;
+
+  const wave =
+    Math.sin(
+      liquidTime*3.1
+    )*wavePower;
+
+  const g =
+    ctx.createLinearGradient(
+      0,
+      surface,
+      0,
+      H*.91
+    );
+
+  g.addColorStop(
+    0,
+    rgba(OIL.light,1)
+  );
+
+  g.addColorStop(
+    .16,
+    rgba(OIL.main,1)
+  );
+
+  g.addColorStop(
+    1,
+    rgba(OIL.deep,1)
+  );
+
+  ctx.fillStyle = g;
+
+  ctx.beginPath();
+
+  ctx.moveTo(
+    W*.18,
+    H*.92
+  );
+
+  ctx.lineTo(
+    W*.82,
+    H*.92
+  );
+
+  ctx.lineTo(
+    W*.82,
+    surface
+  );
+
+  ctx.bezierCurveTo(
+    W*.68,
+    surface+wave,
+
+    W*.59,
+    surface-wave*.8,
+
+    W*.50,
+    surface
+  );
+
+  ctx.bezierCurveTo(
+    W*.40,
+    surface+wave*.7,
+
+    W*.30,
+    surface-wave,
+
+    W*.18,
+    surface
+  );
+
+  ctx.closePath();
+
+  ctx.fill();
+
+  ctx.restore();
+}
+
+
+/* =========================================================
+   FALLING DROP PHYSICS
+========================================================= */
+
+function updateDrops(dt){
+
+  const surface =
+    bottomSurface();
 
   for(
     let i=drops.length-1;
@@ -591,723 +956,314 @@ function update(dt){
     i--
   ){
 
-    const d=drops[i];
+    const d = drops[i];
 
-    d.age+=dt;
-
-
-    /* -----------------------------------------
-       FORMING AT NOZZLE
-    ------------------------------------------ */
-
-    if(
-      d.state==="forming"
-    ){
-
-      d.form+=dt*1.8;
-
-      if(d.form>=1){
-
-        d.form=1;
-
-        d.state="falling";
-
-        d.vy=H*.045;
-      }
-
-      continue;
-    }
-
-
-    /* -----------------------------------------
-       FALLING
-    ------------------------------------------ */
-
-    if(
-      d.state==="falling"
-    ){
-
-      d.vy+=
-        H*.30*dt;
-
-      d.vx+=
-        Math.sin(
-          d.age*3+
-          d.wobble
-        )*
-        W*.002*
-        dt;
-
-      d.x+=
-        d.vx*dt;
-
-      d.y+=
-        d.vy*dt;
-
-
-      /*
-        slight side restriction
-      */
-
-      const left=
-        W*.19+d.r;
-
-      const right=
-        W*.81-d.r;
-
-      if(d.x<left){
-
-        d.x=left;
-        d.vx=
-          Math.abs(d.vx)*.3;
-      }
-
-      if(d.x>right){
-
-        d.x=right;
-        d.vx=
-          -Math.abs(d.vx)*.3;
-      }
-
-
-      /*
-        oil pool collision
-      */
-
-      const surface=
-        getPoolSurface(d.x);
-
-      if(
-        d.y+d.r>
-        surface
-      ){
-
-        createSplash(d);
-
-        drops.splice(i,1);
-      }
-    }
-  }
-
-
-  updatePools(dt);
-}
-
-
-/* ============================================================
-   POOL
-============================================================ */
-
-function getPoolSurface(x){
-
-  let y=
-    H*.885;
-
-  for(const p of pools){
-
-    const dx=
-      Math.abs(x-p.x);
-
-    if(
-      dx<
-      p.rx*.9
-    ){
-
-      y=Math.min(
-        y,
-        p.y-
-        p.ry*.55
-      );
-    }
-  }
-
-  return y;
-}
-
-
-function createSplash(drop){
-
-  /*
-    Instead of preserving the falling
-    sphere, convert it into a flattened
-    blob that joins the liquid mass.
-  */
-
-  pools.push({
-
-    x:
-      drop.x+
-      (Math.random()-.5)*
-      W*.018,
-
-    y:
-      Math.min(
-        H*.885,
-        getPoolSurface(drop.x)
-      ),
-
-    rx:
-      drop.r*1.45,
-
-    ry:
-      drop.r*.58,
-
-    color:
-      drop.color,
-
-    wobble:
-      Math.random()*
-      Math.PI*2,
-
-    age:0
-
-  });
-
-
-  /*
-    Prevent unlimited DOM/canvas work.
-  */
-
-  if(pools.length>36){
-
-    mergeOldPools();
-  }
-}
-
-
-function updatePools(dt){
-
-  for(const p of pools){
-
-    p.age+=dt;
+    d.age += dt;
 
     /*
-      very slow spreading
+      Gravity is deliberately mild:
+      the surrounding clear liquid
+      visually behaves as a viscous
+      medium.
     */
 
-    p.rx+=
-      (W*.055-p.rx)*
-      dt*.08;
-
-    p.ry+=
-      (W*.027-p.ry)*
-      dt*.08;
-  }
-}
-
-
-function mergeOldPools(){
-
-  /*
-    Keep the newest blobs individually.
-    Older liquid becomes a wider pool.
-  */
-
-  const old=
-    pools.splice(
-      0,
-      8
-    );
-
-  if(!old.length)
-    return;
-
-  let x=0;
-
-  old.forEach(
-    p=>x+=p.x
-  );
-
-  x/=old.length;
-
-  pools.unshift({
-
-    x,
-
-    y:H*.89,
-
-    rx:W*.22,
-
-    ry:W*.07,
-
-    color:
-      old[0].color,
-
-    wobble:0,
-
-    age:10
-  });
-}
-
-
-/* ============================================================
-   FORMING DROPS
-============================================================ */
-
-function drawFormingDrop(d){
-
-  const t=
-    ease(d.form);
-
-  const x=d.x;
-
-  const top=
-    H*.346;
-
-  /*
-    droplet grows downward while its
-    neck remains attached to nozzle
-  */
-
-  const length=
-    d.r*
-    (.55+1.7*t);
-
-  const width=
-    d.r*
-    (.28+.72*t);
-
-  ctx.save();
-
-  ctx.translate(
-    x,
-    top
-  );
-
-  const g=
-    dropGradient(
-      0,
-      length*.55,
-      width,
-      d.color
-    );
-
-  ctx.fillStyle=g;
-
-  ctx.beginPath();
-
-  ctx.moveTo(
-    -d.r*.16,
-    0
-  );
-
-  ctx.bezierCurveTo(
-    -d.r*.14,
-    length*.18,
-
-    -width,
-    length*.38,
-
-    -width*.82,
-    length*.67
-  );
-
-  ctx.bezierCurveTo(
-    -width*.68,
-    length,
-
-    width*.68,
-    length,
-
-    width*.82,
-    length*.67
-  );
-
-  ctx.bezierCurveTo(
-    width,
-    length*.38,
-
-    d.r*.14,
-    length*.18,
-
-    d.r*.16,
-    0
-  );
-
-  ctx.closePath();
-
-  ctx.fill();
-
-
-  /*
-    highlight
-  */
-
-  ctx.beginPath();
-
-  ctx.ellipse(
-    -width*.32,
-    length*.58,
-    width*.16,
-    length*.12,
-    -.4,
-    0,
-    Math.PI*2
-  );
-
-  ctx.fillStyle=
-    "rgba(255,255,255,.48)";
-
-  ctx.fill();
-
-  ctx.restore();
-}
-
-
-/* ============================================================
-   FALLING DROPS
-============================================================ */
-
-function drawFallingDrop(d){
-
-  const speed=
-    Math.min(
-      1,
-      d.vy/(H*.18)
-    );
-
-  /*
-    vertical deformation from falling
-  */
-
-  const wobble=
-    Math.sin(
-      d.age*8+
-      d.wobble
-    )*.06;
-
-  const rx=
-    d.r*
-    (1-speed*.16+wobble);
-
-  const ry=
-    d.r*
-    (1+speed*.30-wobble);
-
-  ctx.save();
-
-  ctx.translate(
-    d.x,
-    d.y
-  );
-
-
-  const g=
-    dropGradient(
-      0,
-      0,
-      Math.max(rx,ry),
-      d.color
-    );
-
-  ctx.fillStyle=g;
-
-
-  /*
-    asymmetric organic blob
-  */
-
-  ctx.beginPath();
-
-  ctx.moveTo(
-    0,
-    -ry
-  );
-
-  ctx.bezierCurveTo(
-    rx*.78,
-    -ry*.72,
-
-    rx*1.04,
-    -ry*.10,
-
-    rx*.88,
-    ry*.38
-  );
-
-  ctx.bezierCurveTo(
-    rx*.70,
-    ry*.94,
-
-    rx*.18,
-    ry*1.05,
-
-    0,
-    ry
-  );
-
-  ctx.bezierCurveTo(
-    -rx*.52,
-    ry*.96,
-
-    -rx,
-    ry*.52,
-
-    -rx*.91,
-    0
-  );
-
-  ctx.bezierCurveTo(
-    -rx*.86,
-    -ry*.55,
-
-    -rx*.38,
-    -ry*.91,
-
-    0,
-    -ry
-  );
-
-  ctx.closePath();
-
-  ctx.fill();
-
-
-  /*
-    specular reflection
-  */
-
-  ctx.beginPath();
-
-  ctx.ellipse(
-    -rx*.32,
-    -ry*.30,
-    rx*.20,
-    ry*.14,
-    -.5,
-    0,
-    Math.PI*2
-  );
-
-  ctx.fillStyle=
-    "rgba(255,255,255,.52)";
-
-  ctx.fill();
-
-  ctx.restore();
-}
-
-
-/* ============================================================
-   POOL DRAWING
-============================================================ */
-
-function drawPools(){
-
-  ctx.save();
-
-  bottlePath();
-  ctx.clip();
-
-
-  /*
-    First create a soft continuous
-    under-layer. This prevents the pile
-    from looking like marbles.
-  */
-
-  if(pools.length){
-
-    const baseHeight=
-      Math.min(
-        H*.20,
-        pools.length*
-        H*.0046
+    d.vy +=
+      GRAVITY*dt;
+
+    /*
+      Fluid resistance.
+    */
+
+    d.vx *=
+      Math.pow(
+        DRAG,
+        dt*60
       );
 
-    const y=
-      H*.91-
-      baseHeight;
-
-    const g=
-      ctx.createLinearGradient(
-        0,
-        y,
-        0,
-        H*.94
+    d.vy *=
+      Math.pow(
+        .993,
+        dt*60
       );
 
-    g.addColorStop(
-      0,
-      "rgba(41,194,190,.20)"
-    );
+    /*
+      Small irregular drift.
+    */
 
-    g.addColorStop(
-      1,
-      "rgba(232,62,127,.18)"
-    );
-
-    ctx.fillStyle=g;
-
-    ctx.beginPath();
-
-    ctx.moveTo(
-      W*.17,
-      H*.94
-    );
-
-    ctx.lineTo(
-      W*.83,
-      H*.94
-    );
-
-    ctx.lineTo(
-      W*.83,
-      y+6
-    );
-
-    ctx.bezierCurveTo(
-      W*.68,
-      y-5,
-
-      W*.60,
-      y+5,
-
-      W*.50,
-      y
-    );
-
-    ctx.bezierCurveTo(
-      W*.38,
-      y-5,
-
-      W*.28,
-      y+5,
-
-      W*.17,
-      y
-    );
-
-    ctx.closePath();
-
-    ctx.fill();
-  }
-
-
-  /*
-    Individual blobs overlap and
-    visually fuse into the pool.
-  */
-
-  for(const p of pools){
-
-    const pulse=
+    d.vx +=
       Math.sin(
-        p.age*2+
-        p.wobble
-      )*.025;
+        d.age*2.1+
+        d.phase
+      )*
+      .75*
+      dt;
 
-    const rx=
-      p.rx*(1+pulse);
+    d.x +=
+      d.vx*dt;
 
-    const ry=
-      p.ry*(1-pulse);
+    d.y +=
+      d.vy*dt;
 
 
-    const g=
-      dropGradient(
-        p.x,
-        p.y,
-        rx,
-        p.color
+    /*
+      Soft chamber boundaries.
+    */
+
+    const left =
+      W*.215+d.r;
+
+    const right =
+      W*.785-d.r;
+
+    if(d.x < left){
+
+      d.x = left;
+
+      d.vx =
+        Math.abs(d.vx)*.35;
+    }
+
+    if(d.x > right){
+
+      d.x = right;
+
+      d.vx =
+        -Math.abs(d.vx)*.35;
+    }
+
+
+    /*
+      Merge into lower liquid.
+    */
+
+    if(
+      d.y+d.r*.72 >=
+      surface
+    ){
+
+      bottomAmount =
+        clamp(
+          bottomAmount+
+          random(.034,.045),
+          0,
+          1
+        );
+
+      drops.splice(i,1);
+    }
+  }
+}
+
+
+/* =========================================================
+   FALLING DROP DRAWING
+========================================================= */
+
+function drawDrops(){
+
+  ctx.save();
+
+  chamberClip();
+
+  for(const d of drops){
+
+    /*
+      Shape changes continuously,
+      instead of remaining a circle.
+    */
+
+    const motion =
+      clamp(
+        d.vy/70,
+        0,
+        1
       );
 
-    ctx.fillStyle=g;
+    const wobble =
+      Math.sin(
+        d.age*5+
+        d.phase
+      );
 
-    ctx.beginPath();
+    const rx =
+      d.r*
+      (
+        1.04
+        -motion*.13
+        +wobble*.055
+      );
 
-    ctx.ellipse(
-      p.x,
-      p.y,
+    const ry =
+      d.r*
+      (
+        .94
+        +motion*.30
+        -wobble*.045
+      );
+
+    drawBlob(
+      d.x,
+      d.y,
       rx,
       ry,
-      0,
-      0,
-      Math.PI*2
+      d
     );
-
-    ctx.fill();
-
-
-    ctx.beginPath();
-
-    ctx.ellipse(
-      p.x-rx*.30,
-      p.y-ry*.28,
-      rx*.18,
-      ry*.15,
-      -.3,
-      0,
-      Math.PI*2
-    );
-
-    ctx.fillStyle=
-      "rgba(255,255,255,.30)";
-
-    ctx.fill();
   }
 
   ctx.restore();
 }
 
 
-/* ============================================================
-   GRADIENT
-============================================================ */
-
-function dropGradient(
-  x,y,r,color
+function drawBlob(
+  x,y,rx,ry,d
 ){
 
-  const g=
+  const wobble =
+    Math.sin(
+      d.age*4.2+
+      d.phase
+    );
+
+  const left =
+    rx*(1+wobble*.06);
+
+  const right =
+    rx*(1-wobble*.05);
+
+  const top =
+    ry*(1-wobble*.035);
+
+  const bottom =
+    ry*(1+wobble*.04);
+
+  const g =
     ctx.createRadialGradient(
-      x-r*.30,
-      y-r*.34,
-      r*.08,
+      x-rx*.34,
+      y-ry*.36,
+      rx*.08,
 
       x,
       y,
-      r*1.15
+      Math.max(rx,ry)*1.12
     );
 
   g.addColorStop(
     0,
-    color.light
+    rgba(OIL.light,1)
   );
 
   g.addColorStop(
     .28,
-    color.mid
+    rgba(OIL.main,1)
   );
 
   g.addColorStop(
-    .78,
-    color.mid
+    .82,
+    rgba(OIL.main,1)
   );
 
   g.addColorStop(
     1,
-    color.dark
+    rgba(OIL.deep,1)
   );
 
-  return g;
+  ctx.fillStyle = g;
+
+  ctx.beginPath();
+
+  ctx.moveTo(
+    x,
+    y-top
+  );
+
+  ctx.bezierCurveTo(
+    x+right*.63,
+    y-top*.88,
+
+    x+right,
+    y-ry*.38,
+
+    x+right*.97,
+    y
+  );
+
+  ctx.bezierCurveTo(
+    x+right,
+    y+bottom*.55,
+
+    x+rx*.50,
+    y+bottom,
+
+    x,
+    y+bottom
+  );
+
+  ctx.bezierCurveTo(
+    x-left*.56,
+    y+bottom*.96,
+
+    x-left,
+    y+ry*.50,
+
+    x-left*.96,
+    y
+  );
+
+  ctx.bezierCurveTo(
+    x-left,
+    y-ry*.42,
+
+    x-left*.55,
+    y-top*.92,
+
+    x,
+    y-top
+  );
+
+  ctx.closePath();
+
+  ctx.fill();
+
+
+  /*
+    Internal specular reflection.
+  */
+
+  ctx.beginPath();
+
+  ctx.ellipse(
+    x-rx*.30,
+    y-ry*.30,
+
+    rx*.19,
+    ry*.13,
+
+    -.45,
+    0,
+    Math.PI*2
+  );
+
+  ctx.fillStyle =
+    "rgba(255,255,255,.48)";
+
+  ctx.fill();
 }
 
 
-/* ============================================================
+/* =========================================================
    FRONT GLASS
-============================================================ */
+========================================================= */
 
-function drawFrontGlass(){
+function drawGlassFront(){
 
   ctx.save();
 
-  bottlePath();
+  bodyPath();
 
-  ctx.strokeStyle=
-    "rgba(75,95,100,.25)";
+  ctx.strokeStyle =
+    "rgba(78,96,102,.24)";
 
-  ctx.lineWidth=2;
+  ctx.lineWidth = 1.5;
 
   ctx.stroke();
 
@@ -1315,15 +1271,13 @@ function drawFrontGlass(){
 
 
   /*
-    broad reflection
+    Wide reflection.
   */
 
-  const g=
+  const g =
     ctx.createLinearGradient(
-      W*.15,
-      0,
-      W*.45,
-      0
+      W*.16,0,
+      W*.46,0
     );
 
   g.addColorStop(
@@ -1332,13 +1286,13 @@ function drawFrontGlass(){
   );
 
   g.addColorStop(
-    .30,
+    .27,
     "rgba(255,255,255,.42)"
   );
 
   g.addColorStop(
-    .52,
-    "rgba(255,255,255,.12)"
+    .45,
+    "rgba(255,255,255,.13)"
   );
 
   g.addColorStop(
@@ -1346,50 +1300,35 @@ function drawFrontGlass(){
     "rgba(255,255,255,0)"
   );
 
-  ctx.fillStyle=g;
+  ctx.fillStyle = g;
 
   ctx.fillRect(
-    W*.12,
-    H*.08,
-    W*.34,
-    H*.84
+    W*.13,
+    H*.07,
+    W*.38,
+    H*.86
   );
 
 
   /*
-    edge highlights
+    Narrow reflection.
   */
 
-  ctx.strokeStyle=
-    "rgba(255,255,255,.68)";
+  ctx.strokeStyle =
+    "rgba(255,255,255,.63)";
 
-  ctx.lineWidth=1.5;
-
-  ctx.beginPath();
-
-  ctx.moveTo(
-    W*.18,
-    H*.14
-  );
-
-  ctx.lineTo(
-    W*.18,
-    H*.82
-  );
-
-  ctx.stroke();
-
+  ctx.lineWidth = 1.3;
 
   ctx.beginPath();
 
   ctx.moveTo(
-    W*.81,
-    H*.17
+    W*.225,
+    H*.12
   );
 
   ctx.lineTo(
-    W*.81,
-    H*.79
+    W*.225,
+    H*.86
   );
 
   ctx.stroke();
@@ -1398,245 +1337,247 @@ function drawFrontGlass(){
 }
 
 
-/* ============================================================
-   CAPS
-============================================================ */
+/* =========================================================
+   END CAPS
+========================================================= */
 
 function drawCaps(){
 
-  cap(H*.045);
-  cap(H*.925);
+  drawCap(H*.035);
+  drawCap(H*.925);
 }
 
 
-function cap(y){
+function drawCap(y){
 
-  const x=W*.12;
-  const width=W*.76;
-  const height=H*.035;
+  const x = W*.10;
+  const w = W*.80;
+  const h = H*.040;
 
-  const g=
+  const g =
     ctx.createLinearGradient(
       x,0,
-      x+width,0
+      x+w,0
     );
 
   g.addColorStop(
     0,
-    "#cfcac1"
+    "#c7c3bc"
   );
 
   g.addColorStop(
-    .15,
-    "#faf8f3"
+    .12,
+    "#f5f3ee"
   );
 
   g.addColorStop(
-    .5,
-    "#e9e6de"
+    .36,
+    "#dedbd4"
+  );
+
+  g.addColorStop(
+    .57,
+    "#faf9f5"
   );
 
   g.addColorStop(
     .82,
-    "#fffef9"
+    "#dad6cf"
   );
 
   g.addColorStop(
     1,
-    "#c7c1b7"
+    "#bbb6ae"
   );
 
-  ctx.fillStyle=g;
+  ctx.fillStyle = g;
 
-  roundRect(
+  ctx.beginPath();
+
+  ctx.roundRect(
     x,
     y,
-    width,
-    height,
+    w,
+    h,
     7
   );
 
   ctx.fill();
 
-  ctx.strokeStyle=
-    "rgba(70,60,50,.14)";
+  ctx.strokeStyle =
+    "rgba(75,65,55,.16)";
+
+  ctx.lineWidth = 1;
 
   ctx.stroke();
 }
 
 
-function roundRect(
-  x,y,w,h,r
-){
+/* =========================================================
+   UPDATE
+========================================================= */
 
-  ctx.beginPath();
+function update(dt){
 
-  ctx.moveTo(x+r,y);
+  liquidTime += dt;
 
-  ctx.arcTo(
-    x+w,y,
-    x+w,y+h,
-    r
-  );
+  /*
+    New drop only starts after the
+    previous one has detached.
+  */
 
-  ctx.arcTo(
-    x+w,y+h,
-    x,y+h,
-    r
-  );
+  if(!forming){
 
-  ctx.arcTo(
-    x,y+h,
-    x,y,
-    r
-  );
+    nextDrop -= dt;
 
-  ctx.arcTo(
-    x,y,
-    x+w,y,
-    r
-  );
+    if(
+      nextDrop <= 0 &&
+      topAmount > .015
+    ){
+      beginDrop();
+    }
+  }
 
-  ctx.closePath();
+  updateForming(dt);
+
+  updateDrops(dt);
 }
 
 
-/* ============================================================
-   EASING
-============================================================ */
+/* =========================================================
+   RENDER
+========================================================= */
 
-function ease(t){
-
-  return 1-
-    Math.pow(
-      1-t,
-      3
-    );
-}
-
-
-/* ============================================================
-   DRAW
-============================================================ */
-
-function draw(){
+function render(){
 
   ctx.clearRect(
     0,0,W,H
   );
 
-  drawBottleBack();
+  drawGlassBack();
 
-  drawReservoirs();
+  drawTopReservoir();
 
-  drawFunnels();
+  drawFunnel();
 
-  drawPools();
+  drawBottomReservoir();
 
+  drawForming();
 
-  /*
-    forming drops must appear attached
-    to funnels
-  */
+  drawDrops();
 
-  for(const d of drops){
-
-    if(
-      d.state==="forming"
-    ){
-
-      drawFormingDrop(d);
-    }
-  }
-
-
-  for(const d of drops){
-
-    if(
-      d.state==="falling"
-    ){
-
-      drawFallingDrop(d);
-    }
-  }
-
-
-  drawFrontGlass();
+  drawGlassFront();
 
   drawCaps();
 }
 
 
-/* ============================================================
+/* =========================================================
    LOOP
-============================================================ */
+========================================================= */
 
 function loop(now){
 
-  let dt=
-    (now-last)/1000;
+  let dt =
+    (now-lastTime)/1000;
 
-  last=now;
+  lastTime = now;
 
-  dt=Math.min(
-    dt,
-    .033
-  );
+  /*
+    Avoid huge jumps after Safari
+    returns from background.
+  */
+
+  dt =
+    Math.min(
+      dt,
+      .033
+    );
 
   update(dt);
 
-  draw();
+  render();
 
   requestAnimationFrame(loop);
 }
 
 
-/* ============================================================
-   TURN
-============================================================ */
+/* =========================================================
+   TURN TIMER
+========================================================= */
 
-let turning=false;
+function turnTimer(){
+
+  if(turning)
+    return;
+
+  turning = true;
+
+  hint.classList.add(
+    "hidden"
+  );
+
+  flipped = !flipped;
+
+  timer.classList.toggle(
+    "flipped",
+    flipped
+  );
+
+
+  /*
+    Reset near the midpoint of the
+    physical rotation so the full
+    reservoir appears at the new top.
+  */
+
+  setTimeout(
+    () => {
+
+      topAmount = 1;
+      bottomAmount = 0;
+
+      forming = null;
+      drops = [];
+
+      nextDrop = .45;
+
+      liquidTime = 0;
+
+    },
+    380
+  );
+
+
+  setTimeout(
+    () => {
+
+      turning = false;
+
+    },
+    780
+  );
+}
+
 
 timer.addEventListener(
   "pointerup",
-  () => {
-
-    if(turning)
-      return;
-
-    turning=true;
-
-    flipped=!flipped;
-
-    timer.classList.toggle(
-      "flip",
-      flipped
-    );
-
-    setTimeout(
-      () => {
-
-        reset();
-
-        turning=false;
-
-      },
-      390
-    );
-  }
+  turnTimer
 );
 
 
-/* ============================================================
+/* =========================================================
    START
-============================================================ */
+========================================================= */
 
 resize();
+
+nextDrop = .35;
 
 requestAnimationFrame(
   t => {
 
-    last=t;
+    lastTime = t;
 
     requestAnimationFrame(loop);
   }
