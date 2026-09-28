@@ -1,11 +1,10 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="ja">
 <head>
-<meta charset="utf-8">
+<meta charset="UTF-8">
 <meta name="viewport"
-      content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
-<meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="theme-color" content="#eeeae2">
+content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
+
 <title>Oil Timer</title>
 
 <style>
@@ -19,1266 +18,688 @@ html,body{
   width:100%;
   height:100%;
   overflow:hidden;
-  overscroll-behavior:none;
+  background:#eeeae4;
 }
 
 body{
-  background:#eeeae2;
+  display:flex;
+  align-items:center;
+  justify-content:center;
   touch-action:none;
   user-select:none;
   -webkit-user-select:none;
 }
 
-#app{
-  position:fixed;
-  inset:0;
-  display:flex;
-  align-items:center;
-  justify-content:center;
-
-  background:
-    radial-gradient(
-      ellipse at 50% 42%,
-      #fff 0%,
-      #f8f6f1 43%,
-      #e7e1d7 100%
-    );
-}
-
-#timer{
+#wrap{
   position:relative;
-  width:min(70vw,300px);
-  aspect-ratio:0.52;
-
-  filter:
-    drop-shadow(0 18px 20px rgba(54,43,31,.12));
-
+  width:min(76vw,320px);
+  height:min(78vh,620px);
   transform:rotate(0deg);
-
-  transition:
-    transform 760ms
-    cubic-bezier(.22,.75,.2,1);
+  transition:transform .7s cubic-bezier(.2,.75,.25,1);
 }
 
-#timer.flipped{
+#wrap.flip{
   transform:rotate(180deg);
 }
 
 canvas{
-  display:block;
   width:100%;
   height:100%;
+  display:block;
 }
 
 #hint{
   position:fixed;
-  bottom:max(22px,env(safe-area-inset-bottom));
+  bottom:max(20px,env(safe-area-inset-bottom));
   left:0;
   right:0;
-
   text-align:center;
-
-  font-family:
-    -apple-system,
-    BlinkMacSystemFont,
-    "Helvetica Neue",
-    sans-serif;
-
-  font-size:10px;
-  font-weight:500;
-  letter-spacing:.19em;
-
-  color:rgba(35,31,27,.27);
-
+  font:500 10px -apple-system,BlinkMacSystemFont,sans-serif;
+  letter-spacing:.18em;
+  color:rgba(30,30,30,.25);
   pointer-events:none;
-
-  transition:opacity .4s;
-}
-
-#hint.hidden{
-  opacity:0;
-}
-
-@media(prefers-reduced-motion:reduce){
-  #timer{
-    transition-duration:1ms;
-  }
 }
 </style>
 </head>
 
 <body>
 
-<div id="app">
-
-  <div id="timer">
-    <canvas id="canvas"></canvas>
-  </div>
-
-  <div id="hint">
-    TAP TO TURN
-  </div>
-
+<div id="wrap">
+  <canvas id="c"></canvas>
 </div>
+
+<div id="hint">TAP TO TURN</div>
 
 <script>
 (() => {
 
-"use strict";
+const canvas = document.getElementById("c");
+const ctx = canvas.getContext("2d");
+const wrap = document.getElementById("wrap");
 
-/* =========================================================
-   ELEMENTS
-========================================================= */
+let W,H,dpr;
+let last=performance.now();
 
-const timer =
-  document.getElementById("timer");
+let drops=[];
+let landed=[];
 
-const canvas =
-  document.getElementById("canvas");
+let spawnTimer=.3;
+let remaining=1;
+let flip=false;
+let locked=false;
+let time=0;
 
-const hint =
-  document.getElementById("hint");
-
-const ctx =
-  canvas.getContext("2d");
-
-
-/* =========================================================
-   CANVAS
-========================================================= */
-
-let W = 0;
-let H = 0;
-let DPR = 1;
-
-
-/* =========================================================
-   CONSTANTS
-========================================================= */
-
-const OIL = {
-
-  light : [255, 177, 79],
-  main  : [242, 113, 25],
-  deep  : [205, 64, 11]
-
-};
-
-const DROP_INTERVAL_MIN = 1.05;
-const DROP_INTERVAL_MAX = 1.65;
-
-const GRAVITY = 105;
-
-const DRAG = 0.985;
-
-
-/* =========================================================
-   STATE
-========================================================= */
-
-let flipped = false;
-let turning = false;
-
-let topAmount = 1;
-let bottomAmount = 0;
-
-let forming = null;
-let drops = [];
-
-let nextDrop = 0;
-
-let lastTime = performance.now();
-
-let liquidTime = 0;
-
-
-/* =========================================================
-   HELPERS
-========================================================= */
-
-function clamp(v,a,b){
-  return Math.max(a,Math.min(b,v));
-}
-
-function lerp(a,b,t){
-  return a+(b-a)*t;
-}
-
-function easeOut(t){
-  return 1-Math.pow(1-t,3);
-}
+const COLORS=[
+  {
+    main:[238,57,142],
+    light:[255,128,190],
+    dark:[190,23,105]
+  },
+  {
+    main:[37,185,210],
+    light:[105,231,239],
+    dark:[7,125,163]
+  }
+];
 
 function rgba(c,a=1){
   return `rgba(${c[0]},${c[1]},${c[2]},${a})`;
 }
 
-function random(a,b){
+function rnd(a,b){
   return a+Math.random()*(b-a);
 }
 
-
-/* =========================================================
-   RESIZE
-========================================================= */
-
 function resize(){
+  const r=canvas.getBoundingClientRect();
 
-  const r =
-    canvas.getBoundingClientRect();
+  W=r.width;
+  H=r.height;
 
-  W = r.width;
-  H = r.height;
+  dpr=Math.min(devicePixelRatio||1,2);
 
-  DPR =
-    Math.min(
-      window.devicePixelRatio || 1,
-      2
-    );
+  canvas.width=Math.round(W*dpr);
+  canvas.height=Math.round(H*dpr);
 
-  canvas.width =
-    Math.round(W*DPR);
-
-  canvas.height =
-    Math.round(H*DPR);
-
-  ctx.setTransform(
-    DPR,0,0,DPR,0,0
-  );
+  ctx.setTransform(dpr,0,0,dpr,0,0);
 }
 
-window.addEventListener(
-  "resize",
-  resize
-);
+function reset(){
+  drops=[];
+  landed=[];
+  spawnTimer=.25;
+  remaining=1;
+  time=0;
+}
 
+/* ---------- CASE ---------- */
 
-/* =========================================================
-   TIMER BODY
-========================================================= */
-
-function bodyPath(){
-
-  const x1 = W*.14;
-  const x2 = W*.86;
-
-  const y1 = H*.055;
-  const y2 = H*.945;
-
-  const r = W*.095;
+function casePath(){
 
   ctx.beginPath();
 
-  ctx.moveTo(x1+r,y1);
-
-  ctx.lineTo(x2-r,y1);
+  ctx.moveTo(W*.18,H*.035);
+  ctx.lineTo(W*.82,H*.035);
 
   ctx.quadraticCurveTo(
-    x2,y1,
-    x2,y1+r
+    W*.89,H*.035,
+    W*.89,H*.11
   );
 
-  ctx.lineTo(x2,y2-r);
-
-  ctx.quadraticCurveTo(
-    x2,y2,
-    x2-r,y2
+  ctx.bezierCurveTo(
+    W*.89,H*.27,
+    W*.82,H*.34,
+    W*.78,H*.39
   );
 
-  ctx.lineTo(x1+r,y2);
-
-  ctx.quadraticCurveTo(
-    x1,y2,
-    x1,y2-r
+  ctx.bezierCurveTo(
+    W*.73,H*.45,
+    W*.73,H*.55,
+    W*.78,H*.61
   );
 
-  ctx.lineTo(x1,y1+r);
+  ctx.bezierCurveTo(
+    W*.82,H*.66,
+    W*.89,H*.73,
+    W*.89,H*.89
+  );
 
   ctx.quadraticCurveTo(
-    x1,y1,
-    x1+r,y1
+    W*.89,H*.965,
+    W*.82,H*.965
+  );
+
+  ctx.lineTo(W*.18,H*.965);
+
+  ctx.quadraticCurveTo(
+    W*.11,H*.965,
+    W*.11,H*.89
+  );
+
+  ctx.bezierCurveTo(
+    W*.11,H*.73,
+    W*.18,H*.66,
+    W*.22,H*.61
+  );
+
+  ctx.bezierCurveTo(
+    W*.27,H*.55,
+    W*.27,H*.45,
+    W*.22,H*.39
+  );
+
+  ctx.bezierCurveTo(
+    W*.18,H*.34,
+    W*.11,H*.27,
+    W*.11,H*.11
+  );
+
+  ctx.quadraticCurveTo(
+    W*.11,H*.035,
+    W*.18,H*.035
   );
 
   ctx.closePath();
 }
 
-
-/* =========================================================
-   BACK GLASS
-========================================================= */
-
-function drawGlassBack(){
+function drawCaseBack(){
 
   ctx.save();
 
-  bodyPath();
+  casePath();
 
-  const g =
-    ctx.createLinearGradient(
-      W*.14,0,
-      W*.86,0
-    );
+  const g=ctx.createLinearGradient(0,0,W,0);
 
-  g.addColorStop(
-    0,
-    "rgba(183,204,210,.32)"
-  );
+  g.addColorStop(0,"rgba(170,195,205,.32)");
+  g.addColorStop(.08,"rgba(255,255,255,.72)");
+  g.addColorStop(.24,"rgba(220,240,245,.11)");
+  g.addColorStop(.72,"rgba(220,240,245,.08)");
+  g.addColorStop(.91,"rgba(255,255,255,.65)");
+  g.addColorStop(1,"rgba(160,190,200,.28)");
 
-  g.addColorStop(
-    .08,
-    "rgba(255,255,255,.58)"
-  );
-
-  g.addColorStop(
-    .24,
-    "rgba(255,255,255,.12)"
-  );
-
-  g.addColorStop(
-    .62,
-    "rgba(225,239,242,.07)"
-  );
-
-  g.addColorStop(
-    .88,
-    "rgba(255,255,255,.42)"
-  );
-
-  g.addColorStop(
-    1,
-    "rgba(170,193,200,.30)"
-  );
-
-  ctx.fillStyle = g;
+  ctx.fillStyle=g;
   ctx.fill();
 
   ctx.restore();
 }
 
-
-/* =========================================================
-   INTERNAL CHAMBER CLIP
-========================================================= */
-
-function chamberClip(){
-
-  ctx.beginPath();
-
-  ctx.roundRect(
-    W*.18,
-    H*.075,
-    W*.64,
-    H*.85,
-    W*.055
-  );
-
+function clipCase(){
+  casePath();
   ctx.clip();
 }
 
+/* ---------- TOP RESERVOIR ---------- */
 
-/* =========================================================
-   TOP RESERVOIR
-========================================================= */
-
-function drawTopReservoir(){
-
-  if(topAmount <= .001)
-    return;
+function drawTop(){
 
   ctx.save();
+  clipCase();
 
-  chamberClip();
+  const top=H*.07;
+  const bottom=H*.255;
 
-  const floor = H*.315;
-
-  const maxHeight = H*.205;
-
-  const surface =
-    floor -
-    maxHeight*topAmount;
-
-  const wave =
-    Math.sin(liquidTime*1.5)*1.4;
-
-  const g =
-    ctx.createLinearGradient(
-      0,
-      surface,
-      0,
-      floor
-    );
-
-  g.addColorStop(
-    0,
-    rgba(OIL.light,1)
-  );
-
-  g.addColorStop(
-    .22,
-    rgba(OIL.main,1)
-  );
-
-  g.addColorStop(
-    1,
-    rgba(OIL.deep,1)
-  );
-
-  ctx.fillStyle = g;
-
-  ctx.beginPath();
-
-  ctx.moveTo(
-    W*.18,
-    surface
-  );
-
-  ctx.bezierCurveTo(
-    W*.33,
-    surface-wave,
-
-    W*.66,
-    surface+wave,
-
-    W*.82,
-    surface
-  );
-
-  ctx.lineTo(
-    W*.82,
-    floor
-  );
-
-  ctx.lineTo(
-    W*.18,
-    floor
-  );
-
-  ctx.closePath();
-
-  ctx.fill();
-
-
-  /* subtle internal highlight */
-
-  ctx.fillStyle =
-    "rgba(255,255,255,.16)";
-
-  ctx.fillRect(
-    W*.225,
-    surface+7,
-    W*.025,
-    Math.max(
-      0,
-      floor-surface-14
-    )
-  );
-
-  ctx.restore();
-}
-
-
-/* =========================================================
-   FUNNEL
-========================================================= */
-
-function drawFunnel(){
-
-  const cx = W*.5;
-
-  const top = H*.305;
-  const bottom = H*.395;
-
-  ctx.save();
-
-  chamberClip();
-
-  const g =
-    ctx.createLinearGradient(
-      cx-W*.19,
-      top,
-      cx+W*.19,
-      bottom
-    );
-
-  g.addColorStop(
-    0,
-    rgba(OIL.light,1)
-  );
-
-  g.addColorStop(
-    .45,
-    rgba(OIL.main,1)
-  );
-
-  g.addColorStop(
-    1,
-    rgba(OIL.deep,1)
-  );
-
-  ctx.fillStyle = g;
-
-  ctx.beginPath();
-
-  ctx.moveTo(
-    cx-W*.25,
-    top
-  );
-
-  ctx.lineTo(
-    cx+W*.25,
-    top
-  );
-
-  ctx.bezierCurveTo(
-    cx+W*.16,
-    top+H*.025,
-
-    cx+W*.045,
-    bottom-H*.018,
-
-    cx+W*.017,
-    bottom
-  );
-
-  ctx.lineTo(
-    cx-W*.017,
-    bottom
-  );
-
-  ctx.bezierCurveTo(
-    cx-W*.045,
-    bottom-H*.018,
-
-    cx-W*.16,
-    top+H*.025,
-
-    cx-W*.25,
-    top
-  );
-
-  ctx.closePath();
-
-  ctx.fill();
-
-  ctx.restore();
-}
-
-
-/* =========================================================
-   DROP CREATION
-========================================================= */
-
-function beginDrop(){
-
-  if(
-    topAmount <= .015 ||
-    forming
-  ){
-    return;
-  }
-
-  forming = {
-
-    age:0,
-
-    duration:
-      random(.55,.78),
-
-    size:
-      random(
-        W*.052,
-        W*.068
-      )
-
-  };
-}
-
-
-function releaseDrop(){
-
-  if(!forming)
-    return;
-
-  const size =
-    forming.size;
-
-  drops.push({
-
-    x:
-      W*.5 +
-      random(-W*.008,W*.008),
-
-    y:
-      H*.405,
-
-    vx:
-      random(-2.4,2.4),
-
-    vy:
-      random(8,13),
-
-    r:size,
-
-    age:0,
-
-    phase:
-      random(0,Math.PI*2),
-
-    rotation:
-      random(-.08,.08)
-
-  });
-
-  const volume =
-    random(.034,.045);
-
-  topAmount =
-    Math.max(
-      0,
-      topAmount-volume
-    );
-
-  forming = null;
-
-  nextDrop =
-    random(
-      DROP_INTERVAL_MIN,
-      DROP_INTERVAL_MAX
-    );
-}
-
-
-/* =========================================================
-   FORMING DROP
-========================================================= */
-
-function updateForming(dt){
-
-  if(!forming)
-    return;
-
-  forming.age += dt;
-
-  if(
-    forming.age >=
-    forming.duration
-  ){
-    releaseDrop();
-  }
-}
-
-
-function drawForming(){
-
-  if(!forming)
-    return;
-
-  const t =
-    clamp(
-      forming.age /
-      forming.duration,
-      0,
-      1
-    );
-
-  const e =
-    easeOut(t);
-
-  const cx = W*.5;
-
-  const neckY =
-    H*.391;
-
-  const r =
-    forming.size;
+  const surface=
+    bottom-(bottom-top)*remaining;
 
   /*
-    Early:
-    small bulge.
-
-    Late:
-    large heavy drop with a
-    narrowing neck.
+    BLUE lower layer
   */
 
-  const width =
-    r*
-    lerp(.30,1,e);
-
-  const length =
-    r*
-    lerp(.45,1.72,e);
-
-  const neck =
-    r*
-    lerp(.22,.075,t*t);
-
-  const bottom =
-    neckY+length;
-
-  const g =
-    ctx.createRadialGradient(
-      cx-width*.35,
-      neckY+length*.55,
-      width*.08,
-
-      cx,
-      neckY+length*.55,
-      width*1.25
-    );
-
-  g.addColorStop(
-    0,
-    rgba(OIL.light,1)
+  let g=ctx.createLinearGradient(
+    0,surface,
+    0,bottom
   );
 
-  g.addColorStop(
-    .30,
-    rgba(OIL.main,1)
-  );
+  g.addColorStop(0,rgba(COLORS[1].light,.93));
+  g.addColorStop(.4,rgba(COLORS[1].main,.94));
+  g.addColorStop(1,rgba(COLORS[1].dark,.96));
 
-  g.addColorStop(
-    1,
-    rgba(OIL.deep,1)
-  );
-
-  ctx.fillStyle = g;
+  ctx.fillStyle=g;
 
   ctx.beginPath();
 
-  ctx.moveTo(
-    cx-neck,
-    neckY
-  );
+  ctx.moveTo(W*.14,surface);
 
   ctx.bezierCurveTo(
-    cx-neck,
-    neckY+length*.18,
-
-    cx-width*.82,
-    neckY+length*.26,
-
-    cx-width,
-    neckY+length*.55
+    W*.32,surface-2,
+    W*.67,surface+2,
+    W*.86,surface
   );
 
-  ctx.bezierCurveTo(
-    cx-width*.95,
-    bottom-r*.12,
+  ctx.lineTo(W*.86,H*.22);
 
-    cx-width*.48,
-    bottom,
+  ctx.lineTo(W*.53,bottom);
 
-    cx,
-    bottom
-  );
+  ctx.lineTo(W*.47,bottom);
 
-  ctx.bezierCurveTo(
-    cx+width*.48,
-    bottom,
-
-    cx+width*.95,
-    bottom-r*.12,
-
-    cx+width,
-    neckY+length*.55
-  );
-
-  ctx.bezierCurveTo(
-    cx+width*.82,
-    neckY+length*.26,
-
-    cx+neck,
-    neckY+length*.18,
-
-    cx+neck,
-    neckY
-  );
+  ctx.lineTo(W*.14,H*.22);
 
   ctx.closePath();
 
   ctx.fill();
 
 
-  /* highlight */
+  /*
+    PINK upper translucent layer
+  */
 
-  ctx.beginPath();
+  if(remaining>.03){
 
-  ctx.ellipse(
-    cx-width*.32,
-    neckY+length*.57,
+    const py=
+      surface+Math.max(
+        5,
+        (bottom-surface)*.20
+      );
 
-    width*.17,
-    length*.10,
-
-    -.45,
-    0,
-    Math.PI*2
-  );
-
-  ctx.fillStyle =
-    "rgba(255,255,255,.43)";
-
-  ctx.fill();
-}
-
-
-/* =========================================================
-   BOTTOM LIQUID
-========================================================= */
-
-function bottomSurface(){
-
-  const base =
-    H*.895;
-
-  const rise =
-    H*.245 *
-    Math.pow(
-      bottomAmount,
-      .82
+    const pg=ctx.createLinearGradient(
+      0,surface,
+      0,py+25
     );
 
-  return base-rise;
-}
-
-
-function drawBottomReservoir(){
-
-  if(bottomAmount <= .001)
-    return;
-
-  ctx.save();
-
-  chamberClip();
-
-  const surface =
-    bottomSurface();
-
-  const impact =
-    drops.some(
-      d =>
-        d.y >
-        surface-H*.08
-    );
-
-  const wavePower =
-    impact ? 4 : 1.3;
-
-  const wave =
-    Math.sin(
-      liquidTime*3.1
-    )*wavePower;
-
-  const g =
-    ctx.createLinearGradient(
+    pg.addColorStop(
       0,
-      surface,
-      0,
-      H*.91
+      rgba(COLORS[0].light,.82)
     );
 
-  g.addColorStop(
-    0,
-    rgba(OIL.light,1)
-  );
+    pg.addColorStop(
+      .45,
+      rgba(COLORS[0].main,.82)
+    );
 
-  g.addColorStop(
-    .16,
-    rgba(OIL.main,1)
-  );
+    pg.addColorStop(
+      1,
+      rgba(COLORS[0].dark,.76)
+    );
 
-  g.addColorStop(
-    1,
-    rgba(OIL.deep,1)
-  );
+    ctx.fillStyle=pg;
 
-  ctx.fillStyle = g;
+    ctx.beginPath();
 
-  ctx.beginPath();
+    ctx.moveTo(W*.14,surface);
 
-  ctx.moveTo(
-    W*.18,
-    H*.92
-  );
+    ctx.bezierCurveTo(
+      W*.35,surface+2,
+      W*.64,surface-2,
+      W*.86,surface
+    );
 
-  ctx.lineTo(
-    W*.82,
-    H*.92
-  );
+    ctx.lineTo(W*.86,py);
 
-  ctx.lineTo(
-    W*.82,
-    surface
-  );
+    ctx.bezierCurveTo(
+      W*.66,py+3,
+      W*.34,py-2,
+      W*.14,py
+    );
 
-  ctx.bezierCurveTo(
-    W*.68,
-    surface+wave,
+    ctx.closePath();
 
-    W*.59,
-    surface-wave*.8,
-
-    W*.50,
-    surface
-  );
-
-  ctx.bezierCurveTo(
-    W*.40,
-    surface+wave*.7,
-
-    W*.30,
-    surface-wave,
-
-    W*.18,
-    surface
-  );
-
-  ctx.closePath();
-
-  ctx.fill();
+    ctx.fill();
+  }
 
   ctx.restore();
 }
 
+/* ---------- NOZZLE ---------- */
 
-/* =========================================================
-   FALLING DROP PHYSICS
-========================================================= */
+function drawNozzle(){
+
+  const x=W*.5;
+  const y=H*.255;
+
+  ctx.fillStyle="rgba(210,225,228,.45)";
+
+  ctx.beginPath();
+
+  ctx.moveTo(x-W*.055,y-4);
+  ctx.lineTo(x+W*.055,y-4);
+  ctx.lineTo(x+W*.018,y+H*.035);
+  ctx.lineTo(x-W*.018,y+H*.035);
+
+  ctx.closePath();
+  ctx.fill();
+}
+
+/* ---------- DROPS ---------- */
+
+function spawn(){
+
+  if(remaining<=0)
+    return;
+
+  const color=
+    COLORS[
+      Math.random()<.5 ? 0 : 1
+    ];
+
+  drops.push({
+    x:W*.5+rnd(-2,2),
+    y:H*.294,
+
+    vx:rnd(-4,4),
+    vy:rnd(17,23),
+
+    r:rnd(W*.043,W*.061),
+
+    color,
+
+    phase:rnd(0,Math.PI*2),
+
+    age:0
+  });
+
+  remaining=Math.max(
+    0,
+    remaining-rnd(.032,.044)
+  );
+
+  spawnTimer=rnd(.65,1.05);
+}
+
+function bottomRampY(x){
+
+  const cx=W*.5;
+
+  const distance=
+    Math.abs(x-cx)/(W*.34);
+
+  return H*.82+
+    Math.min(1,distance)*
+    H*.055;
+}
 
 function updateDrops(dt){
 
-  const surface =
-    bottomSurface();
+  for(let i=drops.length-1;i>=0;i--){
 
-  for(
-    let i=drops.length-1;
-    i>=0;
-    i--
-  ){
+    const d=drops[i];
 
-    const d = drops[i];
-
-    d.age += dt;
+    d.age+=dt;
 
     /*
-      Gravity is deliberately mild:
-      the surrounding clear liquid
-      visually behaves as a viscous
-      medium.
+      Terminal-velocity-like movement.
+      The drop accelerates only gently.
     */
 
-    d.vy +=
-      GRAVITY*dt;
+    d.vy+=34*dt;
 
-    /*
-      Fluid resistance.
-    */
+    d.vy=Math.min(
+      d.vy,
+      43
+    );
 
-    d.vx *=
-      Math.pow(
-        DRAG,
-        dt*60
-      );
-
-    d.vy *=
-      Math.pow(
-        .993,
-        dt*60
-      );
-
-    /*
-      Small irregular drift.
-    */
-
-    d.vx +=
+    d.vx+=
       Math.sin(
-        d.age*2.1+
-        d.phase
-      )*
-      .75*
-      dt;
+        d.age*2.4+d.phase
+      )*.8*dt;
 
-    d.x +=
-      d.vx*dt;
+    d.vx*=.997;
 
-    d.y +=
-      d.vy*dt;
+    d.x+=d.vx*dt;
+    d.y+=d.vy*dt;
 
+    const left=W*.25+d.r;
+    const right=W*.75-d.r;
 
-    /*
-      Soft chamber boundaries.
-    */
-
-    const left =
-      W*.215+d.r;
-
-    const right =
-      W*.785-d.r;
-
-    if(d.x < left){
-
-      d.x = left;
-
-      d.vx =
-        Math.abs(d.vx)*.35;
+    if(d.x<left){
+      d.x=left;
+      d.vx=Math.abs(d.vx)*.3;
     }
 
-    if(d.x > right){
-
-      d.x = right;
-
-      d.vx =
-        -Math.abs(d.vx)*.35;
+    if(d.x>right){
+      d.x=right;
+      d.vx=-Math.abs(d.vx)*.3;
     }
 
+    const floor=bottomRampY(d.x);
 
-    /*
-      Merge into lower liquid.
-    */
+    if(d.y+d.r*.65>=floor){
 
-    if(
-      d.y+d.r*.72 >=
-      surface
-    ){
+      /*
+        Drops hitting the raised centre
+        are directed gently outward.
+      */
 
-      bottomAmount =
-        clamp(
-          bottomAmount+
-          random(.034,.045),
-          0,
-          1
-        );
+      const dir=
+        d.x<W*.5 ? -1 : 1;
+
+      landed.push({
+        x:d.x,
+        y:floor,
+        rx:d.r*1.20,
+        ry:d.r*.56,
+        color:d.color,
+        dir,
+        age:0
+      });
 
       drops.splice(i,1);
     }
   }
 }
 
+/* ---------- LANDED OIL ---------- */
 
-/* =========================================================
-   FALLING DROP DRAWING
-========================================================= */
+function updateLanded(dt){
 
-function drawDrops(){
+  for(const p of landed){
 
-  ctx.save();
-
-  chamberClip();
-
-  for(const d of drops){
+    p.age+=dt;
 
     /*
-      Shape changes continuously,
-      instead of remaining a circle.
+      Slowly slide away from centre,
+      as seen on the sloped receiver.
     */
 
-    const motion =
-      clamp(
-        d.vy/70,
-        0,
-        1
-      );
+    if(p.age<2.5){
 
-    const wobble =
-      Math.sin(
-        d.age*5+
-        d.phase
-      );
+      p.x+=p.dir*W*.022*dt;
 
-    const rx =
-      d.r*
-      (
-        1.04
-        -motion*.13
-        +wobble*.055
-      );
+      const target=
+        bottomRampY(p.x);
 
-    const ry =
-      d.r*
-      (
-        .94
-        +motion*.30
-        -wobble*.045
-      );
-
-    drawBlob(
-      d.x,
-      d.y,
-      rx,
-      ry,
-      d
-    );
+      p.y+=(target-p.y)*dt*3;
+    }
   }
 
-  ctx.restore();
+  if(landed.length>28){
+    landed.splice(0,1);
+  }
 }
 
+function oilGradient(x,y,r,color){
 
-function drawBlob(
-  x,y,rx,ry,d
-){
-
-  const wobble =
-    Math.sin(
-      d.age*4.2+
-      d.phase
-    );
-
-  const left =
-    rx*(1+wobble*.06);
-
-  const right =
-    rx*(1-wobble*.05);
-
-  const top =
-    ry*(1-wobble*.035);
-
-  const bottom =
-    ry*(1+wobble*.04);
-
-  const g =
-    ctx.createRadialGradient(
-      x-rx*.34,
-      y-ry*.36,
-      rx*.08,
-
-      x,
-      y,
-      Math.max(rx,ry)*1.12
-    );
-
-  g.addColorStop(
-    0,
-    rgba(OIL.light,1)
+  const g=ctx.createRadialGradient(
+    x-r*.30,
+    y-r*.32,
+    r*.06,
+    x,
+    y,
+    r*1.15
   );
 
   g.addColorStop(
-    .28,
-    rgba(OIL.main,1)
+    0,
+    rgba(color.light,.96)
+  );
+
+  g.addColorStop(
+    .30,
+    rgba(color.main,.93)
   );
 
   g.addColorStop(
     .82,
-    rgba(OIL.main,1)
+    rgba(color.main,.91)
   );
 
   g.addColorStop(
     1,
-    rgba(OIL.deep,1)
+    rgba(color.dark,.95)
   );
 
-  ctx.fillStyle = g;
+  return g;
+}
+
+function drawDrop(d){
+
+  const wobble=
+    Math.sin(d.age*5+d.phase);
+
+  /*
+    Real examples are usually broad,
+    coin-like blobs rather than long
+    teardrops.
+  */
+
+  const rx=
+    d.r*(1+wobble*.07);
+
+  const ry=
+    d.r*(.72-wobble*.04);
+
+  ctx.fillStyle=
+    oilGradient(
+      d.x,d.y,
+      d.r,
+      d.color
+    );
 
   ctx.beginPath();
 
-  ctx.moveTo(
-    x,
-    y-top
+  ctx.ellipse(
+    d.x,
+    d.y,
+    rx,
+    ry,
+    wobble*.06,
+    0,
+    Math.PI*2
   );
 
-  ctx.bezierCurveTo(
-    x+right*.63,
-    y-top*.88,
+  ctx.fill();
 
-    x+right,
-    y-ry*.38,
+  ctx.fillStyle=
+    "rgba(255,255,255,.38)";
 
-    x+right*.97,
-    y
+  ctx.beginPath();
+
+  ctx.ellipse(
+    d.x-rx*.28,
+    d.y-ry*.28,
+    rx*.18,
+    ry*.16,
+    -.3,
+    0,
+    Math.PI*2
   );
 
-  ctx.bezierCurveTo(
-    x+right,
-    y+bottom*.55,
+  ctx.fill();
+}
 
-    x+rx*.50,
-    y+bottom,
+function drawLanded(){
 
-    x,
-    y+bottom
+  for(const p of landed){
+
+    ctx.fillStyle=
+      oilGradient(
+        p.x,p.y,
+        p.rx,
+        p.color
+      );
+
+    ctx.beginPath();
+
+    ctx.ellipse(
+      p.x,
+      p.y,
+      p.rx,
+      p.ry,
+      0,
+      0,
+      Math.PI*2
+    );
+
+    ctx.fill();
+  }
+}
+
+/* ---------- LOWER RECEIVER ---------- */
+
+function drawReceiver(){
+
+  ctx.save();
+  clipCase();
+
+  /*
+    The characteristic raised central
+    floor visible in common bubblers.
+  */
+
+  const g=ctx.createLinearGradient(
+    0,H*.80,
+    0,H*.90
   );
 
-  ctx.bezierCurveTo(
-    x-left*.56,
-    y+bottom*.96,
-
-    x-left,
-    y+ry*.50,
-
-    x-left*.96,
-    y
+  g.addColorStop(
+    0,
+    "rgba(245,250,250,.72)"
   );
 
-  ctx.bezierCurveTo(
-    x-left,
-    y-ry*.42,
-
-    x-left*.55,
-    y-top*.92,
-
-    x,
-    y-top
+  g.addColorStop(
+    1,
+    "rgba(185,210,215,.40)"
   );
+
+  ctx.fillStyle=g;
+
+  ctx.beginPath();
+
+  ctx.moveTo(W*.15,H*.89);
+  ctx.lineTo(W*.42,H*.84);
+
+  ctx.quadraticCurveTo(
+    W*.5,H*.805,
+    W*.58,H*.84
+  );
+
+  ctx.lineTo(W*.85,H*.89);
+  ctx.lineTo(W*.85,H*.925);
+  ctx.lineTo(W*.15,H*.925);
 
   ctx.closePath();
 
   ctx.fill();
 
+  ctx.strokeStyle=
+    "rgba(130,165,175,.25)";
 
-  /*
-    Internal specular reflection.
-  */
+  ctx.lineWidth=1;
 
-  ctx.beginPath();
+  ctx.stroke();
 
-  ctx.ellipse(
-    x-rx*.30,
-    y-ry*.30,
-
-    rx*.19,
-    ry*.13,
-
-    -.45,
-    0,
-    Math.PI*2
-  );
-
-  ctx.fillStyle =
-    "rgba(255,255,255,.48)";
-
-  ctx.fill();
+  ctx.restore();
 }
 
-
-/* =========================================================
-   FRONT GLASS
-========================================================= */
+/* ---------- FRONT GLASS ---------- */
 
 function drawGlassFront(){
 
   ctx.save();
 
-  bodyPath();
+  casePath();
 
-  ctx.strokeStyle =
-    "rgba(78,96,102,.24)";
+  ctx.strokeStyle=
+    "rgba(92,118,125,.28)";
 
-  ctx.lineWidth = 1.5;
-
+  ctx.lineWidth=1.5;
   ctx.stroke();
 
   ctx.clip();
 
-
-  /*
-    Wide reflection.
-  */
-
-  const g =
-    ctx.createLinearGradient(
-      W*.16,0,
-      W*.46,0
-    );
+  const g=ctx.createLinearGradient(
+    W*.14,0,
+    W*.42,0
+  );
 
   g.addColorStop(
     0,
@@ -1286,12 +707,12 @@ function drawGlassFront(){
   );
 
   g.addColorStop(
-    .27,
-    "rgba(255,255,255,.42)"
+    .30,
+    "rgba(255,255,255,.52)"
   );
 
   g.addColorStop(
-    .45,
+    .46,
     "rgba(255,255,255,.13)"
   );
 
@@ -1300,285 +721,170 @@ function drawGlassFront(){
     "rgba(255,255,255,0)"
   );
 
-  ctx.fillStyle = g;
+  ctx.fillStyle=g;
 
   ctx.fillRect(
-    W*.13,
-    H*.07,
-    W*.38,
-    H*.86
+    W*.12,
+    H*.05,
+    W*.34,
+    H*.90
   );
-
-
-  /*
-    Narrow reflection.
-  */
-
-  ctx.strokeStyle =
-    "rgba(255,255,255,.63)";
-
-  ctx.lineWidth = 1.3;
-
-  ctx.beginPath();
-
-  ctx.moveTo(
-    W*.225,
-    H*.12
-  );
-
-  ctx.lineTo(
-    W*.225,
-    H*.86
-  );
-
-  ctx.stroke();
 
   ctx.restore();
 }
 
-
-/* =========================================================
-   END CAPS
-========================================================= */
+/* ---------- CAPS ---------- */
 
 function drawCaps(){
 
-  drawCap(H*.035);
-  drawCap(H*.925);
+  cap(H*.018);
+  cap(H*.942);
 }
 
+function cap(y){
 
-function drawCap(y){
-
-  const x = W*.10;
-  const w = W*.80;
-  const h = H*.040;
-
-  const g =
-    ctx.createLinearGradient(
-      x,0,
-      x+w,0
-    );
-
-  g.addColorStop(
-    0,
-    "#c7c3bc"
+  const g=ctx.createLinearGradient(
+    W*.08,0,
+    W*.92,0
   );
 
-  g.addColorStop(
-    .12,
-    "#f5f3ee"
-  );
+  g.addColorStop(0,"#d5d0c7");
+  g.addColorStop(.12,"#faf8f2");
+  g.addColorStop(.45,"#e7e2da");
+  g.addColorStop(.72,"#fffdf8");
+  g.addColorStop(1,"#c9c3b9");
 
-  g.addColorStop(
-    .36,
-    "#dedbd4"
-  );
-
-  g.addColorStop(
-    .57,
-    "#faf9f5"
-  );
-
-  g.addColorStop(
-    .82,
-    "#dad6cf"
-  );
-
-  g.addColorStop(
-    1,
-    "#bbb6ae"
-  );
-
-  ctx.fillStyle = g;
+  ctx.fillStyle=g;
 
   ctx.beginPath();
 
   ctx.roundRect(
-    x,
+    W*.08,
     y,
-    w,
-    h,
+    W*.84,
+    H*.043,
     7
   );
 
   ctx.fill();
 
-  ctx.strokeStyle =
-    "rgba(75,65,55,.16)";
-
-  ctx.lineWidth = 1;
+  ctx.strokeStyle=
+    "rgba(70,60,50,.12)";
 
   ctx.stroke();
 }
 
-
-/* =========================================================
-   UPDATE
-========================================================= */
+/* ---------- UPDATE ---------- */
 
 function update(dt){
 
-  liquidTime += dt;
+  time+=dt;
 
-  /*
-    New drop only starts after the
-    previous one has detached.
-  */
+  spawnTimer-=dt;
 
-  if(!forming){
-
-    nextDrop -= dt;
-
-    if(
-      nextDrop <= 0 &&
-      topAmount > .015
-    ){
-      beginDrop();
-    }
+  if(
+    spawnTimer<=0 &&
+    remaining>0
+  ){
+    spawn();
   }
 
-  updateForming(dt);
-
   updateDrops(dt);
+  updateLanded(dt);
 }
 
+/* ---------- DRAW ---------- */
 
-/* =========================================================
-   RENDER
-========================================================= */
+function draw(){
 
-function render(){
+  ctx.clearRect(0,0,W,H);
 
-  ctx.clearRect(
-    0,0,W,H
-  );
+  drawCaseBack();
 
-  drawGlassBack();
+  drawTop();
 
-  drawTopReservoir();
+  drawNozzle();
 
-  drawFunnel();
+  drawReceiver();
 
-  drawBottomReservoir();
+  ctx.save();
+  clipCase();
 
-  drawForming();
+  drawLanded();
 
-  drawDrops();
+  for(const d of drops){
+    drawDrop(d);
+  }
+
+  ctx.restore();
 
   drawGlassFront();
 
   drawCaps();
 }
 
-
-/* =========================================================
-   LOOP
-========================================================= */
+/* ---------- LOOP ---------- */
 
 function loop(now){
 
-  let dt =
-    (now-lastTime)/1000;
+  let dt=(now-last)/1000;
 
-  lastTime = now;
+  last=now;
 
-  /*
-    Avoid huge jumps after Safari
-    returns from background.
-  */
-
-  dt =
-    Math.min(
-      dt,
-      .033
-    );
+  dt=Math.min(dt,.033);
 
   update(dt);
-
-  render();
+  draw();
 
   requestAnimationFrame(loop);
 }
 
+/* ---------- FLIP ---------- */
 
-/* =========================================================
-   TURN TIMER
-========================================================= */
-
-function turnTimer(){
-
-  if(turning)
-    return;
-
-  turning = true;
-
-  hint.classList.add(
-    "hidden"
-  );
-
-  flipped = !flipped;
-
-  timer.classList.toggle(
-    "flipped",
-    flipped
-  );
-
-
-  /*
-    Reset near the midpoint of the
-    physical rotation so the full
-    reservoir appears at the new top.
-  */
-
-  setTimeout(
-    () => {
-
-      topAmount = 1;
-      bottomAmount = 0;
-
-      forming = null;
-      drops = [];
-
-      nextDrop = .45;
-
-      liquidTime = 0;
-
-    },
-    380
-  );
-
-
-  setTimeout(
-    () => {
-
-      turning = false;
-
-    },
-    780
-  );
-}
-
-
-timer.addEventListener(
+wrap.addEventListener(
   "pointerup",
-  turnTimer
+  ()=>{
+
+    if(locked)
+      return;
+
+    locked=true;
+
+    flip=!flip;
+
+    wrap.classList.toggle(
+      "flip",
+      flip
+    );
+
+    setTimeout(
+      reset,
+      350
+    );
+
+    setTimeout(
+      ()=>{
+        locked=false;
+      },
+      720
+    );
+  }
 );
 
-
-/* =========================================================
-   START
-========================================================= */
+/* ---------- START ---------- */
 
 resize();
 
-nextDrop = .35;
+window.addEventListener(
+  "resize",
+  resize
+);
+
+reset();
 
 requestAnimationFrame(
-  t => {
-
-    lastTime = t;
-
+  now=>{
+    last=now;
     requestAnimationFrame(loop);
   }
 );
